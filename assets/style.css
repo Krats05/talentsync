@@ -1,0 +1,155 @@
+body{
+    font-family: ui-sans-serif, system-ui;
+    background: white;
+    color: black;
+    margin: 0px;
+
+}
+
+/* Navbar part */
+.navbar{
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    border-bottom: 1px solid rgba(196, 190, 190, 0.442);
+}
+
+.nav-left{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-right{
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.logo{
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 20px;
+    color: #fff;
+    background: #2563eb; 
+}
+
+.brand{
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.nav-link{
+    font-size: 14px;
+    color: #111827;
+    opacity: 0.9;
+}
+
+.nav-link:hover{
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.5s ease;
+}
+
+.btn-white{
+    background: white;   
+    color: #111827;
+}
+
+.btn-white:hover{
+    background: #e5e7eb;
+}
+
+
+.btn-black{
+    background: #0f172a;
+    color: white;
+}
+
+.btn-black:hover{
+    background: #1e293b;
+}
+
+
+/* Footer part */
+.footer{
+    background: #0b1a2e;
+    color: white;
+    padding: 70px 0 30px;
+    margin-top: 100px;
+}
+
+.footer-container{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.footer-grid{
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 60px;
+}
+
+.footer-logo{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.footer-desc{
+    max-width: 260px;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+
+/* Footer Columns */
+.footer-col h4{
+    color: white;
+    margin-bottom: 16px;
+    font-size: 16px;
+}
+
+.footer-col a{
+    display: block;
+    margin-bottom: 12px;
+    color: #cbd5e1;
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-col a:hover{
+    color: white;
+}
+
+/* Copyright */
+.footer-copyright{
+    margin-top: 60px;
+    padding-top: 25px;
+    border-top: 1px solid rgb(255, 255, 255);
+    text-align: center;
+    font-size: 14px;
+    color: #94a3b8;
+}
