@@ -44,7 +44,7 @@
     </form>
 
     <p>
-        Already have an account?
+        Already have an account? log in here 
         <a href="login.php">Login</a>
     </p>
 
