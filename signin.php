@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>TalentSync Homepage</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/homepage.css">
+    <link rel="stylesheet" href="assets/auth.css">
 </head>
 
 <body>
