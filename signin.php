@@ -1,52 +1,96 @@
+<?php
+// Get role from URL (default = hiring)
+$role = $_GET['role'] ?? 'hiring';
+
+// Normalize role
+if ($role !== 'applicant') {
+    $role = 'hiring';
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>TalentSync Homepage</title>
+    <meta charset="UTF-8">
+    <title>Sign Up - TalentSync</title>
+
+    <!-- Main CSS -->
     <link rel="stylesheet" href="assets/style.css">
 </head>
 
 <body>
 
-<div class="auth-container">
+<div class="auth-overlay">
 
-    <h2>Create Account</h2>
+    <div class="auth-modal">
 
-    <form action="signup.php" method="POST">
+        <!-- Dynamic Title -->
+        <h2 class="auth-title">
+            <?php echo ($role === 'applicant')
+                ? "Job Applicant Sign Up"
+                : "Hiring Manager Sign Up"; ?>
+        </h2>
 
-        <div class="form-group">
-            <label>First Name</label>
-            <input type="text" name="first_name" placeholder="John" required>
+        <!-- Signup Form -->
+        <form action="signup.php?role=<?php echo $role; ?>" method="POST">
+
+            <!-- Hidden role field -->
+            <input type="hidden" name="role" value="<?php echo $role; ?>">
+
+            <div class="auth-row">
+                <div class="auth-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" placeholder="John" required>
+                </div>
+
+                <div class="auth-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" placeholder="Doe" required>
+                </div>
+            </div>
+
+            <div class="auth-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="auth-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Create a password" required>
+            </div>
+
+            <div class="auth-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" placeholder="Confirm your password" required>
+            </div>
+
+            <button type="submit" class="auth-button">
+                Sign Up
+            </button>
+
+        </form>
+
+        <!-- Switch Role -->
+        <div class="auth-switch">
+            <?php if ($role === 'hiring') : ?>
+                <p>Are you a job applicant?
+                    <a href="signup.php?role=applicant">Sign up here</a>
+                </p>
+            <?php else : ?>
+                <p>Are you a hiring manager?
+                    <a href="signup.php?role=hiring">Sign up here</a>
+                </p>
+            <?php endif; ?>
         </div>
 
-        <div class="form-group">
-            <label>Last Name</label>
-            <input type="text" name="last_name" placeholder="Doe" required>
+        <!-- Switch to Login -->
+        <div class="auth-switch">
+            <p>Already have an account?
+                <a href="login.php?role=<?php echo $role; ?>">Login</a>
+            </p>
         </div>
 
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" placeholder="manager@company.com" required>
-        </div>
-
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Create a password" required>
-        </div>
-
-        <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" name="confirm_password" placeholder="Confirm your password" required>
-        </div>
-
-        <button type="submit" class="btn btn-black">Sign Up</button>
-
-    </form>
-
-    <p>
-        Already have an account? log in here 
-        <a href="login.php">Login</a>
-    </p>
+    </div>
 
 </div>
 
