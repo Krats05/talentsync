@@ -6,7 +6,7 @@
     </div>
 
     <div class="nav-right">
-        <a href="#" class="btn btn-white">Login</a>
-        <a href="#" class="btn btn-black">Sign Up</a>
+    <a href="login.php?role=hiring" class="btn btn-white">Login</a>
+    <a href="signup.php?role=hiring" class="btn btn-black">Sign Up</a>
     </div>
 </header>
