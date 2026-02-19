@@ -15,7 +15,7 @@ if ($role !== 'applicant') {
     <title>Sign Up - TalentSync</title>
 
     <!-- Main CSS -->
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/auth.css">
 </head>
 
 <body>
