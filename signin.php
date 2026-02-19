@@ -75,11 +75,11 @@ if ($role !== 'applicant') {
         <div class="auth-switch">
             <?php if ($role === 'hiring') : ?>
                 <p>Are you a job applicant?
-                    <a href="signup.php?role=applicant">Sign up here</a>
+                    <a href="signin.php?role=applicant">Sign up here</a>
                 </p>
             <?php else : ?>
                 <p>Are you a hiring manager?
-                    <a href="signup.php?role=hiring">Sign up here</a>
+                    <a href="signin.php?role=hiring">Sign up here</a>
                 </p>
             <?php endif; ?>
         </div>
