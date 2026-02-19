@@ -13,9 +13,9 @@ if ($role !== 'applicant') {
 <head>
     <meta charset="UTF-8">
     <title>Login - TalentSync</title>
-
     <!-- Main CSS -->
     <link rel="stylesheet" href="assets/auth.css">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 
 <body>

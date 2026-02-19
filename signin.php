@@ -16,6 +16,7 @@ if ($role !== 'applicant') {
 
     <!-- Main CSS -->
     <link rel="stylesheet" href="assets/auth.css">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 
 <body>
