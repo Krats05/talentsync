@@ -1,31 +1,18 @@
-/* login */
+/* ============================= */
+/* AUTH PAGE (LOGIN & SIGNUP) */
+/* ============================= */
 
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to right, #0f172a, #1e293b);
-    height: 100vh;
-}
-
-/* Dark overlay */
-.overlay {
+.auth-overlay {
     width: 100%;
     height: 100vh;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
 
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Modal container */
-.modal {
+.auth-modal {
     background: #ffffff;
     width: 420px;
     padding: 40px;
@@ -33,43 +20,48 @@ body {
     box-shadow: 0 20px 50px rgba(0,0,0,0.3);
 }
 
-/* Header */
-.modal-header {
+.auth-title {
     text-align: center;
+    font-size: 28px;
+    font-weight: bold;
     margin-bottom: 25px;
 }
 
-.modal-header h2 {
-    font-size: 28px;
-    font-weight: bold;
+/* Row layout (for first + last name) */
+.auth-row {
+    display: flex;
+    gap: 16px;
 }
 
-/* Form groups */
-.form-group {
+.auth-row .auth-group {
+    flex: 1;
+}
+
+.auth-group {
     margin-bottom: 18px;
 }
 
-.form-group label {
+.auth-group label {
     display: block;
     margin-bottom: 6px;
     font-weight: 600;
 }
 
-.form-group input {
+.auth-group input {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
     border: 1px solid #ddd;
     font-size: 14px;
+    transition: 0.2s;
 }
 
-.form-group input:focus {
+.auth-group input:focus {
     border-color: #000;
     outline: none;
 }
 
-/* Button */
-.btn-primary {
+.auth-button {
     width: 100%;
     padding: 14px;
     background-color: #000;
@@ -79,21 +71,29 @@ body {
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    transition: 0.2s;
 }
 
-.btn-primary:hover {
+.auth-button:hover {
     background-color: #333;
 }
 
-/* Switch link */
-.switch-link {
+.auth-switch {
     margin-top: 18px;
     text-align: center;
     font-size: 14px;
 }
 
-.switch-link a {
+.auth-switch a {
     text-decoration: none;
-    color: #000;
     font-weight: bold;
+    color: #000;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .auth-row {
+        flex-direction: column;
+        gap: 0;
+    }
 }
