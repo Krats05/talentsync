@@ -11,6 +11,17 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 
 session_start();
+
+//Testing Codes
+//COMMENT THE FOLLOWING CODES WHEN DEPLOYING
+
+// $_SESSION['user_id'] = 1;
+// $_SESSION['role'] = 'HR_Manager';
+// $_SESSION['full_name'] = 'Test HR';
+
+//Testing End
+
+
 require_once __DIR__ . "/../config/db.php";
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
@@ -26,7 +37,7 @@ $role = $_SESSION['role'] ?? null;        // expected: hr / candidate / admin
 $fullName = $_SESSION['full_name'] ?? 'HR';
 
 // Authorization (dashboard is HR-facing)
-$allowedRoles = ['hr', 'admin'];
+$allowedRoles = ['Admin', 'HR_Manager', 'Recruiter'];
 if (!$role || !in_array($role, $allowedRoles, true)) {
     header("Location: ../login.php");
     exit;
@@ -192,8 +203,8 @@ if (file_exists($navbarPath)) include $navbarPath;
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn">Apply</button>
-                <a href="../create_job.php" class="btn btn-primary">+ Create Job</a>
+                <button type="submit" class="btn btn-white">Apply</button>
+                <a href="../create_job.php" class="btn btn-black">+ Create Job</a>
             </div>
         </form>
     </section>
@@ -237,10 +248,11 @@ if (file_exists($navbarPath)) include $navbarPath;
                 <span class="pagination-meta">Page <?php echo $page; ?> / <?php echo $totalPages; ?></span>
                 <div class="pagination-actions">
                     <?php if ($page > 1): ?>
-                        <a class="btn" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page - 1])); ?>">Prev</a>
+                        <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page - 1])); ?>">Prev</a>
                     <?php endif; ?>
+                    
                     <?php if ($page < $totalPages): ?>
-                        <a class="btn" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page + 1])); ?>">Next</a>
+                        <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page + 1])); ?>">Next</a>
                     <?php endif; ?>
                 </div>
             </nav>
