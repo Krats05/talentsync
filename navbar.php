@@ -1,3 +1,4 @@
+<!-- Top Navbar -->
 <header class="navbar">
     <div class="nav-left">
         <div class="logo">T</div>
