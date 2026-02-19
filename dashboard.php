@@ -15,20 +15,20 @@ session_start();
 //Testing Codes
 //COMMENT THE FOLLOWING CODES WHEN DEPLOYING
 
-// $_SESSION['user_id'] = 1;
-// $_SESSION['role'] = 'HR_Manager';
-// $_SESSION['full_name'] = 'Test HR';
+$_SESSION['user_id'] = 1;
+$_SESSION['role'] = 'HR_Manager';
+$_SESSION['full_name'] = 'Test HR';
 
 //Testing End
 
 
-require_once __DIR__ . "/../config/db.php";
+require_once __DIR__ . "/config/db.php";
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
 // Session guard
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -39,7 +39,7 @@ $fullName = $_SESSION['full_name'] ?? 'HR';
 // Authorization (dashboard is HR-facing)
 $allowedRoles = ['Admin', 'HR_Manager', 'Recruiter'];
 if (!$role || !in_array($role, $allowedRoles, true)) {
-    header("Location: ../login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -150,12 +150,12 @@ $baseQuery = ['status' => $status, 'q' => $q];
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HR Dashboard</title>
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
 <?php
-$navbarPath = __DIR__ . "/../includes/navbar.php";
+$navbarPath = __DIR__ . "/navbar.php";
 if (file_exists($navbarPath)) include $navbarPath;
 ?>
 
@@ -204,7 +204,7 @@ if (file_exists($navbarPath)) include $navbarPath;
 
             <div class="filter-actions">
                 <button type="submit" class="btn btn-white">Apply</button>
-                <a href="../create_job.php" class="btn btn-black">+ Create Job</a>
+                <a href="create_job.php" class="btn btn-black">+ Create Job</a>
             </div>
         </form>
     </section>
@@ -261,7 +261,7 @@ if (file_exists($navbarPath)) include $navbarPath;
 </main>
 
 <?php
-$footerPath = __DIR__ . "/../includes/footer.php";
+$footerPath = __DIR__ . "/footer.php";
 if (file_exists($footerPath)) include $footerPath;
 ?>
 
