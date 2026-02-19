@@ -59,7 +59,7 @@ if ($role !== 'applicant') {
                 <p>Are you a job applicant?
                     <a href="login.php?role=applicant">Login here</a>
                 </p>
-            <?php else : ?>
+            <?php else: ?>
                 <p>Are you a hiring manager?
                     <a href="login.php?role=hiring">Login here</a>
                 </p>
