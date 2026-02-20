@@ -32,7 +32,7 @@ if ($role !== 'applicant') {
         </h2>
 
         <!-- Login Form -->
-        <form action="login.php?role=<?php echo $role; ?>" method="POST">
+        <form action="api/auth_login.php" method="POST">
 
             <!-- Hidden role field -->
             <input type="hidden" name="role" value="<?php echo $role; ?>">
