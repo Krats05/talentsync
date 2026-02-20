@@ -30,13 +30,12 @@ if (!$user || !password_verify($password, $user["password_hash"])) {
   exit;
 }
 
-$_SESSION["user"] = [
-  "user_id" => (int)$user["user_id"],
-  "full_name" => $user["full_name"],
-  "email" => $user["email"],
-  "role" => $user["role"]
-];
+$_SESSION["user_id"] = (int)$user["user_id"];
+$_SESSION["full_name"] = $user["full_name"];
+$_SESSION["email"] = $user["email"];
+$_SESSION["role"] = $user["role"];
 
-echo json_encode(["ok"=>true,"user"=>$_SESSION["user"]]);
+header("Location: ../dashboard.php");
+exit;
 
 

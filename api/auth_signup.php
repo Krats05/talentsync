@@ -48,11 +48,10 @@ if (!$stmt->execute()) {
     exit;
 }
 
-$_SESSION["user"] = [
-    "user_id" => $conn->insert_id,
-    "full_name" => $full_name,
-    "email" => $email,
-    "role" => $role
-];
+$_SESSION["user_id"] = $conn->insert_id;
+$_SESSION["full_name"] = $full_name;
+$_SESSION["email"] = $email;
+$_SESSION["role"] = $role;
 
-echo json_encode(["ok" => true, "user" => $_SESSION["user"]]);
+header("Location: ../dashboard.php");
+exit;

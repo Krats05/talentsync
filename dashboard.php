@@ -15,9 +15,9 @@ session_start();
 //Testing Codes
 //COMMENT THE FOLLOWING CODES WHEN DEPLOYING
 
-$_SESSION['user_id'] = 1;
-$_SESSION['role'] = 'HR_Manager';
-$_SESSION['full_name'] = 'Test HR';
+// $_SESSION['user_id'] = 1;
+// $_SESSION['role'] = 'HR_Manager';
+// $_SESSION['full_name'] = 'Test HR';
 
 //Testing End
 

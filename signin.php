@@ -33,15 +33,22 @@ if ($role !== 'applicant') {
         </h2>
 
         <!-- Signup Form -->
-       <form action="api/auth_signup.php" method="POST">
+        <form action="signup.php?role=<?php echo $role; ?>" method="POST">
 
             <!-- Hidden role field -->
             <input type="hidden" name="role" value="<?php echo $role; ?>">
 
-         <div class="auth-group">
-    <label>Full Name</label>
-    <input type="text" name="full_name" placeholder="John Doe" required>
-</div>
+            <div class="auth-row">
+                <div class="auth-group">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" placeholder="John" required>
+                </div>
+
+                <div class="auth-group">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" placeholder="Doe" required>
+                </div>
+            </div>
 
             <div class="auth-group">
                 <label>Email</label>

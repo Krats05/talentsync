@@ -121,7 +121,7 @@ if ($jobIdParam > 0) {
 </head>
 <body>
 
-<?php include 'includes/navbar.php'; ?>
+<?php include 'navbar.php'; ?>
 
 <main class="container">
     <a href="dashboard.php" class="back-link">← Back to Dashboard</a>
@@ -246,7 +246,7 @@ if ($jobIdParam > 0) {
     </form>
 </main>
 
-<?php include 'includes/footer.php'; ?>
+<?php include 'footer.php'; ?>
 
 <script>
 $(document).ready(function() {
