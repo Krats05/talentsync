@@ -28,7 +28,7 @@
         </div>
 
         <div class="MainDes-right">
-            <img src="assets/img/placeholder.png" alt="placeholder">
+            <img src="assets/img/homepage_img.png" alt="homepage_img">
         </div>
     </section>
     
