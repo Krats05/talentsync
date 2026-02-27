@@ -2,8 +2,7 @@
 /**
  * dashboard.php — HR Dashboard
  * @author Vaishnavi Pushparaj Samani
- * 
- * Database: talentsync_db
+ * * Database: talentsync_db
  * Tables used: jobs, occupation_data, job_skills, users
  */
 
@@ -173,7 +172,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
         .badge-open   { background: #dcfce7; color: #166534; }
         .badge-closed { background: #fee2e2; color: #991b1b; }
 
-        .action-link { font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 600; }
+        .action-link { font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; }
         .action-link:hover { text-decoration: underline; }
 
         .pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; gap: 12px; }
@@ -201,9 +200,13 @@ $baseQuery = ['status' => $status, 'q' => $q];
         <p class="page-subtitle">Welcome back, <?php echo e($fullName); ?>.</p>
     </header>
 
-    <?php if (isset($_GET['success'])): ?>
+<?php if (isset($_GET['success'])): ?>
         <div class="flash flash-success">
-            <?php echo e($_GET['success'] === 'JobSaved' ? '✓ Job saved successfully.' : '✓ Job updated successfully.'); ?>
+            <?php 
+                if ($_GET['success'] === 'JobSaved') echo '✓ Job saved successfully.';
+                elseif ($_GET['success'] === 'JobDeleted') echo '✓ Job deleted successfully.';
+                else echo '✓ Action completed successfully.'; 
+            ?>
         </div>
     <?php endif; ?>
 
@@ -286,7 +289,16 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                 <td><span class="badge <?php echo $badgeClass; ?>"><?php echo e($j['status']); ?></span></td>
                                 <td><?php echo $j['skills_count']; ?></td>
                                 <td style="color:#64748b;font-size:13px;"><?php echo e($createdAt); ?></td>
-                                <td><a href="create_job.php?job_id=<?php echo $j['job_id']; ?>" class="action-link">Edit</a></td>
+                                
+                                <td style="display: flex; gap: 10px; align-items: center; border-bottom: none;">
+                                    <a href="create_job.php?job_id=<?php echo $j['job_id']; ?>" class="action-link">Edit</a>
+                                    <span style="color: #cbd5e1;">|</span>
+                                    <form action="api/delete_job.php" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this job? This cannot be undone.');">
+                                        <input type="hidden" name="job_id" value="<?php echo $j['job_id']; ?>">
+                                        <button type="submit" class="action-link" style="background: none; border: none; padding: 0; color: #ef4444; font-family: inherit;">Delete</button>
+                                    </form>
+                                </td>
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

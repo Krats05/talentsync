@@ -237,13 +237,25 @@ if ($jobIdParam > 0) {
             <p class="hint" style="margin-top:12px;">Draft jobs are visible only to HR.</p>
         </div>
 
-        <div class="form-actions">
+        <div class="form-actions" style="display: flex; gap: 12px; align-items: center; width: 100%;">
             <button type="submit" class="btn btn-primary">
                 <?php echo $editMode ? '💾 Save Changes' : '💾 Save Job'; ?>
             </button>
-            <a href="dashboard.php" class="btn">Cancel</a>
+            <a href="Dashboard.php" class="btn">Cancel</a>
+            
+            <?php if ($editMode): ?>
+                <button type="button" class="btn" style="color: #dc2626; border-color: #fca5a5; background: #fef2f2; margin-left: auto;" onclick="if(confirm('Are you sure you want to delete this job?')) { document.getElementById('delete-form').submit(); }">
+                    🗑 Delete Job
+                </button>
+            <?php endif; ?>
         </div>
     </form>
+
+    <?php if ($editMode): ?>
+    <form id="delete-form" action="api/delete_job.php" method="POST" style="display: none;">
+        <input type="hidden" name="job_id" value="<?php echo $editJob['job_id']; ?>">
+    </form>
+    <?php endif; ?>
 </main>
 
 <?php include 'includes/footer.php'; ?>
