@@ -2,10 +2,6 @@
 // api/get_skills.php
 require_once '../config/db.php';
 
-// 1. Turn on error reporting so it doesn't fail silently
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 header('Content-Type: application/json');
 
 // Get the O*NET SOC code from the URL
@@ -16,19 +12,27 @@ if (empty($soc_code)) {
     exit;
 }
 
-// Query the O*NET skills table. 
-$sql = "SELECT element_name FROM skills WHERE onetsoc_code = ? LIMIT 20";
+// UPDATE: We must JOIN the skills table with the content_model_reference table
+// to get the actual text names of the skills. We also filter by scale_id = 'IM' (Importance)
+// so we get the most relevant skills first.
+$sql = "
+    SELECT c.element_name 
+    FROM skills s
+    JOIN content_model_reference c ON s.element_id = c.element_id
+    WHERE s.onetsoc_code = ? AND s.scale_id = 'IM'
+    ORDER BY s.data_value DESC
+    LIMIT 20
+";
+
 $stmt = $conn->prepare($sql);
 
-// 2. CRITICAL FIX: Check if the SQL query actually worked before proceeding
+// Add error handling just in case the query fails
 if (!$stmt) {
-    // If it fails, send the exact database error back to the browser
-    echo json_encode(["error" => "SQL Error: " . $conn->error]);
+    echo json_encode(["error" => "Database Query Failed: " . $conn->error]);
     exit;
 }
 
 $stmt->bind_param("s", $soc_code);
-
 $stmt->execute();
 $result = $stmt->get_result();
 
