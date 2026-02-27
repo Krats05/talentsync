@@ -9,7 +9,7 @@
 <body>
 
     <!-- Top Navbar -->
-    <?php require_once 'navbar.php'; ?>
+    <?php require_once 'includes/navbar.php'; ?>
 
 
     <!-- Product Description -->
@@ -34,6 +34,6 @@
     
 
     <!-- Footer -->
-    <?php require_once 'footer.php'; ?>
+    <?php require_once 'includes/footer.php'; ?>
 </body>
 </html>
