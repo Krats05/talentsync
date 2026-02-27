@@ -23,6 +23,11 @@ if ($role !== 'applicant') {
 
 <div class="auth-overlay">
 
+    <div class="auth-brand">
+        <div class="logo">T</div>
+        <span class="brand-text">TalentSync</span>
+    </div>
+
     <div class="auth-modal">
 
         <!-- Dynamic Title -->
