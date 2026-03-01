@@ -2,9 +2,11 @@
 // api/get_skills.php
 require_once '../config/db.php';
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
 
-// Get the O*NET SOC code from the URL
 $soc_code = isset($_GET['soc_code']) ? $_GET['soc_code'] : '';
 
 if (empty($soc_code)) {
@@ -12,37 +14,48 @@ if (empty($soc_code)) {
     exit;
 }
 
-// UPDATE: We must JOIN the skills table with the content_model_reference table
-// to get the actual text names of the skills. We also filter by scale_id = 'IM' (Importance)
-// so we get the most relevant skills first.
-$sql = "
-    SELECT c.element_name 
-    FROM skills s
-    JOIN content_model_reference c ON s.element_id = c.element_id
-    WHERE s.onetsoc_code = ? AND s.scale_id = 'IM'
-    ORDER BY s.data_value DESC
-    LIMIT 20
-";
+// Prepare our final two-part response array
+$response = [
+    "tech_skills" => [],
+    "general_skills" => []
+];
 
-$stmt = $conn->prepare($sql);
+// 1. QUERY FOR TECHNOLOGY SKILLS (Strict "Hot & In Demand" filter)
+$sql_tech = "SELECT example AS element_name 
+             FROM technology_skills 
+             WHERE onetsoc_code = ? AND hot_technology = 'Y' AND in_demand = 'Y'
+             GROUP BY example LIMIT 15";
+$stmt_tech = $conn->prepare($sql_tech);
 
-// Add error handling just in case the query fails
-if (!$stmt) {
-    echo json_encode(["error" => "Database Query Failed: " . $conn->error]);
-    exit;
+if ($stmt_tech) {
+    $stmt_tech->bind_param("s", $soc_code);
+    $stmt_tech->execute();
+    $res_tech = $stmt_tech->get_result();
+    while ($row = $res_tech->fetch_assoc()) {
+        $response['tech_skills'][] = $row['element_name'];
+    }
+    $stmt_tech->close();
 }
 
-$stmt->bind_param("s", $soc_code);
-$stmt->execute();
-$result = $stmt->get_result();
+// 2. QUERY FOR GENERAL SKILLS
+$sql_gen = "SELECT c.element_name 
+            FROM skills s
+            JOIN content_model_reference c ON s.element_id = c.element_id
+            WHERE s.onetsoc_code = ? AND s.scale_id = 'IM'
+            ORDER BY s.data_value DESC LIMIT 15";
+$stmt_gen = $conn->prepare($sql_gen);
 
-$skills = [];
-while ($row = $result->fetch_assoc()) {
-    $skills[] = $row['element_name'];
+if ($stmt_gen) {
+    $stmt_gen->bind_param("s", $soc_code);
+    $stmt_gen->execute();
+    $res_gen = $stmt_gen->get_result();
+    while ($row = $res_gen->fetch_assoc()) {
+        $response['general_skills'][] = $row['element_name'];
+    }
+    $stmt_gen->close();
 }
 
-echo json_encode($skills);
-
-$stmt->close();
+// Send both arrays back to the frontend
+echo json_encode($response);
 $conn->close();
 ?>

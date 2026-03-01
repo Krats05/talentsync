@@ -1,8 +1,7 @@
 <?php
 /**
  * create_job.php — O*NET Job Profile Builder
- * @author Vaishnavi Pushparaj Samani
- * 
+ * @author Vaishnavi Pushparaj Samani, Kratika Patidar
  * Database: talentsync_db
  * Tables used: jobs, job_skills, occupation_data, skills
  */
@@ -12,13 +11,7 @@ require_once __DIR__ . '/config/db.php';
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// TEMPORARY: Bypass login for testing (remove when Lee finishes login.php)
-// ══════════════════════════════════════════════════════════════════════════════
-//$userId = 2;  // Hardcoded test user
-
-
-// ── Session guard (COMMENTED OUT FOR TESTING) ─────────────────────────────────
+// ── Session guard ─────────────────────────────────
 if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     $userId = (int)$_SESSION['user']['user_id'];
 } elseif (isset($_SESSION['user_id'])) {
@@ -28,11 +21,11 @@ if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     exit;
 }
 
-
 // ── Edit mode: load existing job ─────────────────────────────────────────────
 $editMode   = false;
 $editJob    = null;
-$editSkills = [];
+$editTechSkills = [];
+$editGeneralSkills = [];
 
 $jobIdParam = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
 if ($jobIdParam > 0) {
@@ -44,12 +37,18 @@ if ($jobIdParam > 0) {
         $editMode = true;
         $editJob  = $row;
         
-        // Load skills
-        $sk = $conn->prepare("SELECT skill_name, source FROM job_skills WHERE job_id = ?");
+        // Load skills and sort them by type
+        $sk = $conn->prepare("SELECT skill_name, source, skill_type FROM job_skills WHERE job_id = ?");
         $sk->bind_param('i', $jobIdParam);
         $sk->execute();
         $skRes = $sk->get_result();
-        while ($sr = $skRes->fetch_assoc()) $editSkills[] = $sr;
+        while ($sr = $skRes->fetch_assoc()) {
+            if (isset($sr['skill_type']) && $sr['skill_type'] === 'general') {
+                $editGeneralSkills[] = $sr;
+            } else {
+                $editTechSkills[] = $sr;
+            }
+        }
         $sk->close();
     }
     $stmt->close();
@@ -91,15 +90,15 @@ if ($jobIdParam > 0) {
         .select2-container--default .select2-selection--single .select2-selection__arrow { height: 42px; }
         .select2-container { width: 100% !important; }
 
-        #skills-container { min-height: 80px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .skills-container-box { min-height: 80px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
         .skill-tag { display: inline-flex; align-items: center; gap: 6px; background: #dbeafe; color: #1e40af; border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 500; }
         .skill-tag.user-defined { background: #fef9c3; color: #854d0e; }
         .skill-tag button { background: none; border: none; cursor: pointer; padding: 0; line-height: 1; font-size: 15px; color: inherit; opacity: .7; }
         .skill-tag button:hover { opacity: 1; }
 
         .skills-add-row { display: flex; gap: 10px; align-items: center; }
-        #custom-skill-input { flex: 1; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
-        #custom-skill-input:focus { border-color: #2563eb; }
+        #custom-tech-input, #custom-general-input { flex: 1; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+        #custom-tech-input:focus, #custom-general-input:focus { border-color: #2563eb; }
 
         .radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
         .radio-option { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; transition: border-color .2s; }
@@ -138,7 +137,6 @@ if ($jobIdParam > 0) {
             <input type="hidden" name="job_id" value="<?php echo $editJob['job_id']; ?>" />
         <?php endif; ?>
 
-        <!-- STEP 1: O*NET Search -->
         <div class="card">
             <h2 class="section-title">
                 <span class="step-badge">1</span>
@@ -160,7 +158,6 @@ if ($jobIdParam > 0) {
             </div>
         </div>
 
-        <!-- STEP 2: Job Details -->
         <div class="card">
             <h2 class="section-title">
                 <span class="step-badge">2</span>
@@ -180,14 +177,15 @@ if ($jobIdParam > 0) {
             </div>
         </div>
 
-        <!-- STEP 3: Skills -->
         <div class="card">
             <h2 class="section-title">
                 <span class="step-badge">3</span>
                 Required Skills
             </h2>
-            <div id="skills-container">
-                <?php foreach ($editSkills as $sk):
+            
+            <p class="form-label" style="color: #2563eb;">💻 Technology Skills</p>
+            <div id="tech-skills-container" class="skills-container-box">
+                <?php foreach ($editTechSkills as $sk):
                     $cls = ($sk['source'] === 'User_Defined') ? 'skill-tag user-defined' : 'skill-tag';
                 ?>
                     <span class="<?php echo $cls; ?>" data-skill="<?php echo e($sk['skill_name']); ?>">
@@ -196,27 +194,41 @@ if ($jobIdParam > 0) {
                     </span>
                 <?php endforeach; ?>
             </div>
+
+            <p class="form-label" style="color: #16a34a; margin-top: 20px;">🧠 General Skills</p>
+            <div id="general-skills-container" class="skills-container-box">
+                <?php foreach ($editGeneralSkills as $sk):
+                    $cls = ($sk['source'] === 'User_Defined') ? 'skill-tag user-defined' : 'skill-tag';
+                ?>
+                    <span class="<?php echo $cls; ?>" data-skill="<?php echo e($sk['skill_name']); ?>">
+                        <?php echo e($sk['skill_name']); ?>
+                        <button type="button" onclick="removeSkill(this)">×</button>
+                    </span>
+                <?php endforeach; ?>
+            </div>
+            
             <p class="hint" id="skills-hint">
-                <?php echo empty($editSkills) ? 'No skills yet. Select O*NET occupation or add custom skills.' : ''; ?>
+                <?php echo empty($editTechSkills) && empty($editGeneralSkills) ? 'No skills yet. Select O*NET occupation or add custom skills.' : ''; ?>
             </p>
 
             <div id="skills-hidden-inputs">
-                <?php foreach ($editSkills as $sk): ?>
-                    <input type="hidden" name="skills[]" value="<?php echo e($sk['skill_name']); ?>" />
-                <?php endforeach; ?>
-            </div>
+                </div>
 
             <hr class="divider" />
 
-            <p class="form-label">Add Custom Skill</p>
-            <div class="skills-add-row">
-                <input id="custom-skill-input" type="text" placeholder="e.g. React, AWS, Terraform…" />
-                <button type="button" class="btn btn-sm" onclick="addCustomSkill()">+ Add</button>
+            <p class="form-label" style="color: #2563eb;">Add Custom Tech Skill</p>
+            <div class="skills-add-row" style="margin-bottom: 15px;">
+                <input id="custom-tech-input" type="text" placeholder="e.g. React, AWS, Terraform…" class="form-control" style="height: 38px;" />
+                <button type="button" class="btn btn-sm" onclick="addCustomTechSkill()">+ Add Tech</button>
             </div>
-            <p class="hint">Custom tags fill gaps not covered by O*NET.</p>
+
+            <p class="form-label" style="color: #16a34a;">Add Custom General Skill</p>
+            <div class="skills-add-row">
+                <input id="custom-general-input" type="text" placeholder="e.g. Project Management, Agile…" class="form-control" style="height: 38px;" />
+                <button type="button" class="btn btn-sm" onclick="addCustomGeneralSkill()">+ Add General</button>
+            </div>
         </div>
 
-        <!-- STEP 4: Status -->
         <div class="card">
             <h2 class="section-title">
                 <span class="step-badge">4</span>
@@ -241,7 +253,7 @@ if ($jobIdParam > 0) {
             <button type="submit" class="btn btn-primary">
                 <?php echo $editMode ? '💾 Save Changes' : '💾 Save Job'; ?>
             </button>
-            <a href="Dashboard.php" class="btn">Cancel</a>
+            <a href="dashboard.php" class="btn">Cancel</a>
             
             <?php if ($editMode): ?>
                 <button type="button" class="btn" style="color: #dc2626; border-color: #fca5a5; background: #fef2f2; margin-left: auto;" onclick="if(confirm('Are you sure you want to delete this job?')) { document.getElementById('delete-form').submit(); }">
@@ -262,6 +274,9 @@ if ($jobIdParam > 0) {
 
 <script>
 $(document).ready(function() {
+    // Generate hidden inputs for any loaded edit skills right away
+    syncHiddenInputs();
+
     $('#onet-search').select2({
         placeholder: '— Type to search (e.g. "Software Developer") —',
         allowClear: true,
@@ -300,37 +315,60 @@ function fetchOnetSkills(socCode) {
 
     fetch('api/get_skills.php?soc_code=' + encodeURIComponent(socCode))
         .then(function(r) { return r.json(); })
-        .then(function(skills) {
+        .then(function(data) {
             loading.style.display = 'none';
+            // Clear both containers of O*NET skills
             document.querySelectorAll('.skill-tag:not(.user-defined)').forEach(function(t) { t.remove(); });
 
-            if (!Array.isArray(skills) || skills.length === 0) {
+            if (data.error) {
+                showHint('Backend Error: ' + data.error);
+                return;
+            }
+
+            if ((!data.tech_skills || data.tech_skills.length === 0) && (!data.general_skills || data.general_skills.length === 0)) {
                 showHint('No O*NET skills found. Add custom skills below.');
                 return;
             }
 
-            skills.forEach(function(skillName) {
-                addSkillTag(skillName, false);
-            });
+            // Populate Tech Skills
+            if (data.tech_skills) {
+                data.tech_skills.forEach(function(skillName) {
+                    addSkillTag(skillName, false, 'tech-skills-container');
+                });
+            }
+
+            // Populate General Skills
+            if (data.general_skills) {
+                data.general_skills.forEach(function(skillName) {
+                    addSkillTag(skillName, false, 'general-skills-container');
+                });
+            }
+
             showHint('');
             syncHiddenInputs();
         })
-        .catch(function() {
+        .catch(function(error) {
             loading.style.display = 'none';
-            showHint('Could not load skills. Check database connection.');
+            showHint('System error: Could not reach the API. Check console.');
+            console.error(error);
         });
 }
 
-function addSkillTag(skillName, isUserDefined) {
+function addSkillTag(skillName, isUserDefined, containerId) {
     skillName = skillName.trim();
     if (!skillName) return;
 
-    var existing = document.querySelectorAll('#skills-container .skill-tag');
+    var existing = document.querySelectorAll('.skills-container-box .skill-tag');
     for (var i = 0; i < existing.length; i++) {
         if (existing[i].dataset.skill.toLowerCase() === skillName.toLowerCase()) return;
     }
 
-    var container = document.getElementById('skills-container');
+    // Default to tech skills if no container is provided
+    if (!containerId) {
+        containerId = 'tech-skills-container';
+    }
+
+    var container = document.getElementById(containerId);
     var span = document.createElement('span');
     span.className = 'skill-tag' + (isUserDefined ? ' user-defined' : '');
     span.dataset.skill = skillName;
@@ -341,36 +379,65 @@ function addSkillTag(skillName, isUserDefined) {
 function removeSkill(btn) {
     btn.parentElement.remove();
     syncHiddenInputs();
-    var container = document.getElementById('skills-container');
-    if (container.querySelectorAll('.skill-tag').length === 0) {
+    var techContainer = document.getElementById('tech-skills-container');
+    var genContainer = document.getElementById('general-skills-container');
+    if (techContainer.querySelectorAll('.skill-tag').length === 0 && genContainer.querySelectorAll('.skill-tag').length === 0) {
         showHint('No skills added yet.');
     }
 }
 
-function addCustomSkill() {
-    var input = document.getElementById('custom-skill-input');
+function addCustomTechSkill() {
+    var input = document.getElementById('custom-tech-input');
     var val = input.value.trim();
     if (!val) return;
-    addSkillTag(val, true);
+    addSkillTag(val, true, 'tech-skills-container');
     input.value = '';
     showHint('');
     syncHiddenInputs();
 }
 
-document.getElementById('custom-skill-input').addEventListener('keydown', function(e) {
+function addCustomGeneralSkill() {
+    var input = document.getElementById('custom-general-input');
+    var val = input.value.trim();
+    if (!val) return;
+    addSkillTag(val, true, 'general-skills-container');
+    input.value = '';
+    showHint('');
+    syncHiddenInputs();
+}
+
+document.getElementById('custom-tech-input').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
-        addCustomSkill();
+        addCustomTechSkill();
+    }
+});
+
+document.getElementById('custom-general-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addCustomGeneralSkill();
     }
 });
 
 function syncHiddenInputs() {
     var hiddenDiv = document.getElementById('skills-hidden-inputs');
     hiddenDiv.innerHTML = '';
-    document.querySelectorAll('#skills-container .skill-tag').forEach(function(tag) {
+    
+    // Grab Tech Skills
+    document.querySelectorAll('#tech-skills-container .skill-tag').forEach(function(tag) {
         var inp = document.createElement('input');
         inp.type = 'hidden';
-        inp.name = 'skills[]';
+        inp.name = 'tech_skills[]';
+        inp.value = tag.dataset.skill;
+        hiddenDiv.appendChild(inp);
+    });
+
+    // Grab General Skills
+    document.querySelectorAll('#general-skills-container .skill-tag').forEach(function(tag) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'general_skills[]';
         inp.value = tag.dataset.skill;
         hiddenDiv.appendChild(inp);
     });
