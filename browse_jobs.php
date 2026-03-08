@@ -131,9 +131,12 @@ if (file_exists($navbarPath)) include $navbarPath;
                 <tbody>
                     <?php foreach ($jobs as $j): ?>
                         <tr>
+                            <td>
                             <a href="job_detail.php?id=<?php echo (int)$j['job_id']; ?>">
                             <?php echo e($j['job_title'] ?: '(Untitled)'); ?>
                             </a>
+                        </td>
+
                             <td><?php echo e($j['publisher_name'] ?: 'Unknown'); ?></td>
                             <td><?php echo e($j['status']); ?></td>
                             <td><?php echo e($j['onet_title'] ?: '-'); ?></td>
