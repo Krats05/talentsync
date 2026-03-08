@@ -34,7 +34,7 @@ if (!in_array($role, $allowed_roles, true)) {
 
         <!-- Dynamic Title -->
         <h2 class="auth-title">
-            <?php echo ($role === 'applicant')
+            <?php echo ($role === 'job_applicant')
                 ? "Job Applicant Sign Up"
                 : "Hiring Manager Sign Up"; ?>
         </h2>
