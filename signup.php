@@ -69,18 +69,18 @@ if ($role !== 'applicant') {
 
         </form>
 
-        <!-- Switch Role -->
+        <!-- Switch Role -->    
         <div class="auth-switch">
-            <?php if ($role === 'hiring') : ?>
+            <?php if ($role === 'HR_Manager') : ?>
                 <p>Are you a job applicant?
-                    <a href="signup.php?role=applicant">Sign up here</a>
-                </p>
+                    <a href="signup.php?role=job_applicant">Sign up here</a>
+            </p>
             <?php else : ?>
                 <p>Are you a hiring manager?
-                    <a href="signup.php?role=hiring">Sign up here</a>
+                    <a href="signup.php?role=HR_Manager">Sign up here</a>
                 </p>
-            <?php endif; ?>
-        </div>
+                <?php endif; ?>
+            </div>
 
         <!-- Switch to Login -->
         <div class="auth-switch">
