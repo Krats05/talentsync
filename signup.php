@@ -1,11 +1,13 @@
 <?php
-// Get role from URL (default = hiring)
+
 $role = $_GET['role'] ?? 'HR_Manager';
 
-// Normalize role
-if ($role !== 'job_applicant') {
+$allowed_roles = ['HR_Manager', 'job_applicant'];
+
+if (!in_array($role, $allowed_roles, true)) {
     $role = 'HR_Manager';
 }
+
 ?>
 
 <!DOCTYPE html>
