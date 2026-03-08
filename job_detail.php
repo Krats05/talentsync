@@ -13,6 +13,6 @@ $job = mysqli_fetch_assoc($result);
 <p><?php echo $job['description']; ?></p>
 <p>Location: <?php echo $job['location']; ?></p>
 
-<a href="apply_job.php?id=<?php echo $job['id']; ?>">
-    <button>Apply Now</button>
+<a href="apply_job.php?id=<?php echo (int)$job['job_id']; ?>" class="btn btn-black">
+    Apply Now
 </a>
