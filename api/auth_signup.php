@@ -64,6 +64,6 @@ if ($role === 'job_applicant') {
     header("Location: ../job_applicant_dashboard.php");
     exit;
 } else {
-    header("Location: ../dashboard.php");
+    header("Location: ../Dashboard_HR.php");
     exit;
 }
