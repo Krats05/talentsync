@@ -12,6 +12,7 @@ $email = strtolower(trim($_POST['email'] ?? ''));
 $password = $_POST['password'] ?? '';
 $role = trim($_POST['role'] ?? '');
 
+
 if ($full_name === '' || $email === '' || $password === '' || $role === '') {
     http_response_code(400); exit('Missing fields');
 }
