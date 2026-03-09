@@ -28,13 +28,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
         $delete_skills->execute();
         $delete_skills->close();
 
-        // 5. Finally, delete the job itself
+        // 5. Delete associated applications
+        $delete_apps = $conn->prepare("DELETE FROM applications WHERE job_id = ?");
+        $delete_apps->bind_param("i", $job_id);
+        $delete_apps->execute();
+        $delete_apps->close();
+
+        // 6. Finally, delete the job itself
         $delete_job = $conn->prepare("DELETE FROM jobs WHERE job_id = ?");
         $delete_job->bind_param("i", $job_id);
         
         if ($delete_job->execute()) {
             // Success! Send them back to the dashboard
-            header("Location: ../Dashboard_HR.php?success=JobDeleted");
+            header("Location: ../dashboard_hr.php?success=JobDeleted");
             exit;
         } else {
             echo "Error deleting job: " . $conn->error;
@@ -45,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
     }
     $stmt->close();
 } else {
-    header("Location: ../Dashboard_HR.php");
+    header("Location: ../dashboard_hr.php");
     exit;
 }
 $conn->close();

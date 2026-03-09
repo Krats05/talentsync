@@ -123,7 +123,7 @@ if ($jobIdParam > 0) {
 <?php include 'includes/navbar.php'; ?>
 
 <main class="container">
-    <a href="Dashboard_HR.php" class="back-link">← Back to Dashboard</a>
+    <a href="dashboard_hr.php" class="back-link">← Back to Dashboard</a>
 
     <header class="page-header">
         <h1 class="page-title"><?php echo $editMode ? 'Edit Job Profile' : 'Create Job Profile'; ?></h1>
@@ -253,7 +253,7 @@ if ($jobIdParam > 0) {
             <button type="submit" class="btn btn-primary">
                 <?php echo $editMode ? '💾 Save Changes' : '💾 Save Job'; ?>
             </button>
-            <a href="job_applicant_dashboard.php" class="btn">Cancel</a>
+            <a href="dashboard_hr.php" class="btn">Cancel</a>
             
             <?php if ($editMode): ?>
                 <button type="button" class="btn" style="color: #dc2626; border-color: #fca5a5; background: #fef2f2; margin-left: auto;" onclick="if(confirm('Are you sure you want to delete this job?')) { document.getElementById('delete-form').submit(); }">

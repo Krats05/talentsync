@@ -102,7 +102,8 @@ $stmt = $conn->prepare("
         j.created_at,
         j.onet_soc_code,
         od.title AS onet_title,
-        COALESCE(js.skills_count, 0) AS skills_count
+        COALESCE(js.skills_count, 0) AS skills_count,
+        COALESCE(ap.apps_count, 0) AS apps_count
     FROM jobs j
     LEFT JOIN occupation_data od ON od.onetsoc_code = j.onet_soc_code
     LEFT JOIN (
@@ -110,6 +111,11 @@ $stmt = $conn->prepare("
         FROM job_skills
         GROUP BY job_id
     ) js ON js.job_id = j.job_id
+    LEFT JOIN (
+        SELECT job_id, COUNT(*) AS apps_count
+        FROM applications
+        GROUP BY job_id
+    ) ap ON ap.job_id = j.job_id
     $whereSql
     ORDER BY j.created_at DESC
     LIMIT ? OFFSET ?
@@ -271,6 +277,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
                             <th>O*NET Occupation</th>
                             <th>Status</th>
                             <th>Skills</th>
+                            <th>Apps</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -288,6 +295,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                 <td style="color:#475569;"><?php echo e($j['onet_title'] ?: ($j['onet_soc_code'] ?: '—')); ?></td>
                                 <td><span class="badge <?php echo $badgeClass; ?>"><?php echo e($j['status']); ?></span></td>
                                 <td><?php echo $j['skills_count']; ?></td>
+                                <td><?php echo $j['apps_count']; ?></td>
                                 <td style="color:#64748b;font-size:13px;"><?php echo e($createdAt); ?></td>
                                 
                                 <td style="display: flex; gap: 10px; align-items: center; border-bottom: none;">
