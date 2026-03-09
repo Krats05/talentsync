@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // 5. Success! Redirect back to the dashboard
-    header("Location: ../dashboard.php?success=JobSaved");
+    header("Location: ../job_applicant_dashboard.php?success=JobSaved");
     exit;
 }
 

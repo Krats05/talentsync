@@ -199,7 +199,7 @@ if (file_exists($navbarPath)) include $navbarPath;
     <p>Welcome, <?php echo e($fullName); ?>.</p>
 
     <div style="margin: 12px 0;">
-        <a class="btn btn-white" href="/talentsync/dashboard.php">Back to Dashboard</a>
+        <a class="btn btn-white" href="/talentsync/Dashboard_HR.php">Back to Dashboard</a>
     </div>
 
     <section style="margin: 18px 0;">

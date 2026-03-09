@@ -12,12 +12,22 @@ $email = strtolower(trim($_POST['email'] ?? ''));
 $password = $_POST['password'] ?? '';
 $role = trim($_POST['role'] ?? '');
 
+
 if ($full_name === '' || $email === '' || $password === '' || $role === '') {
     http_response_code(400);
     exit('Missing fields');
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {// check duplicate email
+    $check = $conn->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1");
+    $check->bind_param("s", $email);
+    $check->execute();
+    $result = $check->get_result();
+    
+    if ($result && $result->num_rows > 0) {
+        http_response_code(409);
+        exit('Email already exists');
+    }
     http_response_code(400);
     exit('Invalid email');
 }
@@ -29,6 +39,7 @@ if (!in_array($role, $allowed_roles, true)) {
     http_response_code(400);
     exit('Invalid role');
 }
+
 
 // check duplicate email
 $check = $conn->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1");

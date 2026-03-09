@@ -1,10 +1,10 @@
 <?php
-// Get role from URL (default = hiring)
-$role = $_GET['role'] ?? 'hiring';
+$role = $_GET['role'] ?? 'HR_Manager';
 
-// Normalize role
-if ($role !== 'applicant') {
-    $role = 'hiring';
+$allowed_roles = ['HR_Manager', 'job_applicant'];
+
+if (!in_array($role, $allowed_roles, true)) {
+    $role = 'HR_Manager';
 }
 ?>
 
@@ -31,7 +31,7 @@ if ($role !== 'applicant') {
 
         <!-- Dynamic Title -->
         <h2 class="auth-title">
-            <?php echo ($role === 'applicant') 
+            <?php echo ($role === 'job_applicant') 
                 ? "Job Applicant Login" 
                 : "Hiring Manager Login"; ?>
         </h2>

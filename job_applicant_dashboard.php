@@ -20,9 +20,9 @@ if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     exit;
 }
 
-// Optional: restrict this page to applicants only
-if ($role !== 'job_seeker' && $role !== 'applicant' && $role !== 'candidate') {
-    header('Location: Dashboard.php');
+// Restrict page to job applicants
+if ($role !== 'job_applicant') {
+    header("Location: login.php");
     exit;
 }
 

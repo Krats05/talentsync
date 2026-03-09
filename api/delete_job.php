@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
         
         if ($delete_job->execute()) {
             // Success! Send them back to the dashboard
-            header("Location: ../Dashboard.php?success=JobDeleted");
+            header("Location: ../Dashboard_HR.php?success=JobDeleted");
             exit;
         } else {
             echo "Error deleting job: " . $conn->error;
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
     }
     $stmt->close();
 } else {
-    header("Location: ../Dashboard.php");
+    header("Location: ../Dashboard_HR.php");
     exit;
 }
 $conn->close();

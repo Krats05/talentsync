@@ -1,12 +1,10 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 session_start();
 require_once __DIR__ . '/../config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo json_encode(["ok"=>false,"error"=>"Method not allowed"]);
-  exit;
+  exit('Method not allowed');
 }
 
 $email = strtolower(trim($_POST['email'] ?? ''));
@@ -14,8 +12,7 @@ $password = $_POST['password'] ?? '';
 
 if ($email === '' || $password === '') {
   http_response_code(400);
-  echo json_encode(["ok"=>false,"error"=>"Missing email/password"]);
-  exit;
+  exit('Missing email/password');
 }
 
 $stmt = $conn->prepare("SELECT user_id, full_name, email, password_hash, role FROM users WHERE email = ? LIMIT 1");
@@ -26,8 +23,7 @@ $user = $res ? $res->fetch_assoc() : null;
 
 if (!$user || !password_verify($password, $user["password_hash"])) {
   http_response_code(401);
-  echo json_encode(["ok"=>false,"error"=>"Invalid credentials"]);
-  exit;
+  exit('Invalid credentials');
 }
 
 $_SESSION["user_id"] = (int)$user["user_id"];
@@ -35,7 +31,13 @@ $_SESSION["full_name"] = $user["full_name"];
 $_SESSION["email"] = $user["email"];
 $_SESSION["role"] = $user["role"];
 
-header("Location: ../dashboard.php");
-exit;
-
-
+if ($user["role"] === 'job_applicant') {
+  header("Location: ../job_applicant_dashboard.php");
+  exit;
+} elseif ($user["role"] === 'HR_Manager') {
+  header("Location: ../Dashboard_HR.php");
+  exit;
+} else {
+  header("Location: ../index.php");
+  exit;
+}
