@@ -1,99 +1,68 @@
 <?php
-
+// Default to HR_Manager if no role is specified
 $role = $_GET['role'] ?? 'HR_Manager';
 
-$allowed_roles = ['HR_Manager', 'job_applicant'];
+// Enforce strict allowed roles matching your database ENUM
+$allowed_roles = ['HR_Manager', 'Applicant'];
 
 if (!in_array($role, $allowed_roles, true)) {
     $role = 'HR_Manager';
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sign Up - TalentSync</title>
-
-    <!-- Main CSS -->
+    <title>Sign Up - TalentSync: O*NET-Integrated Recruitment System</title>
     <link rel="stylesheet" href="assets/auth.css">
     <link rel="stylesheet" href="assets/style.css">
 </head>
-
 <body>
-
 <div class="auth-overlay">
-
     <div class="auth-brand">
         <div class="logo">T</div>
         <span class="brand-text">TalentSync</span>
     </div>
-
     <div class="auth-modal">
-
-        <!-- Dynamic Title -->
         <h2 class="auth-title">
-            <?php echo ($role === 'applicant')
-                ? "Job Applicant Sign Up"
-                : "Hiring Manager Sign Up"; ?>
+            <?php echo ($role === 'Applicant') ? "Applicant Sign Up" : "HR Manager Sign Up"; ?>
         </h2>
 
-        <!-- Signup Form -->
        <form action="api/auth_signup.php" method="POST">
+            <input type="hidden" name="role" value="<?php echo htmlspecialchars($role); ?>">
 
-            <!-- Hidden role field -->
-            <input type="hidden" name="role" value="<?php echo $role; ?>">
-
-         <div class="auth-group">
-    <label>Full Name</label>
-    <input type="text" name="full_name" placeholder="John Doe" required>
-</div>
-
+            <div class="auth-group">
+                <label>Full Name</label>
+                <input type="text" name="full_name" required>
+            </div>
             <div class="auth-group">
                 <label>Email</label>
-                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="email" name="email" required>
             </div>
-
             <div class="auth-group">
                 <label>Password</label>
-                <input type="password" name="password" placeholder="Create a password" required>
+                <input type="password" name="password" required>
             </div>
-
             <div class="auth-group">
                 <label>Confirm Password</label>
-                <input type="password" name="confirm_password" placeholder="Confirm your password" required>
+                <input type="password" name="confirm_password" required>
             </div>
-
-            <button type="submit" class="auth-button">
-                Sign Up
-            </button>
-
+            <button type="submit" class="auth-button">Sign Up</button>
         </form>
 
-        <!-- Switch Role -->    
         <div class="auth-switch">
             <?php if ($role === 'HR_Manager') : ?>
-                <p>Are you a job applicant?
-                    <a href="signup.php?role=job_applicant">Sign up here</a>
-            </p>
+                <p>Are you an Applicant? <a href="signup.php?role=Applicant">Sign up here</a></p>
             <?php else : ?>
-                <p>Are you a hiring manager?
-                    <a href="signup.php?role=HR_Manager">Sign up here</a>
-                </p>
-                <?php endif; ?>
-            </div>
-
-        <!-- Switch to Login -->
-        <div class="auth-switch">
-            <p>Already have an account?
-                <a href="login.php?role=<?php echo $role; ?>">Login</a>
-            </p>
+                <p>Are you an HR Manager? <a href="signup.php?role=HR_Manager">Sign up here</a></p>
+            <?php endif; ?>
         </div>
 
+        <div class="auth-switch">
+            <p>Already have an account? <a href="login.php?role=<?php echo htmlspecialchars($role); ?>">Login</a></p>
+        </div>
     </div>
-
 </div>
-
 </body>
 </html>
