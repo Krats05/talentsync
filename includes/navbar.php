@@ -19,8 +19,8 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- If users are not Login -->
     <?php else: ?>
         <div class="nav-right">
-            <a href="login.php?role=hiring" class="Mbtn Mbtn-white">Login</a>
-            <a href="signup.php?role=hiring" class="Mbtn Mbtn-black">Sign Up</a>
+            <a href="login.php?role=HR_Manager" class="Mbtn Mbtn-white">Login</a>
+            <a href="signup.php?role=HR_Manager" class="Mbtn Mbtn-black">Sign Up</a>
         </div>
     <?php endif; ?>
 </header>
