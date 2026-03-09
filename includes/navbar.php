@@ -11,16 +11,14 @@ if (session_status() === PHP_SESSION_NONE) {
         <div class="logo">T</div>
         <span class="brand">TalentSync</span>
     </a>
-    <!-- If users are Login -->
     <?php if (isset($_SESSION['user_id'])): ?>
         <div class="nav-right">
             <a href="api/logout.php" class="Mbtn Mbtn-black">Log Out</a>
         </div>
-    <!-- If users are not Login -->
     <?php else: ?>
         <div class="nav-right">
-            <a href="login.php?role=HR_Manager" class="Mbtn Mbtn-white">Login</a>
-            <a href="signup.php?role=HR_Manager" class="Mbtn Mbtn-black">Sign Up</a>
+            <a href="login.php" class="Mbtn Mbtn-white">Login</a>
+            <a href="signup.php" class="Mbtn Mbtn-black">Sign Up</a>
         </div>
     <?php endif; ?>
 </header>
