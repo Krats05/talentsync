@@ -20,11 +20,20 @@ $response = [
     "general_skills" => []
 ];
 
-// 1. QUERY FOR TECHNOLOGY SKILLS (Strict "Hot & In Demand" filter)
-$sql_tech = "SELECT example AS element_name 
-             FROM technology_skills 
-             WHERE onetsoc_code = ? AND hot_technology = 'Y' AND in_demand = 'Y'
-             GROUP BY example LIMIT 15";
+// 1. QUERY FOR TECHNOLOGY SKILLS
+// Added by Kratika — ?all=1 loads ALL tech skills (Show More feature from Business Case §2.2.3)
+if (isset($_GET['all']) && $_GET['all'] == '1') {
+    $sql_tech = "SELECT example AS element_name
+                 FROM technology_skills
+                 WHERE onetsoc_code = ?
+                 GROUP BY example LIMIT 50";
+} else {
+    // Default: only Hot & In-Demand (Relevance Filter)
+    $sql_tech = "SELECT example AS element_name
+                 FROM technology_skills
+                 WHERE onetsoc_code = ? AND hot_technology = 'Y' AND in_demand = 'Y'
+                 GROUP BY example LIMIT 15";
+}
 $stmt_tech = $conn->prepare($sql_tech);
 
 if ($stmt_tech) {

@@ -113,6 +113,19 @@ if ($jobIdParam > 0) {
         .btn-sm { height: 34px; padding: 0 14px; font-size: 13px; }
 
         .onet-loading { font-size: 13px; color: #94a3b8; padding: 4px 0; display: none; }
+
+        /* Added by Kratika — Skill Picker Panel for "Show More" feature */
+        .skill-picker-panel { display: none; margin-top: 12px; padding: 16px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; }
+        .skill-picker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .skill-picker-title { font-size: 13px; font-weight: 600; color: #475569; }
+        .skill-picker-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #94a3b8; padding: 0 4px; }
+        .skill-picker-close:hover { color: #ef4444; }
+        .skill-picker-grid { display: flex; flex-wrap: wrap; gap: 6px; max-height: 240px; overflow-y: auto; padding: 4px 0; }
+        .skill-picker-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border: 1px solid #cbd5e1; border-radius: 999px; font-size: 12px; color: #475569; background: #fff; cursor: pointer; transition: all .2s; }
+        .skill-picker-chip:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+        .skill-picker-chip .plus-icon { font-weight: 700; color: #2563eb; }
+        .skill-picker-empty { font-size: 13px; color: #94a3b8; font-style: italic; }
+
         .divider { border: none; border-top: 1px solid #f1f5f9; margin: 20px 0; }
         .flash { padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; }
         .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
@@ -210,6 +223,24 @@ if ($jobIdParam > 0) {
             <p class="hint" id="skills-hint">
                 <?php echo empty($editTechSkills) && empty($editGeneralSkills) ? 'No skills yet. Select O*NET occupation or add custom skills.' : ''; ?>
             </p>
+
+            <!-- Added by Kratika — Show More O*NET Skills button (Business Case §2.2.3 Relevance Filter) -->
+            <button type="button" id="show-more-skills-btn" class="btn btn-sm"
+                    style="margin-top: 8px; font-size: 13px; display: none;"
+                    onclick="loadAllSkills()">
+                📋 Browse More O*NET Skills
+            </button>
+
+            <!-- Added by Kratika — Skill Picker Panel: browse & pick individual skills -->
+            <div id="skill-picker-panel" class="skill-picker-panel">
+                <div class="skill-picker-header">
+                    <span class="skill-picker-title">Click a skill to add it to your job profile:</span>
+                    <button type="button" class="skill-picker-close" onclick="closeSkillPicker()">&times;</button>
+                </div>
+                <div id="skill-picker-grid" class="skill-picker-grid">
+                    <!-- Chips populated by JS -->
+                </div>
+            </div>
 
             <div id="skills-hidden-inputs">
                 </div>
@@ -345,6 +376,9 @@ function fetchOnetSkills(socCode) {
             }
 
             showHint('');
+            // Added by Kratika — show "Show More" button after skills load
+            var showMoreBtn = document.getElementById('show-more-skills-btn');
+            if (showMoreBtn) showMoreBtn.style.display = 'inline-block';
             syncHiddenInputs();
         })
         .catch(function(error) {
@@ -352,6 +386,98 @@ function fetchOnetSkills(socCode) {
             showHint('System error: Could not reach the API. Check console.');
             console.error(error);
         });
+}
+
+// Added by Kratika — Browse & Pick additional O*NET skills (not just Hot Technologies)
+// Business Case §2.2.3: "Show More" expansion — opens picker panel, user clicks to add
+function loadAllSkills() {
+    var socCode = $('#onet-search').val();
+    if (!socCode) return;
+
+    var btn = document.getElementById('show-more-skills-btn');
+    var panel = document.getElementById('skill-picker-panel');
+    var grid = document.getElementById('skill-picker-grid');
+
+    // Toggle: if panel is already open, close it
+    if (panel.style.display === 'block') {
+        closeSkillPicker();
+        return;
+    }
+
+    btn.textContent = 'Loading...';
+    btn.disabled = true;
+
+    fetch('api/get_skills.php?soc_code=' + encodeURIComponent(socCode) + '&all=1')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            grid.innerHTML = '';
+
+            // Collect already-added skill names (lowercase) to filter them out
+            var existing = new Set();
+            document.querySelectorAll('.skills-container-box .skill-tag').forEach(function(tag) {
+                existing.add(tag.dataset.skill.toLowerCase());
+            });
+
+            var allSkills = [];
+            if (data.tech_skills) {
+                data.tech_skills.forEach(function(s) { allSkills.push({ name: s, type: 'tech' }); });
+            }
+            if (data.general_skills) {
+                data.general_skills.forEach(function(s) { allSkills.push({ name: s, type: 'general' }); });
+            }
+
+            // Only show skills NOT already added
+            var remaining = allSkills.filter(function(s) {
+                return !existing.has(s.name.toLowerCase());
+            });
+
+            if (remaining.length === 0) {
+                grid.innerHTML = '<span class="skill-picker-empty">All available skills are already added!</span>';
+            } else {
+                remaining.forEach(function(skill) {
+                    var chip = document.createElement('span');
+                    chip.className = 'skill-picker-chip';
+                    chip.dataset.skill = skill.name;
+                    chip.dataset.type = skill.type;
+                    chip.innerHTML = '<span class="plus-icon">+</span> ' + skill.name;
+                    chip.onclick = function() { pickSkill(this); };
+                    grid.appendChild(chip);
+                });
+            }
+
+            panel.style.display = 'block';
+            btn.textContent = '📋 Hide Skill Browser';
+            btn.disabled = false;
+        })
+        .catch(function(error) {
+            btn.textContent = '📋 Browse More O*NET Skills';
+            btn.disabled = false;
+            console.error(error);
+        });
+}
+
+// Added by Kratika — Pick a single skill from the browser panel
+function pickSkill(chip) {
+    var skillName = chip.dataset.skill;
+    var skillType = chip.dataset.type;
+    var containerId = (skillType === 'general') ? 'general-skills-container' : 'tech-skills-container';
+    addSkillTag(skillName, false, containerId);
+    syncHiddenInputs();
+    chip.remove();
+
+    // If no chips left, show empty message
+    var grid = document.getElementById('skill-picker-grid');
+    if (grid.querySelectorAll('.skill-picker-chip').length === 0) {
+        grid.innerHTML = '<span class="skill-picker-empty">All available skills are already added!</span>';
+    }
+}
+
+// Added by Kratika — Close the skill picker panel
+function closeSkillPicker() {
+    document.getElementById('skill-picker-panel').style.display = 'none';
+    var btn = document.getElementById('show-more-skills-btn');
+    btn.textContent = '📋 Browse More O*NET Skills';
+    btn.disabled = false;
 }
 
 function addSkillTag(skillName, isUserDefined, containerId) {

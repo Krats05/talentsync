@@ -62,6 +62,13 @@ $stmt = $conn->prepare("
 $stmt->bind_param("iissss", $job_id, $user_id, $full_name, $email, $phone, $cover_letter);
 
 if ($stmt->execute()) {
+    // Added by Kratika — Log initial stage in stage_history
+    $app_id = $conn->insert_id;
+    $sh = $conn->prepare("INSERT INTO stage_history (application_id, old_status, new_status, changed_by) VALUES (?, NULL, 'Pending', ?)");
+    $sh->bind_param("ii", $app_id, $user_id);
+    $sh->execute();
+    $sh->close();
+
     $stmt->close();
     $conn->close();
     header("Location: ../dashboard_applicant.php?success=ApplicationSubmitted");
