@@ -21,15 +21,38 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Create temp directory for new code
+            # Install git if not already installed
+            which git || sudo yum install -y git
+
+            # Backup db.php if it exists (it's not in git repo)
+            if [ -f /var/www/html/talentsync/config/db.php ]; then
+              cp /var/www/html/talentsync/config/db.php /tmp/db.php.bak
+              echo "db.php backed up"
+            else
+              echo "WARNING: No db.php found to backup"
+            fi
+
+            # Clean temp directory
             rm -rf /tmp/talentsync-deploy
 
             # Clone latest code from GitHub
             git clone --depth 1 https://github.com/Krats05/talentsync.git /tmp/talentsync-deploy
 
+            # Verify clone succeeded before deleting old site
+            if [ ! -d /tmp/talentsync-deploy ]; then
+              echo "ERROR: Git clone failed! Aborting deployment."
+              exit 1
+            fi
+
             # Copy to Apache web root
             sudo rm -rf /var/www/html/talentsync
             sudo cp -r /tmp/talentsync-deploy /var/www/html/talentsync
+
+            # Restore db.php from backup
+            if [ -f /tmp/db.php.bak ]; then
+              sudo cp /tmp/db.php.bak /var/www/html/talentsync/config/db.php
+              echo "db.php restored"
+            fi
 
             # Set correct permissions
             sudo chown -R apache:apache /var/www/html/talentsync
