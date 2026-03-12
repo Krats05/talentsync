@@ -101,7 +101,6 @@ if (file_exists($navbarPath)) include $navbarPath;
 
 <main class="footer-container">
     <h1>Browse Jobs</h1>
-    <p>Public job postings. No login required.</p>
 
     <section style="margin: 14px 0;">
         <form method="GET">
