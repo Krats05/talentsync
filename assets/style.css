@@ -6,7 +6,10 @@ body{
 
 }
 
+
+/* ------------------ */
 /* Navbar part */
+/* ------------------ */
 .navbar{
     height: 72px;
     display: flex;
@@ -90,7 +93,9 @@ body{
 }
 
 
+/* ------------------ */
 /* Footer part */
+/* ------------------ */
 .footer{
     background: #0b1a2e;
     color: white;
@@ -152,4 +157,41 @@ body{
     text-align: center;
     font-size: 14px;
     color: #94a3b8;
+}
+
+@media (max-width: 600px) {
+    .footer{
+        padding: 50px 0 24px;
+        margin-top: 60px;
+    }
+
+    .footer-container{
+        padding: 0 16px;
+    }
+
+    .footer-grid{
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .footer-desc{
+        max-width: 100%;
+        font-size: 14px;
+    }
+
+    .footer-col h4{
+        margin-bottom: 12px;
+        font-size: 15px;
+    }
+
+    .footer-col a{
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .footer-copyright{
+        margin-top: 36px;
+        padding-top: 18px;
+        font-size: 13px;
+    }
 }

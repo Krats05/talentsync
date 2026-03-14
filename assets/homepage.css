@@ -33,3 +33,32 @@
     object-fit: cover;
     border-radius: 18px;
 }
+
+
+/* Mobile */
+@media (max-width: 600px) {
+    .main-description{
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 0 16px;
+    }
+
+    .MainDes-left h1{
+        font-size: 30px;
+        line-height: 1.15;
+        margin-bottom: 18px;
+    }
+
+    .MainDes-left p{
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 100%;
+        margin-bottom: 24px;
+    }
+
+    .MainDes-right img{
+        margin-top: 0;
+        height: auto;
+        max-height: 320px;
+    }
+}
