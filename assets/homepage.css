@@ -35,6 +35,29 @@
 }
 
 
+.MainDes-left a.browse-btn,
+.MainDes-left a.browse-btn:visited{
+    display: inline-block;
+    background: #2563eb;
+    border: 2px solid #1d4ed8;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 16px;
+    border-radius: 16px;
+    padding: 14px 30px;
+    min-width: 190px;
+    text-align: center;
+    text-decoration: none;
+    line-height: 1;
+}
+
+
+.MainDes-left a.browse-btn:hover{
+    background: #1d4ed8;
+    border-color: #1e40af;
+}
+
+
 /* Mobile */
 @media (max-width: 600px) {
     .main-description{
@@ -60,5 +83,13 @@
         margin-top: 0;
         height: auto;
         max-height: 320px;
+    }
+
+    .MainDes-left a.browse-btn,
+    .MainDes-left a.browse-btn:visited{
+        width: 100%;
+        text-align: center;
+        padding: 14px 18px;
+        border-radius: 16px;
     }
 }

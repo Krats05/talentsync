@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TalentSync Homepage</title>
     <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/homepage.css">
+    <link rel="stylesheet" href="assets/homepage.css?v=2">
 </head>
 <body>
 
@@ -28,8 +28,7 @@
             </p>
 
             <div style="margin-top: 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <a href="browse_jobs.php" class="btn btn-black">Browse Jobs</a>
-                <a href="login.php" class="btn btn-white">HR Login</a>
+                <a href="browse_jobs.php" class="browse-btn">Browse Jobs</a>
             </div>
         </div>
 
