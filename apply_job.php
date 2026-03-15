@@ -1,24 +1,75 @@
 <?php
-include 'includes/navbar.php';
+session_start();
+require_once __DIR__ . "/config/db.php";
 
-$job_id = $_GET['id'];
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+function e($s) {
+    return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+}
+
+$job_id = max(0, (int)($_GET['id'] ?? 0));
+
+if ($job_id <= 0) {
+    die("Invalid job ID.");
+}
+
+$user_name = $_SESSION['full_name'] ?? '';
+$user_email = $_SESSION['email'] ?? '';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Job - TalentSync</title>
+    <link rel="stylesheet" href="/talentsync/assets/style.css">
+    <link rel="stylesheet" href="/talentsync/assets/auth.css">
+</head>
+<body>
 
-<h2>Apply for Job</h2>
+<?php include __DIR__ . '/includes/navbar.php'; ?>
 
-<form action="submit_application.php" method="POST" enctype="multipart/form-data">
+<main style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
+    <a href="job_detail.php?id=<?php echo (int)$job_id; ?>">← Back to Job</a>
 
-<input type="hidden" name="job_id" value="<?php echo $job_id; ?>">
+    <h2 style="margin-top: 20px;">Apply for Job</h2>
 
-<label>Name</label>
-<input type="text" name="name" required>
+    <form action="api/submit_application.php" method="POST" style="margin-top: 20px;">
+        <input type="hidden" name="job_id" value="<?php echo (int)$job_id; ?>">
 
-<label>Email</label>
-<input type="email" name="email" required>
+        <div style="margin-bottom: 16px;">
+            <label for="name">Name</label><br>
+            <input
+                id="name"
+                type="text"
+                name="name"
+                value="<?php echo e($user_name); ?>"
+                required
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
 
-<label>Upload Resume</label>
-<input type="file" name="resume" required>
+        <div style="margin-bottom: 16px;">
+            <label for="email">Email</label><br>
+            <input
+                id="email"
+                type="email"
+                name="email"
+                value="<?php echo e($user_email); ?>"
+                required
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
 
-<button type="submit">Submit Application</button>
+        <button type="submit" class="Mbtn Mbtn-black">Submit Application</button>
+    </form>
+</main>
 
-</form>
+<?php include __DIR__ . '/includes/footer.php'; ?>
+
+</body>
+</html>

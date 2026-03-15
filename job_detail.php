@@ -73,9 +73,11 @@ if (file_exists($navbarPath)) include $navbarPath;
     <h3>Description</h3>
     <p><?php echo nl2br(e($job['description'] ?? 'No description available.')); ?></p>
 
-    <a href="apply_job.php?id=<?php echo (int)$job['job_id']; ?>" class="Mbtn Mbtn-black">
-    Apply Now
-    </a>
+    <?php if (!isset($_SESSION['user_id'])): ?>
+    <a href="login.php" class="Mbtn Mbtn-black">Apply Now</a>
+    <?php else: ?>
+    <a href="apply_job.php?id=<?php echo (int)$job['job_id']; ?>" class="Mbtn Mbtn-black">Apply Now</a>
+    <?php endif; ?>
 </main>
 
 <?php
