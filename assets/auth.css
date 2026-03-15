@@ -1,22 +1,31 @@
 /* ============================= */
 /* AUTH PAGE (LOGIN & SIGNUP) */
 /* ============================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
 
 .auth-overlay {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background: rgba(0, 0, 0, 0.6);
 
     display: flex;
     flex-direction: column; /* Added this line! */
     justify-content: center;
     align-items: center;
+    padding: 16px;
 }
 
 .auth-modal {
     background: #ffffff;
-    width: 420px;
-    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
     border-radius: 16px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.3);
 }
@@ -53,7 +62,7 @@
     padding: 12px;
     border-radius: 8px;
     border: 1px solid #ddd;
-    font-size: 14px;
+    font-size: 16px;
     transition: 0.2s;
 }
 
@@ -92,10 +101,27 @@
 }
 
 /* Responsive */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .auth-row {
         flex-direction: column;
         gap: 0;
+    }
+    .auth-modal {
+        width: 100%;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .auth-brand .brand-text {
+        font-size: 28px;
+    }
+
+    .auth-row {
+        flex-direction: column;
+    }
+
+    .auth-group input {
+        font-size: 16px;
     }
 }
 /* ============================= */
