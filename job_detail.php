@@ -10,7 +10,7 @@ $job_id = max(0, (int)($_GET['id'] ?? 0));
 
 if ($job_id <= 0) {
     die("Invalid job ID.");
-}
+} 
 
 $stmt = $conn->prepare("
     SELECT
@@ -42,12 +42,22 @@ $stmt->close();
 if (!$job) {
     die("Job not found.");
 }
-?>
 
-<?php
 $navbarPath = __DIR__ . "/includes/navbar.php";
 if (file_exists($navbarPath)) include $navbarPath;
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo e($job['job_title']); ?> - TalentSync</title>
+
+    <link rel="stylesheet" href="/talentsync/assets/style.css">
+    <link rel="stylesheet" href="/talentsync/assets/auth.css">
+</head>
+<body>
 
 <main style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
     <a href="browse_jobs.php">← Back to Jobs</a>
@@ -63,8 +73,8 @@ if (file_exists($navbarPath)) include $navbarPath;
     <h3>Description</h3>
     <p><?php echo nl2br(e($job['description'] ?? 'No description available.')); ?></p>
 
-    <a href="apply_job.php?id=<?php echo (int)$job['job_id']; ?>" class="btn btn-black">
-        Apply Now
+    <a href="apply_job.php?id=<?php echo (int)$job['job_id']; ?>" class="Mbtn Mbtn-black">
+    Apply Now
     </a>
 </main>
 
@@ -72,3 +82,6 @@ if (file_exists($navbarPath)) include $navbarPath;
 $footerPath = __DIR__ . "/includes/footer.php";
 if (file_exists($footerPath)) include $footerPath;
 ?>
+
+</body>
+</html>
