@@ -26,6 +26,11 @@
             eliminate administrative delays, and support HR managers and hiring teams in 
             making accurate hiring decisions.
             </p>
+
+            <div style="margin-top: 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <a href="browse_jobs.php" class="btn btn-black">Browse Jobs</a>
+                <a href="login.php" class="btn btn-white">HR Login</a>
+            </div>
         </div>
 
         <div class="MainDes-right">
