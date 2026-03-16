@@ -1,4 +1,4 @@
-<<?php
+<?php
 
 session_start();
 
@@ -90,6 +90,7 @@ $baseQuery = ['q' => $q, 'status' => $status];
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Browse Jobs</title>
     <link rel="stylesheet" href="/talentsync/assets/style.css">
+    <link rel="stylesheet" href="/talentsync/assets/browse_jobs.css">
 </head>
 <body>
 
@@ -103,60 +104,60 @@ if (file_exists($navbarPath)) include $navbarPath;
     <h1>Browse Jobs</h1>
 
     <section style="margin: 14px 0;">
-        <form method="GET">
-            <label for="q">Search</label>
+        <form method="GET" class="search_box">
             <input id="q" type="text" name="q" value="<?php echo e($q); ?>" placeholder="job title / publisher / O*NET title" />
 
-            <button type="submit" class="btn btn-black" style="margin-left:10px;">Apply</button>
+            <button type="submit" class="Mbtn Mbtn-blue" style="margin-left:10px;">Apply</button>
         </form>
     </section>
 
     <section style="margin: 18px 0;">
         <h2>Results (<?php echo $totalRows; ?>)</h2>
-
-        <?php if (empty($jobs)): ?>
-            <p>No job posts found.</p>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Job Title</th>
-                        <th>Publisher</th>
-                        <th>Status</th>
-                        <th>O*NET Title</th>
-                        <th>Created</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($jobs as $j): ?>
+        <div class="table_wrapper">
+            <?php if (empty($jobs)): ?>
+                <p>No job posts found.</p>
+            <?php else: ?>
+                <table class="job_table">
+                    <thead>
                         <tr>
-                            <td>
-                            <a href="job_detail.php?id=<?php echo (int)$j['job_id']; ?>">
-                            <?php echo e($j['job_title'] ?: '(Untitled)'); ?>
-                            </a>
-                        </td>
-
-                            <td><?php echo e($j['publisher_name'] ?: 'Unknown'); ?></td>
-                            <td><?php echo e($j['status']); ?></td>
-                            <td><?php echo e($j['onet_title'] ?: '-'); ?></td>
-                            <td><?php echo e($j['created_at'] ?? '-'); ?></td>
+                            <th>Job Title</th>
+                            <th>Publisher</th>
+                            <th>Status</th>
+                            <th>O*NET Title</th>
+                            <th>Created</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($jobs as $j): ?>
+                            <tr>
+                                <td>
+                                <a href="job_detail.php?id=<?php echo (int)$j['job_id']; ?>">
+                                <?php echo e($j['job_title'] ?: '(Untitled)'); ?>
+                                </a>
+                            </td>
 
-            <div style="margin-top:12px;">
-                <span>Page <?php echo $page; ?> / <?php echo $totalPages; ?></span>
+                                <td><?php echo e($j['publisher_name'] ?: 'Unknown'); ?></td>
+                                <td><?php echo e($j['status']); ?></td>
+                                <td><?php echo e($j['onet_title'] ?: '-'); ?></td>
+                                <td><?php echo e($j['created_at'] ?? '-'); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
 
-                <?php if ($page > 1): ?>
-                    <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page - 1])); ?>">Prev</a>
-                <?php endif; ?>
+                <div style="margin-top:12px;">
+                    <span>Page <?php echo $page; ?> / <?php echo $totalPages; ?></span>
 
-                <?php if ($page < $totalPages): ?>
-                    <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page + 1])); ?>">Next</a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+                    <?php if ($page > 1): ?>
+                        <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page - 1])); ?>">Prev</a>
+                    <?php endif; ?>
+
+                    <?php if ($page < $totalPages): ?>
+                        <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page + 1])); ?>">Next</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </section>
 </main>
 

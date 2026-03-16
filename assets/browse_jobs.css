@@ -1,0 +1,53 @@
+.search_box input {
+  height: 42px;
+  width: 250px;
+  padding: 0 18px;
+  border: 2px solid black;
+  font-size: 14px;
+  border-radius: 25px;
+}
+
+.table_wrapper {
+  width: 100%;
+  overflow-x: auto; 
+}
+
+.job_table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.job_table thead th {
+  background-color: #f3f3f3;
+  color: #444;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 18px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.job_table tbody td {
+  font-size: 16px;
+  color: #222;
+  padding: 22px 20px;
+  border-bottom: 1px solid #e5e5e5;
+  vertical-align: middle;
+}
+
+.job_table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.job_table tbody td a {
+  color: #0d5bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.job_table tbody td a:hover {
+  text-decoration: underline;
+}
+
