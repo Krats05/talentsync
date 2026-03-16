@@ -152,7 +152,7 @@ if (file_exists($navbarPath)) include $navbarPath;
   <h1>HR Application Management</h1>
 
   <div style="margin: 12px 0;">
-    <a class="btn btn-white" href="/talentsync/dashboard.php">Back to Dashboard</a>
+    <a class="btn btn-white" href="/talentsync/dashboard_hr.php">Back to Dashboard</a>
   </div>
 
   <?php if ($pageError): ?>

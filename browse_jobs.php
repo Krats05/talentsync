@@ -14,6 +14,10 @@ $limit = 10;
 $offset = ($page - 1) * $limit;
 
 // Build filters
+$where = [];
+$types = '';
+$params = [];
+
 $where[] = "j.status = ?";
 $types .= "s";
 $params[] = "Open";
