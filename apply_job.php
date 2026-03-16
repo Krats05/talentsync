@@ -46,7 +46,7 @@ $user_email = $_SESSION['email'] ?? '';
             <input
                 id="name"
                 type="text"
-                name="name"
+                name="full_name"
                 value="<?php echo e($user_name); ?>"
                 required
                 style="width: 100%; padding: 10px;"

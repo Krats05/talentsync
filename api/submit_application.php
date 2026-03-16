@@ -24,7 +24,7 @@ $cover_letter = trim($_POST['cover_letter'] ?? '');
 
 // 3. Validate required fields
 if ($job_id <= 0 || $full_name === '' || $email === '') {
-    header("Location: ../apply_job.php?job_id=$job_id&error=MissingFields");
+    header("Location: ../apply_job.php?id=$job_id&error=MissingFields");
     exit;
 }
 
@@ -49,7 +49,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $stmt->close();
-    header("Location: ../apply_job.php?job_id=$job_id&error=AlreadyApplied");
+    header("Location: ../apply_job.php?id=$job_id&error=AlreadyApplied");
     exit;
 }
 $stmt->close();
@@ -76,7 +76,7 @@ if ($stmt->execute()) {
 } else {
     $stmt->close();
     $conn->close();
-    header("Location: ../apply_job.php?job_id=$job_id&error=SubmitFailed");
+    header("Location: ../apply_job.php?id=$job_id&error=SubmitFailed");
     exit;
 }
 ?>
