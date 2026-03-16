@@ -295,7 +295,13 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                 <td style="color:#475569;"><?php echo e($j['onet_title'] ?: ($j['onet_soc_code'] ?: '—')); ?></td>
                                 <td><span class="badge <?php echo $badgeClass; ?>"><?php echo e($j['status']); ?></span></td>
                                 <td><?php echo $j['skills_count']; ?></td>
-                                <td><?php echo $j['apps_count']; ?></td>
+                                <td>
+                                    <?php if ($j['apps_count'] > 0): ?>
+                                        <a href="job_applications.php?job_id=<?php echo $j['job_id']; ?>" class="action-link"><?php echo $j['apps_count']; ?> View</a>
+                                    <?php else: ?>
+                                        0
+                                    <?php endif; ?>
+                                </td>
                                 <td style="color:#64748b;font-size:13px;"><?php echo e($createdAt); ?></td>
                                 
                                 <td style="display: flex; gap: 10px; align-items: center; border-bottom: none;">
