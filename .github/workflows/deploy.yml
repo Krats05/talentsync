@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  deployments: write
+
 jobs:
   deploy:
     name: Deploy TalentSync to EC2
