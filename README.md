@@ -69,7 +69,7 @@ Our team has successfully delivered the complete hiring workflow — from job cr
 Our team followed an Agile/Scrum methodology across both sprints, with specific roles assigned to ensure successful delivery.
 
 ### **Sprint 1**
-* **Kratika Patidar (Project Lead):** Cloud Infrastructure (AWS RDS Setup & Migration), O*NET Integration (Search logic & Skill Tag generation), Backend Database Architecture
+* **Kratika Patidar:** Cloud Infrastructure (AWS RDS Setup & Migration), O*NET Integration (Search logic & Skill Tag generation), Backend Database Architecture
 * **Ozge Arslan:** Secure Authentication System (Login/Signup/Logout API logic), Session Management and User Security
 * **Qiushi Zhang:** Dashboard Statistics & Analytics, GitHub Repository Management and Version Control
 * **Yutong Jiang:** Frontend Lead (Global Stylesheet, Homepage Design, UI Assets, Navbar & Footer Components)
@@ -77,7 +77,7 @@ Our team followed an Agile/Scrum methodology across both sprints, with specific 
 * **Vaishnavi Samani:** HR Dashboard Module and UI Components
 
 ### **Sprint 2**
-* **Kratika Patidar (Project Lead):** AWS EC2 Deployment, CI/CD Pipeline (GitHub Actions), Submit Application Backend, Application Error Fixes, Dashboard Routing
+* **Kratika Patidar:** AWS EC2 Deployment, CI/CD Pipeline (GitHub Actions), Submit Application Backend, Application Error Fixes, Dashboard Routing
 * **Ozge Arslan:** Update Application Status API
 * **Qiushi Zhang:** Browse Jobs Page, Job Applications Page
 * **Yutong Jiang:** CSS Styling, Navbar & Footer Reusable Templates, Mobile Responsive Design
