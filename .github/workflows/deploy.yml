@@ -62,10 +62,10 @@ jobs:
 
             echo "Deployment complete!"
 
-    - name: Create GitHub Deployment
-      uses: chrnorm/deployment-action@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        environment: production
-        environment-url: http://13.59.20.157/talentsync/
-        initial-status: success
+      - name: Create GitHub Deployment
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: production
+          environment-url: http://13.59.20.157/talentsync/
+          initial-status: success
