@@ -61,3 +61,28 @@ textarea.form-control { height: auto; padding: 12px 14px; resize: vertical; }
 .divider { border: none; border-top: 1px solid #f1f5f9; margin: 20px 0; }
 .flash { padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; }
 .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container { padding: 24px 16px 60px; }
+    .card { padding: 20px; }
+    .page-title { font-size: 22px; }
+
+    .skills-add-row { flex-direction: column; }
+    #custom-tech-input, #custom-general-input { width: 100%; }
+
+    .radio-group { flex-direction: column; }
+    .radio-option { width: 100%; }
+
+    .form-actions { flex-direction: column; }
+    .form-actions .btn { width: 100%; }
+
+    .skill-picker-grid { max-height: 180px; }
+}
+
+@media (max-width: 480px) {
+    .container { padding: 16px 12px 40px; }
+    .card { padding: 16px; border-radius: 12px; }
+    .page-title { font-size: 20px; }
+    .section-title { font-size: 14px; }
+}

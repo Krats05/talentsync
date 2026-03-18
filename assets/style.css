@@ -169,6 +169,31 @@ body{
     color: #94a3b8;
 }
 
+/* Navbar Mobile */
+@media (max-width: 768px) {
+    .navbar {
+        height: auto;
+        flex-wrap: wrap;
+        padding: 12px 16px;
+        gap: 8px;
+    }
+
+    .nav-right {
+        gap: 10px;
+    }
+
+    .nav-link {
+        font-size: 13px;
+    }
+
+    .Mbtn {
+        height: 36px;
+        padding: 0 14px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+}
+
 @media (max-width: 600px) {
     .footer{
         padding: 50px 0 24px;

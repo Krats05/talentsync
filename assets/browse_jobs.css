@@ -51,3 +51,38 @@
   text-decoration: underline;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .search_box input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .job_table thead th {
+    font-size: 12px;
+    padding: 12px 10px;
+  }
+
+  .job_table tbody td {
+    font-size: 14px;
+    padding: 14px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search_box input {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .job_table thead th {
+    font-size: 11px;
+    padding: 10px 8px;
+  }
+
+  .job_table tbody td {
+    font-size: 13px;
+    padding: 12px 8px;
+  }
+}
+
