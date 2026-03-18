@@ -22,7 +22,7 @@ if (!$application_id || !$status || !$job_id) {
     exit();
 }
 
-$allowed = ['Pending','Reviewed','Shortlisted','Rejected'];
+$allowed = ['Pending','Interviewing','Offered','Rejected'];
 
 if (!in_array($status, $allowed)) {
     header("Location: ../job_applications.php?job_id=$job_id&error=InvalidStatus");

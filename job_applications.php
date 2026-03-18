@@ -37,9 +37,9 @@ if (!$userId || !$role || !in_array($role, $allowedRoles, true)) {
 // Inputs
 $jobId = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
 
-// Filter uses DB values, but only 3 statuses (Shortlisted ignored)
-$filterStatus = $_GET['status'] ?? 'All'; // All | Pending | Reviewed | Rejected
-$validFilterStatuses = ['All', 'Pending', 'Reviewed', 'Rejected'];
+// Filter by status
+$filterStatus = $_GET['status'] ?? 'All';
+$validFilterStatuses = ['All', 'Pending', 'Interviewing', 'Offered', 'Rejected'];
 if (!in_array($filterStatus, $validFilterStatuses, true)) $filterStatus = 'All';
 
 $success = $_GET['success'] ?? '';
@@ -58,26 +58,24 @@ const FG_GREEN  = '#166534';
 const BG_RED    = '#fee2e2';
 const FG_RED    = '#991b1b';
 
-// DB status -> UI label + colors (ONLY 3)
+// DB status -> UI label + colors
 function badge_for_db_status(string $dbStatus): array {
   switch ($dbStatus) {
     case 'Pending':
+      return ['label' => 'Pending', 'bg' => '#e5e7eb', 'fg' => '#111827'];
+    case 'Interviewing':
       return ['label' => 'Interviewing', 'bg' => BG_YELLOW, 'fg' => FG_YELLOW];
-    case 'Reviewed':
+    case 'Offered':
       return ['label' => 'Offered', 'bg' => BG_GREEN, 'fg' => FG_GREEN];
     case 'Rejected':
       return ['label' => 'Rejected', 'bg' => BG_RED, 'fg' => FG_RED];
     default:
-      // Shortlisted or anything unexpected is ignored by query; this is just a safe fallback
       return ['label' => $dbStatus, 'bg' => '#e5e7eb', 'fg' => '#111827'];
   }
 }
 
 // For dropdown/filter display: DB value -> human label
 function label_for_db_status(string $dbStatus): string {
-  if ($dbStatus === 'Pending') return 'Interviewing';
-  if ($dbStatus === 'Reviewed') return 'Offered';
-  if ($dbStatus === 'Rejected') return 'Rejected';
   return $dbStatus;
 }
 
@@ -106,11 +104,10 @@ if (!$pageError) {
 $applications = [];
 if (!$pageError) {
   if ($filterStatus === 'All') {
-    // show only Pending/Reviewed/Rejected
     $stmt = $conn->prepare("
       SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, status, applied_at, updated_at
       FROM applications
-      WHERE job_id = ? AND status IN ('Pending','Reviewed','Rejected')
+      WHERE job_id = ?
       ORDER BY applied_at DESC
     ");
     $stmt->bind_param("i", $jobId);
@@ -130,8 +127,8 @@ if (!$pageError) {
   $stmt->close();
 }
 
-// Dropdown options (DB values only; Shortlisted removed)
-$dbStatusOptions = ['Pending', 'Reviewed', 'Rejected'];
+// Dropdown options for status update
+$dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -182,8 +179,9 @@ if (file_exists($navbarPath)) include $navbarPath;
         <label for="status">Filter</label>
         <select id="status" name="status">
           <option value="All" <?php echo ($filterStatus === 'All') ? 'selected' : ''; ?>>All</option>
-          <option value="Pending" <?php echo ($filterStatus === 'Pending') ? 'selected' : ''; ?>>Interviewing</option>
-          <option value="Reviewed" <?php echo ($filterStatus === 'Reviewed') ? 'selected' : ''; ?>>Offered</option>
+          <option value="Pending" <?php echo ($filterStatus === 'Pending') ? 'selected' : ''; ?>>Pending</option>
+          <option value="Interviewing" <?php echo ($filterStatus === 'Interviewing') ? 'selected' : ''; ?>>Interviewing</option>
+          <option value="Offered" <?php echo ($filterStatus === 'Offered') ? 'selected' : ''; ?>>Offered</option>
           <option value="Rejected" <?php echo ($filterStatus === 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
         </select>
 
