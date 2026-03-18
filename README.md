@@ -20,7 +20,7 @@ Our team has successfully delivered the complete hiring workflow — from job cr
 ### **Tech Stack**
 - **Backend:** PHP 8.x
 - **Frontend:** HTML5, CSS3, JavaScript (ES6)
-- **Framework:** Bootstrap 5 (responsive UI)
+- **Styling:** Custom CSS with Flexbox/Grid, responsive media queries (mobile, tablet, desktop)
 - **Database Logic:** Complex SQL JOINs for O*NET skill mapping and AJAX for real-time occupation searching
 - **Deployment:** AWS EC2 + GitHub Actions CI/CD pipeline
 
@@ -74,7 +74,7 @@ Our team followed an Agile/Scrum methodology across both sprints, with specific 
 * **Qiushi Zhang:** Dashboard Statistics & Analytics, GitHub Repository Management and Version Control
 * **Yutong Jiang:** Frontend Lead (Global Stylesheet, Homepage Design, UI Assets, Navbar & Footer Components)
 * **Lee:** Login/Signup UI Pages
-* **Vaishnavi Samani:** HR Dashboard Module and UI Components
+* **Vaishnavi Samani:** HR Dashboard Module, Create Job Frontend Page, UI Components
 
 ### **Sprint 2**
 * **Kratika Patidar:** AWS EC2 Deployment, CI/CD Pipeline (GitHub Actions), Submit Application Backend, Application Error Fixes, Dashboard Routing
