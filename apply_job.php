@@ -3,11 +3,9 @@ session_start();
 require_once __DIR__ . "/config/db.php";
 
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
-    $_SESSION['full_name'] = 'Haiyi Li';
-    $_SESSION['email'] = 'test@example.com';
+    header("Location: login.php");
+    exit;
 }
-
 function e($s) {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
@@ -22,7 +20,7 @@ $user_name  = trim($_SESSION['full_name'] ?? '');
 $user_email = trim($_SESSION['email'] ?? '');
 $user_phone = trim($_SESSION['phone'] ?? '');
 
-// 把 full name 拆成 first / last name
+
 $name_parts = preg_split('/\s+/', $user_name, 2);
 $first_name = $name_parts[0] ?? '';
 $last_name  = $name_parts[1] ?? '';
