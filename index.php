@@ -17,7 +17,7 @@
     <section class="main-description">
         <div class="MainDes-left">
             <h1>
-            Practical Recruitment System<br />
+            O*NET-Integrated Recruitment System<br />
             For IT Companies
             </h1>
 

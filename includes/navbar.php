@@ -13,6 +13,13 @@ if (session_status() === PHP_SESSION_NONE) {
     </a>
     <?php if (isset($_SESSION['user_id'])): ?>
         <div class="nav-right">
+            <!-- Dashboard button -->
+            <?php if ($_SESSION["role"] == "Applicant"): ?>
+                <a href="dashboard_applicant.php" class="Mbtn Mbtn-white">Dashboard</a>
+            <?php else: ?>
+                <a href="dashboard_hr.php" class="Mbtn Mbtn-white">Dashboard</a>
+            <?php endif; ?>
+            <!-- log out button -->
             <a href="api/logout.php" class="Mbtn Mbtn-black">Log Out</a>
         </div>
     <?php else: ?>
