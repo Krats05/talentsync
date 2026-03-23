@@ -17,7 +17,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Applicant') {
 
 $user_id   = (int) $_SESSION['user_id'];
 $job_id    = isset($_POST['job_id']) ? (int) $_POST['job_id'] : 0;
-$full_name = trim($_POST['full_name'] ?? '');
+
+// Build full_name from first_name + last_name (form sends them separately)
+$first_name = trim($_POST['first_name'] ?? '');
+$last_name  = trim($_POST['last_name'] ?? '');
+$full_name  = trim($first_name . ' ' . $last_name);
+
+// Fallback: if form sends full_name directly
+if ($full_name === '' && isset($_POST['full_name'])) {
+    $full_name = trim($_POST['full_name']);
+}
+
 $email     = strtolower(trim($_POST['email'] ?? ''));
 $phone     = trim($_POST['phone'] ?? '');
 $cover_letter = trim($_POST['cover_letter'] ?? '');
