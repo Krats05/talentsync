@@ -172,6 +172,19 @@ $last_name  = $name_parts[1] ?? '';
         <a class="apply-back" href="job_detail.php?id=<?php echo (int)$job_id; ?>">← Back to Job</a>
 
         <h1 class="apply-title">Apply for this job</h1>
+
+        <?php if (isset($_GET['error'])): ?>
+            <div style="background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; font-size: 14px;">
+                <?php
+                    $err = $_GET['error'];
+                    if ($err === 'MissingFields') echo 'Please fill in all required fields.';
+                    elseif ($err === 'AlreadyApplied') echo 'You have already applied for this job.';
+                    elseif ($err === 'SubmitFailed') echo 'Something went wrong. Please try again.';
+                    else echo 'An error occurred.';
+                ?>
+            </div>
+        <?php endif; ?>
+
         <p class="apply-note"><span class="required-star">*</span> indicates a required field</p>
 
         <form action="api/submit_application.php" method="POST" class="apply-form">

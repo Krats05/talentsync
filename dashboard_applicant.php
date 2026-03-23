@@ -157,10 +157,16 @@ $stmt->close();
 <?php include 'includes/navbar.php'; ?>
 
 <main class="container">
-    <h1 class="page-title">Applicant Dashboard</h1>
-    <p class="page-subtitle">Welcome back, <?= e($fullName) ?>.</p>
+    <header class="page-header">
+        <h1 class="page-title">Applicant Dashboard</h1>
+        <p class="page-subtitle">Welcome back, <?= e($fullName) ?>.</p>
+    </header>
 
-    <div style="margin: 18px 0 28px;">
+    <?php if (isset($_GET['success']) && $_GET['success'] === 'ApplicationSubmitted'): ?>
+        <div class="flash flash-success">Your application has been submitted successfully!</div>
+    <?php endif; ?>
+
+    <div style="margin: 0 0 28px;">
         <a href="browse_jobs.php" class="btn btn-primary">Browse Jobs</a>
     </div>
 

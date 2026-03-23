@@ -135,142 +135,140 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Job Applications</title>
-  <link rel="stylesheet" href="/talentsync/assets/style.css">
+  <title>Job Applications - TalentSync</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/dashboard_hr.css">
+  <style>
+    .app-status-cell { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .status-select { height: 34px; padding: 0 8px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; cursor: pointer; outline: none; }
+    .status-select:focus { border-color: #2563eb; }
+    .cover-cell { max-width: 250px; font-size: 13px; color: #475569; line-height: 1.4; }
+    .cover-toggle { color: #2563eb; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: none; padding: 0; }
+    .job-info-bar { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+    .job-info-item { font-size: 13px; color: #64748b; }
+    .job-info-item strong { color: #374151; }
+  </style>
 </head>
 <body>
 
-<?php
-$navbarPath = __DIR__ . "/includes/navbar.php";
-if (file_exists($navbarPath)) include $navbarPath;
-?>
+<?php include __DIR__ . '/includes/navbar.php'; ?>
 
-<main class="footer-container">
-  <h1>HR Application Management</h1>
-
-  <div style="margin: 12px 0;">
-    <a class="btn btn-white" href="/talentsync/dashboard_hr.php">Back to Dashboard</a>
-  </div>
+<main class="container">
+  <header class="page-header">
+    <a href="dashboard_hr.php" style="font-size: 14px; color: #64748b; text-decoration: none;">&larr; Back to Dashboard</a>
+    <h1 class="page-title" style="margin-top: 12px;">
+      <?php echo e($pageError ? 'Applications' : ($job['job_title'] ?: 'Untitled Job')); ?>
+    </h1>
+  </header>
 
   <?php if ($pageError): ?>
-    <p><?php echo e($pageError); ?></p>
+    <section class="card">
+      <p class="muted"><?php echo e($pageError); ?></p>
+    </section>
   <?php else: ?>
 
     <?php if ($success === 'StatusUpdated'): ?>
-      <div style="margin: 12px 0;">
-        <span class="btn btn-white" style="cursor: default;">Status updated</span>
-      </div>
+      <div class="flash flash-success">Status updated successfully.</div>
     <?php endif; ?>
 
-    <section style="margin: 12px 0;">
-      <h2><?php echo e($job['job_title'] ?: 'Untitled Job'); ?></h2>
-      <p>
-        Job ID: <?php echo (int)$job['job_id']; ?> ·
-        Job Status: <?php echo e($job['status']); ?> ·
-        Created: <?php echo e($job['created_at'] ?? '-'); ?>
-      </p>
-    </section>
+    <section class="card" style="margin-bottom: 16px;">
+      <div class="job-info-bar">
+        <span class="job-info-item"><strong>Job ID:</strong> #<?php echo (int)$job['job_id']; ?></span>
+        <span class="job-info-item"><strong>Status:</strong> <?php echo e($job['status']); ?></span>
+        <span class="job-info-item"><strong>Created:</strong> <?php echo $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) : '-'; ?></span>
+        <span class="job-info-item"><strong>Applications:</strong> <?php echo count($applications); ?></span>
+      </div>
 
-    <!-- Filter (only 3 DB statuses + All) -->
-    <section style="margin: 18px 0;">
-      <form method="GET" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <form method="GET" class="filters-form">
         <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
-
-        <label for="status">Filter</label>
-        <select id="status" name="status">
-          <option value="All" <?php echo ($filterStatus === 'All') ? 'selected' : ''; ?>>All</option>
-          <option value="Pending" <?php echo ($filterStatus === 'Pending') ? 'selected' : ''; ?>>Pending</option>
-          <option value="Interviewing" <?php echo ($filterStatus === 'Interviewing') ? 'selected' : ''; ?>>Interviewing</option>
-          <option value="Offered" <?php echo ($filterStatus === 'Offered') ? 'selected' : ''; ?>>Offered</option>
-          <option value="Rejected" <?php echo ($filterStatus === 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
-        </select>
-
-        <button class="btn btn-black" type="submit">Apply</button>
+        <div class="filter-item" style="min-width: 140px; flex: 0;">
+          <label class="filter-label">Filter by Status</label>
+          <select name="status" class="filter-control">
+            <option value="All" <?php echo ($filterStatus === 'All') ? 'selected' : ''; ?>>All</option>
+            <option value="Pending" <?php echo ($filterStatus === 'Pending') ? 'selected' : ''; ?>>Pending</option>
+            <option value="Interviewing" <?php echo ($filterStatus === 'Interviewing') ? 'selected' : ''; ?>>Interviewing</option>
+            <option value="Offered" <?php echo ($filterStatus === 'Offered') ? 'selected' : ''; ?>>Offered</option>
+            <option value="Rejected" <?php echo ($filterStatus === 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button type="submit" class="btn">Apply</button>
+        </div>
       </form>
     </section>
 
-    <section style="margin: 18px 0;">
-      <h2>Applications (<?php echo count($applications); ?>)</h2>
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Applications (<?php echo count($applications); ?>)</h2>
+      </div>
 
       <?php if (empty($applications)): ?>
-        <p>No applications found for this filter.</p>
+        <p class="muted">No applications found for this filter.</p>
       <?php else: ?>
-        <table>
-          <thead>
-            <tr>
-              <th>Applicant Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th>Applied</th>
-              <th>Cover Letter</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($applications as $a): ?>
-              <?php
-                $dbStatus = (string)$a['status'];
-                $badge = badge_for_db_status($dbStatus);
-              ?>
+        <div class="table-wrap">
+          <table class="jobs-table">
+            <thead>
               <tr>
-                <td><?php echo e($a['full_name']); ?></td>
-                <td><?php echo e($a['email']); ?></td>
-                <td><?php echo e($a['phone'] ?? '-'); ?></td>
-
-                <td>
-                  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <!-- Colored badge -->
-                    <span style="
-                      display:inline-block;
-                      padding:6px 10px;
-                      border-radius:999px;
-                      background:<?php echo e($badge['bg']); ?>;
-                      color:<?php echo e($badge['fg']); ?>;
-                      font-weight:600;
-                      font-size:13px;
-                    ">
-                      <?php echo e($badge['label']); ?>
-                    </span>
-
-                    <!-- Inline dropdown (DB values only; Shortlisted ignored) -->
-                    <form method="POST" action="/talentsync/api/update_application_status.php">
-                      <input type="hidden" name="application_id" value="<?php echo (int)$a['application_id']; ?>">
-                      <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
-                      <input type="hidden" name="return_status" value="<?php echo e($filterStatus); ?>">
-
-                      <select name="status" data-autosubmit="1">
-                        <?php foreach ($dbStatusOptions as $opt): ?>
-                          <option value="<?php echo e($opt); ?>" <?php echo ($dbStatus === $opt) ? 'selected' : ''; ?>>
-                            <?php echo e(label_for_db_status($opt)); ?>
-                          </option>
-                        <?php endforeach; ?>
-                      </select>
-                    </form>
-                  </div>
-                </td>
-
-                <td><?php echo e($a['applied_at'] ?? '-'); ?></td>
-
-                <td>
-                  <?php
-                    $cl = trim((string)($a['cover_letter'] ?? ''));
-                    echo $cl === '' ? '-' : e($cl);
-                  ?>
-                </td>
+                <th>Applicant</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Applied</th>
+                <th>Cover Letter</th>
               </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php foreach ($applications as $a): ?>
+                <?php
+                  $dbStatus = (string)$a['status'];
+                  $badge = badge_for_db_status($dbStatus);
+                  $appliedDate = $a['applied_at'] ? date('M j, Y', strtotime($a['applied_at'])) : '-';
+                  $cl = trim((string)($a['cover_letter'] ?? ''));
+                  $clShort = ($cl !== '' && strlen($cl) > 80) ? substr($cl, 0, 80) . '...' : $cl;
+                ?>
+                <tr>
+                  <td style="font-weight: 600;"><?php echo e($a['full_name']); ?></td>
+                  <td style="color: #475569;"><?php echo e($a['email']); ?></td>
+                  <td style="color: #475569;"><?php echo e($a['phone'] ?? '-'); ?></td>
+                  <td>
+                    <div class="app-status-cell">
+                      <span class="badge" style="background:<?php echo e($badge['bg']); ?>; color:<?php echo e($badge['fg']); ?>;">
+                        <?php echo e($badge['label']); ?>
+                      </span>
+                      <form method="POST" action="api/update_application_status.php" style="margin:0;">
+                        <input type="hidden" name="application_id" value="<?php echo (int)$a['application_id']; ?>">
+                        <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
+                        <input type="hidden" name="return_status" value="<?php echo e($filterStatus); ?>">
+                        <select name="status" class="status-select" data-autosubmit="1">
+                          <?php foreach ($dbStatusOptions as $opt): ?>
+                            <option value="<?php echo e($opt); ?>" <?php echo ($dbStatus === $opt) ? 'selected' : ''; ?>>
+                              <?php echo e($opt); ?>
+                            </option>
+                          <?php endforeach; ?>
+                        </select>
+                      </form>
+                    </div>
+                  </td>
+                  <td style="color: #64748b; font-size: 13px;"><?php echo e($appliedDate); ?></td>
+                  <td class="cover-cell">
+                    <?php if ($cl === ''): ?>
+                      <span style="color: #94a3b8;">-</span>
+                    <?php else: ?>
+                      <span><?php echo e($clShort); ?></span>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
       <?php endif; ?>
     </section>
 
   <?php endif; ?>
 </main>
 
-<?php
-$footerPath = __DIR__ . "/includes/footer.php";
-if (file_exists($footerPath)) include $footerPath;
-?>
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 <script>
   document.querySelectorAll('select[data-autosubmit="1"]').forEach(function(sel) {

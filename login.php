@@ -17,6 +17,12 @@
         <h2 class="auth-title">Login</h2>
 
         <form action="api/auth_login.php" method="POST">
+            <?php
+                $redirect = $_GET['redirect'] ?? '';
+                if ($redirect !== ''):
+            ?>
+                <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8'); ?>">
+            <?php endif; ?>
             <div class="auth-group">
                 <label>Email</label>
                 <input type="email" name="email" required>

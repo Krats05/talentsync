@@ -37,7 +37,17 @@ $_SESSION["full_name"] = $user['full_name'];
 $_SESSION["email"] = $email;
 $_SESSION["role"] = $user['role'];
 
-// Match the exact string from your DB
+// Redirect to original page if provided, otherwise go to dashboard
+$redirect = trim($_POST['redirect'] ?? '');
+if ($redirect !== '') {
+    // Only allow relative redirects (prevent open redirect attacks)
+    $redirect = ltrim($redirect, '/');
+    if (!preg_match('/^https?:\/\//i', $redirect)) {
+        header("Location: ../" . $redirect);
+        exit;
+    }
+}
+
 if ($user['role'] === 'Applicant') {
     header("Location: ../dashboard_applicant.php");
 } else {

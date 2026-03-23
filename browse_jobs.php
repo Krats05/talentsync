@@ -92,83 +92,72 @@ $baseQuery = ['q' => $q, 'status' => $status];
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Browse Jobs</title>
-    <link rel="stylesheet" href="/talentsync/assets/style.css">
-    <link rel="stylesheet" href="/talentsync/assets/browse_jobs.css">
+    <title>Browse Jobs - TalentSync</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/browse_jobs.css">
 </head>
 <body>
 
-<?php
-// If your navbar/footer are in /talentsync/includes/
-$navbarPath = __DIR__ . "/includes/navbar.php";
-if (file_exists($navbarPath)) include $navbarPath;
-?>
+<?php include __DIR__ . '/includes/navbar.php'; ?>
 
-<main class="footer-container">
-    <h1>Browse Jobs</h1>
+<main class="container">
+    <header class="page-header">
+        <h1 class="page-title">Browse Jobs</h1>
+        <p class="page-subtitle"><?php echo $totalRows; ?> open position<?php echo $totalRows !== 1 ? 's' : ''; ?> available</p>
+    </header>
 
-    <section style="margin: 14px 0;">
-        <form method="GET" class="search_box">
-            <input id="q" type="text" name="q" value="<?php echo e($q); ?>" placeholder="job title / publisher / O*NET title" />
-
-            <button type="submit" class="Mbtn Mbtn-blue" style="margin-left:10px;">Apply</button>
+    <section class="card" style="margin-bottom: 24px;">
+        <form method="GET" class="filters-form">
+            <div class="filter-item">
+                <label class="filter-label">Search</label>
+                <input type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title, company, or O*NET title..." />
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="browse_jobs.php" class="btn">Reset</a>
+            </div>
         </form>
     </section>
 
-    <section style="margin: 18px 0;">
-        <h2>Results (<?php echo $totalRows; ?>)</h2>
-        <div class="table_wrapper">
-            <?php if (empty($jobs)): ?>
-                <p>No job posts found.</p>
-            <?php else: ?>
-                <table class="job_table">
-                    <thead>
-                        <tr>
-                            <th>Job Title</th>
-                            <th>Publisher</th>
-                            <th>Status</th>
-                            <th>O*NET Title</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($jobs as $j): ?>
-                            <tr>
-                                <td>
-                                <a href="job_detail.php?id=<?php echo (int)$j['job_id']; ?>">
-                                <?php echo e($j['job_title'] ?: '(Untitled)'); ?>
-                                </a>
-                            </td>
-
-                                <td><?php echo e($j['publisher_name'] ?: 'Unknown'); ?></td>
-                                <td><?php echo e($j['status']); ?></td>
-                                <td><?php echo e($j['onet_title'] ?: '-'); ?></td>
-                                <td><?php echo e($j['created_at'] ?? '-'); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-
-                <div style="margin-top:12px;">
-                    <span>Page <?php echo $page; ?> / <?php echo $totalPages; ?></span>
-
-                    <?php if ($page > 1): ?>
-                        <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page - 1])); ?>">Prev</a>
+    <?php if (empty($jobs)): ?>
+        <section class="card">
+            <p class="muted" style="text-align: center; padding: 40px 0;">No open jobs found. Try a different search.</p>
+        </section>
+    <?php else: ?>
+        <div class="jobs-grid">
+            <?php foreach ($jobs as $j):
+                $createdAt = $j['created_at'] ? date('M j, Y', strtotime($j['created_at'])) : '';
+            ?>
+                <a href="job_detail.php?id=<?php echo (int)$j['job_id']; ?>" class="job-card">
+                    <div class="job-card-top">
+                        <span class="badge badge-open"><?php echo e($j['status']); ?></span>
+                        <span class="job-date"><?php echo e($createdAt); ?></span>
+                    </div>
+                    <h3 class="job-card-title"><?php echo e($j['job_title'] ?: '(Untitled)'); ?></h3>
+                    <p class="job-card-company"><?php echo e($j['publisher_name'] ?: 'Unknown'); ?></p>
+                    <?php if ($j['onet_title']): ?>
+                        <span class="job-card-tag"><?php echo e($j['onet_title']); ?></span>
                     <?php endif; ?>
-
-                    <?php if ($page < $totalPages): ?>
-                        <a class="btn btn-white" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page + 1])); ?>">Next</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
+                    <span class="job-card-arrow">View Details &rarr;</span>
+                </a>
+            <?php endforeach; ?>
         </div>
-    </section>
+
+        <nav class="pagination" style="margin-top: 24px;">
+            <span class="pagination-meta">Page <?php echo $page; ?> of <?php echo $totalPages; ?></span>
+            <div class="pagination-actions">
+                <?php if ($page > 1): ?>
+                    <a class="btn" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page - 1])); ?>">&larr; Prev</a>
+                <?php endif; ?>
+                <?php if ($page < $totalPages): ?>
+                    <a class="btn btn-primary" href="?<?php echo http_build_query(array_merge($baseQuery, ['page' => $page + 1])); ?>">Next &rarr;</a>
+                <?php endif; ?>
+            </div>
+        </nav>
+    <?php endif; ?>
 </main>
 
-<?php
-$footerPath = __DIR__ . "/includes/footer.php";
-if (file_exists($footerPath)) include $footerPath;
-?>
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 </body>
 </html>
