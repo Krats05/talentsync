@@ -22,10 +22,12 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
         ?>
         <nav class="nav-center">
             <?php if ($isApplicant): ?>
-                <a href="browse_jobs.php" class="nav-link <?= $_currentPage === 'browse_jobs.php' ? 'nav-active' : '' ?>">Browse Jobs</a>
+                <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
+                <a href="browse_jobs.php" class="nav-link <?= ($_currentPage === 'browse_jobs.php' || $_currentPage === 'job_detail.php') ? 'nav-active' : '' ?>">Browse Jobs</a>
                 <a href="dashboard_applicant.php" class="nav-link <?= $_currentPage === 'dashboard_applicant.php' ? 'nav-active' : '' ?>">My Applications</a>
             <?php else: ?>
-                <a href="dashboard_hr.php" class="nav-link <?= $_currentPage === 'dashboard_hr.php' ? 'nav-active' : '' ?>">Dashboard</a>
+                <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
+                <a href="dashboard_hr.php" class="nav-link <?= ($_currentPage === 'dashboard_hr.php' || $_currentPage === 'job_applications.php') ? 'nav-active' : '' ?>">Dashboard</a>
                 <a href="create_job.php" class="nav-link <?= $_currentPage === 'create_job.php' ? 'nav-active' : '' ?>">Create Job</a>
             <?php endif; ?>
         </nav>
@@ -40,6 +42,10 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
             <a href="api/logout.php" class="Mbtn Mbtn-black">Log Out</a>
         </div>
     <?php else: ?>
+        <nav class="nav-center">
+            <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
+            <a href="browse_jobs.php" class="nav-link <?= $_currentPage === 'browse_jobs.php' ? 'nav-active' : '' ?>">Browse Jobs</a>
+        </nav>
         <div class="nav-right">
             <a href="login.php" class="Mbtn Mbtn-white">Login</a>
             <a href="signup.php" class="Mbtn Mbtn-black">Sign Up</a>

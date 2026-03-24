@@ -35,19 +35,19 @@ if (!in_array($role, $allowed_roles, true)) {
 
             <div class="auth-group">
                 <label>Full Name</label>
-                <input type="text" name="full_name" required>
+                <input type="text" name="full_name" required placeholder="Enter your full name">
             </div>
             <div class="auth-group">
                 <label>Email</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" required placeholder="Enter your email">
             </div>
             <div class="auth-group">
                 <label>Password</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" required placeholder="Create a password">
             </div>
             <div class="auth-group">
                 <label>Confirm Password</label>
-                <input type="password" name="confirm_password" required>
+                <input type="password" name="confirm_password" required placeholder="Confirm your password">
             </div>
             <button type="submit" class="auth-button">Sign Up</button>
         </form>

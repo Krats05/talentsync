@@ -242,9 +242,12 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                 <td><?php echo $j['skills_count']; ?></td>
                                 <td>
                                     <?php if ($j['apps_count'] > 0): ?>
-                                        <a href="job_applications.php?job_id=<?php echo $j['job_id']; ?>" class="action-link"><?php echo $j['apps_count']; ?> View</a>
+                                        <a href="job_applications.php?job_id=<?php echo $j['job_id']; ?>" class="action-link" style="display:inline-flex;align-items:center;gap:4px;">
+                                            <span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;"><?php echo $j['apps_count']; ?></span>
+                                            View
+                                        </a>
                                     <?php else: ?>
-                                        0
+                                        <span style="color:#cbd5e1;">—</span>
                                     <?php endif; ?>
                                 </td>
                                 <td style="color:#64748b;font-size:13px;"><?php echo e($createdAt); ?></td>

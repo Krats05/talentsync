@@ -25,11 +25,11 @@
             <?php endif; ?>
             <div class="auth-group">
                 <label>Email</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" required placeholder="Enter your email">
             </div>
             <div class="auth-group">
                 <label>Password</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" required placeholder="Enter your password">
             </div>
             <button type="submit" class="auth-button">Login</button>
         </form>
