@@ -51,6 +51,41 @@ while ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
+// ── Pipeline Analytics ──────────────────────────────────────────────────────
+// Calculates conversion rates through the hiring funnel using conditional aggregation
+$analytics = ['total_apps' => 0, 'pending' => 0, 'interviewing' => 0, 'offered' => 0, 'rejected' => 0];
+$stmt = $conn->prepare("
+    SELECT
+        COUNT(*) AS total_apps,
+        SUM(CASE WHEN a.status = 'Pending' THEN 1 ELSE 0 END) AS pending,
+        SUM(CASE WHEN a.status = 'Interviewing' THEN 1 ELSE 0 END) AS interviewing,
+        SUM(CASE WHEN a.status = 'Offered' THEN 1 ELSE 0 END) AS offered,
+        SUM(CASE WHEN a.status = 'Rejected' THEN 1 ELSE 0 END) AS rejected
+    FROM applications a
+    JOIN jobs j ON a.job_id = j.job_id
+    WHERE j.user_id = ?
+");
+$stmt->bind_param('i', $userId);
+$stmt->execute();
+$aRow = $stmt->get_result()->fetch_assoc();
+if ($aRow) {
+    $analytics['total_apps']    = (int)$aRow['total_apps'];
+    $analytics['pending']       = (int)$aRow['pending'];
+    $analytics['interviewing']  = (int)$aRow['interviewing'];
+    $analytics['offered']       = (int)$aRow['offered'];
+    $analytics['rejected']      = (int)$aRow['rejected'];
+}
+$stmt->close();
+
+// Conversion rates (percentage of total that advanced to each stage)
+$totalApps = max(1, $analytics['total_apps']); // avoid div by zero
+$conversionRates = [
+    'screen_rate'    => round(($analytics['interviewing'] + $analytics['offered']) / $totalApps * 100, 1),
+    'interview_rate' => round($analytics['interviewing'] / $totalApps * 100, 1),
+    'offer_rate'     => round($analytics['offered'] / $totalApps * 100, 1),
+    'rejection_rate' => round($analytics['rejected'] / $totalApps * 100, 1),
+];
+
 // ── Build WHERE clause ────────────────────────────────────────────────────────
 $where  = ['j.user_id = ?'];
 $types  = 'i';
@@ -178,6 +213,35 @@ $baseQuery = ['status' => $status, 'q' => $q];
             </div>
         <?php endforeach; ?>
     </section>
+
+    <?php if ($analytics['total_apps'] > 0): ?>
+    <section class="card" style="margin-bottom: 16px;">
+        <div class="card-header">
+            <h2 class="card-title">Hiring Pipeline Analytics</h2>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; padding:8px 0;">
+            <?php
+            $funnelStages = [
+                ['label' => 'Total Applications', 'count' => $analytics['total_apps'], 'pct' => '100', 'color' => '#3b82f6'],
+                ['label' => 'Screening Rate', 'count' => $analytics['interviewing'] + $analytics['offered'], 'pct' => $conversionRates['screen_rate'], 'color' => '#8b5cf6'],
+                ['label' => 'Interview Rate', 'count' => $analytics['interviewing'], 'pct' => $conversionRates['interview_rate'], 'color' => '#eab308'],
+                ['label' => 'Offer Rate',     'count' => $analytics['offered'],      'pct' => $conversionRates['offer_rate'],     'color' => '#22c55e'],
+                ['label' => 'Rejection Rate', 'count' => $analytics['rejected'],     'pct' => $conversionRates['rejection_rate'], 'color' => '#ef4444'],
+            ];
+            foreach ($funnelStages as $stage):
+            ?>
+                <div style="text-align:center;">
+                    <div style="font-size:24px;font-weight:700;color:<?= $stage['color'] ?>;"><?= $stage['count'] ?></div>
+                    <div style="font-size:13px;color:#64748b;margin:4px 0;"><?= $stage['label'] ?></div>
+                    <div style="width:100%;height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;width:<?= $stage['pct'] ?>%;background:<?= $stage['color'] ?>;border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:12px;font-weight:600;color:<?= $stage['color'] ?>;margin-top:4px;"><?= $stage['pct'] ?>%</div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php endif; ?>
 
     <section class="card">
         <form method="GET" class="filters-form">

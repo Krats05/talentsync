@@ -105,7 +105,7 @@ $applications = [];
 if (!$pageError) {
   if ($filterStatus === 'All') {
     $stmt = $conn->prepare("
-      SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, status, applied_at, updated_at
+      SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, skills, status, applied_at, updated_at
       FROM applications
       WHERE job_id = ?
       ORDER BY applied_at DESC
@@ -113,7 +113,7 @@ if (!$pageError) {
     $stmt->bind_param("i", $jobId);
   } else {
     $stmt = $conn->prepare("
-      SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, status, applied_at, updated_at
+      SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, skills, status, applied_at, updated_at
       FROM applications
       WHERE job_id = ? AND status = ?
       ORDER BY applied_at DESC
@@ -125,6 +125,29 @@ if (!$pageError) {
   $res = $stmt->get_result();
   while ($row = $res->fetch_assoc()) $applications[] = $row;
   $stmt->close();
+}
+
+// ── Skill Match Scoring ──────────────────────────────────────────────────────
+// Uses Jaccard Similarity + Weighted O*NET Importance scoring
+require_once __DIR__ . '/api/skill_match.php';
+
+$matchScores = [];
+if (!$pageError && !empty($applications)) {
+    foreach ($applications as $a) {
+        $skills = $a['skills'] ?? '';
+        $matchScores[$a['application_id']] = calculate_match_score($jobId, $skills, $conn);
+    }
+}
+
+// Fetch job skills for display
+$jobSkills = [];
+if (!$pageError) {
+    $sk_stmt = $conn->prepare("SELECT skill_name, skill_type FROM job_skills WHERE job_id = ? ORDER BY skill_type, skill_name");
+    $sk_stmt->bind_param("i", $jobId);
+    $sk_stmt->execute();
+    $sk_res = $sk_stmt->get_result();
+    while ($sk = $sk_res->fetch_assoc()) $jobSkills[] = $sk;
+    $sk_stmt->close();
 }
 
 // Dropdown options for status update
@@ -142,7 +165,18 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
     .app-status-cell { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .status-select { height: 34px; padding: 0 8px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; cursor: pointer; outline: none; }
     .status-select:focus { border-color: #2563eb; }
-    .cover-cell { max-width: 250px; font-size: 13px; color: #475569; line-height: 1.4; }
+    .cover-cell { max-width: 220px; font-size: 13px; color: #475569; line-height: 1.4; }
+    .match-cell { text-align: center; min-width: 90px; }
+    .match-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .match-high { background: #dcfce7; color: #166534; }
+    .match-mid  { background: #fef9c3; color: #854d0e; }
+    .match-low  { background: #fee2e2; color: #991b1b; }
+    .match-none { background: #f1f5f9; color: #94a3b8; }
+    .match-details { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .match-bar { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+    .match-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .skill-tag-matched { display: inline-block; padding: 2px 6px; margin: 1px; border-radius: 4px; font-size: 11px; background: #dcfce7; color: #166534; }
+    .skill-tag-missing { display: inline-block; padding: 2px 6px; margin: 1px; border-radius: 4px; font-size: 11px; background: #fee2e2; color: #991b1b; }
     .cover-toggle { color: #2563eb; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: none; padding: 0; }
     .job-info-bar { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
     .job-info-item { font-size: 13px; color: #64748b; }
@@ -211,7 +245,7 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
               <tr>
                 <th>Applicant</th>
                 <th>Email</th>
-                <th>Phone</th>
+                <th>Match Score</th>
                 <th>Status</th>
                 <th>Applied</th>
                 <th>Cover Letter</th>
@@ -229,7 +263,24 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
                 <tr>
                   <td style="font-weight: 600;"><?php echo e($a['full_name']); ?></td>
                   <td style="color: #475569;"><?php echo e($a['email']); ?></td>
-                  <td style="color: #475569;"><?php echo e($a['phone'] ?? '-'); ?></td>
+                  <td class="match-cell">
+                    <?php
+                      $score = $matchScores[$a['application_id']] ?? null;
+                      if ($score && ($score['applicant_count'] > 0)):
+                        $pct = round($score['composite'] * 100);
+                        $cls = $pct >= 70 ? 'match-high' : ($pct >= 40 ? 'match-mid' : 'match-low');
+                        $barColor = $pct >= 70 ? '#22c55e' : ($pct >= 40 ? '#eab308' : '#ef4444');
+                    ?>
+                      <span class="match-badge <?= $cls ?>"><?= $pct ?>%</span>
+                      <div class="match-bar"><div class="match-bar-fill" style="width:<?= $pct ?>%;background:<?= $barColor ?>;"></div></div>
+                      <div class="match-details">
+                        <?= count($score['matched']) ?>/<?= $score['job_count'] ?> skills
+                      </div>
+                    <?php else: ?>
+                      <span class="match-badge match-none">N/A</span>
+                      <div class="match-details">No skills provided</div>
+                    <?php endif; ?>
+                  </td>
                   <td>
                     <div class="app-status-cell">
                       <span class="badge" style="background:<?php echo e($badge['bg']); ?>; color:<?php echo e($badge['fg']); ?>;">

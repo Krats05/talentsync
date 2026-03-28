@@ -30,6 +30,7 @@ if ($full_name === '' && isset($_POST['full_name'])) {
 
 $email     = strtolower(trim($_POST['email'] ?? ''));
 $phone     = trim($_POST['phone'] ?? '');
+$skills    = trim($_POST['skills'] ?? '');
 $cover_letter = trim($_POST['cover_letter'] ?? '');
 
 // 3. Validate required fields
@@ -66,10 +67,10 @@ $stmt->close();
 
 // 6. INSERT application
 $stmt = $conn->prepare("
-    INSERT INTO applications (job_id, user_id, full_name, email, phone, cover_letter)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO applications (job_id, user_id, full_name, email, phone, cover_letter, skills)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
 ");
-$stmt->bind_param("iissss", $job_id, $user_id, $full_name, $email, $phone, $cover_letter);
+$stmt->bind_param("iisssss", $job_id, $user_id, $full_name, $email, $phone, $cover_letter, $skills);
 
 if ($stmt->execute()) {
     // Added by Kratika — Log initial stage in stage_history
