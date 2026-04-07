@@ -23,6 +23,21 @@ if (!in_array($role, $allowed_roles, true)) {
     http_response_code(400); exit('Invalid role');
 }
 
+// Check for individual email address
+if ($role === 'HR_Manager') {
+    $domain = strtolower(substr(strrchr($email, "@"), 1));
+
+    $blocked_domains = [
+        'gmail.com','yahoo.com','hotmail.com','outlook.com','live.com','msn.com',
+        'icloud.com','aol.com','proton.me','protonmail.com','gmx.com','mail.com',
+        'yandex.com','qq.com','163.com','126.com'];
+
+    if (in_array($domain, $blocked_domains, true)) {
+        header("Location: /talentsync/signup.php?role=HR_Manager&error=hr_email_domain");
+        exit;
+    }
+}
+
 $check = $conn->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1");
 $check->bind_param("s", $email);
 $check->execute();
