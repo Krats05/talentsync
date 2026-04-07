@@ -35,6 +35,14 @@ jobs:
               echo "WARNING: No db.php found to backup"
             fi
 
+            # Backup ai.php if it exists (it's not in git repo)
+            if [ -f /var/www/html/talentsync/config/ai.php ]; then
+              cp /var/www/html/talentsync/config/ai.php /tmp/ai.php.bak
+              echo "ai.php backed up"
+            else
+              echo "WARNING: No ai.php found to backup"
+            fi
+
             # Clean temp directory
             rm -rf /tmp/talentsync-deploy
 
@@ -55,6 +63,12 @@ jobs:
             if [ -f /tmp/db.php.bak ]; then
               sudo cp /tmp/db.php.bak /var/www/html/talentsync/config/db.php
               echo "db.php restored"
+            fi
+
+            # Restore ai.php from backup
+            if [ -f /tmp/ai.php.bak ]; then
+              sudo cp /tmp/ai.php.bak /var/www/html/talentsync/config/ai.php
+              echo "ai.php restored"
             fi
 
             # Set correct permissions
