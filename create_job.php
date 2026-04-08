@@ -318,8 +318,7 @@ function fetchOnetSkills(socCode) {
         })
         .catch(function(error) {
             loading.style.display = 'none';
-            showHint('System error: Could not reach the API. Check console.');
-            console.error(error);
+            showHint('System error: Could not reach the API. Please try again.');
         });
 }
 
@@ -387,7 +386,6 @@ function loadAllSkills() {
         .catch(function(error) {
             btn.textContent = '📋 Browse More O*NET Skills';
             btn.disabled = false;
-            console.error(error);
         });
 }
 

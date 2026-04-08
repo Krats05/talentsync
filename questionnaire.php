@@ -135,7 +135,6 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             statusDiv.innerHTML = '<p style="color:red;">' + (data.message || 'Failed to generate recommendations.') + '</p>';
         }
     } catch (error) {
-        console.error(error);
         statusDiv.innerHTML = '<p style="color:red;">Something went wrong. Please try again.</p>';
     }
 });
