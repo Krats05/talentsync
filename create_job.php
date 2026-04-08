@@ -65,6 +65,7 @@ if ($jobIdParam > 0) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+    <?php define('JQUERY_LOADED', true); ?>
 </head>
 <body>
 
@@ -520,5 +521,6 @@ document.getElementById('job-form').addEventListener('submit', function(e) {
     syncHiddenInputs();
 });
 </script>
+<?php include 'includes/chatbox_widget.php'; ?>
 </body>
 </html>
