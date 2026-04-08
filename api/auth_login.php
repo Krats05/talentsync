@@ -2,12 +2,14 @@
 session_start();
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit('Method not allowed');
 }
 csrf_validate();
+rate_limit_check('login', 5, 900); // 5 attempts per 15 minutes
 
 $email = strtolower(trim($_POST['email'] ?? ''));
 $password = $_POST['password'] ?? '';
@@ -38,6 +40,8 @@ $_SESSION["user_id"] = $user['user_id'];
 $_SESSION["full_name"] = $user['full_name'];
 $_SESSION["email"] = $email;
 $_SESSION["role"] = $user['role'];
+
+rate_limit_clear('login');
 
 // Redirect to original page if provided, otherwise go to dashboard
 $redirect = trim($_POST['redirect'] ?? '');
