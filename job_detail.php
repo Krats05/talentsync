@@ -30,7 +30,8 @@ $stmt = $conn->prepare("
 ");
 
 if (!$stmt) {
-    die("Prepare failed: " . $conn->error);
+    error_log("job_detail.php: Prepare failed: " . $conn->error);
+    die("Something went wrong. Please try again later.");
 }
 
 $stmt->bind_param("i", $job_id);

@@ -205,7 +205,8 @@ function saveJobAsDraft(mysqli $conn, int $userId, string $jobTitle, string $soc
     $stmt->bind_param('issss', $userId, $jobTitle, $socCode, $description, $status);
 
     if (!$stmt->execute()) {
-        throw new RuntimeException('DB error saving job: ' . $conn->error);
+        error_log("chatbox.php: DB error saving job: " . $conn->error);
+        throw new RuntimeException('Failed to save job. Please try again.');
     }
     $jobId = $conn->insert_id;
     $stmt->close();

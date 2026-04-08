@@ -50,7 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $job_id = $conn->insert_id; // Get the ID of the job we just created
         } else {
-            die("Error saving job: " . $conn->error);
+            error_log("save_job.php: Error saving job: " . $conn->error);
+            header("Location: ../dashboard_hr.php?error=SaveFailed");
+            exit;
         }
         $stmt->close();
     }
