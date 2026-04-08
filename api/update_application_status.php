@@ -1,11 +1,13 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../dashboard_hr.php");
     exit();
 }
+csrf_validate();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'HR_Manager') {
     header("Location: ../dashboard_hr.php");

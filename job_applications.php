@@ -6,6 +6,7 @@
 
 session_start();
 require_once __DIR__ . "/config/db.php";
+require_once __DIR__ . "/includes/csrf.php";
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
@@ -287,6 +288,7 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
                         <?php echo e($badge['label']); ?>
                       </span>
                       <form method="POST" action="api/update_application_status.php" style="margin:0;">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="application_id" value="<?php echo (int)$a['application_id']; ?>">
                         <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
                         <input type="hidden" name="return_status" value="<?php echo e($filterStatus); ?>">

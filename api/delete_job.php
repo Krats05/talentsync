@@ -2,6 +2,7 @@
 // api/delete_job.php
 session_start();
 require_once '../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -11,6 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // 2. Only accept POST requests with a job_id
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
+    csrf_validate();
     $job_id = (int)$_POST['job_id'];
     $user_id = $_SESSION['user_id'];
 

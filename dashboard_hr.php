@@ -8,6 +8,7 @@
 
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/csrf.php';
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
@@ -474,6 +475,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                     <a href="create_job.php?job_id=<?php echo $j['job_id']; ?>" class="action-link">Edit</a>
                                     <span style="color: #cbd5e1;">|</span>
                                     <form action="api/delete_job.php" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this job? This cannot be undone.');">
+                                        <?= csrf_field() ?>
                                         <input type="hidden" name="job_id" value="<?php echo $j['job_id']; ?>">
                                         <button type="submit" class="action-link" style="background: none; border: none; padding: 0; color: #ef4444; font-family: inherit;">Delete</button>
                                     </form>

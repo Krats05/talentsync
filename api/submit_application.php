@@ -2,12 +2,14 @@
 // api/submit_application.php
 session_start();
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // 1. Must be POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../browse_jobs.php");
     exit;
 }
+csrf_validate();
 
 // 2. Session guard: must be logged in as Applicant
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Applicant') {

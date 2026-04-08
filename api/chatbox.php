@@ -71,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
     exit;
 }
+require_once __DIR__ . '/../includes/csrf.php';
+csrf_validate();
 
 // ── Parse JSON body ──────────────────────────────────────────────────────────
 $input       = json_decode(file_get_contents('php://input'), true) ?? [];

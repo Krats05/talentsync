@@ -3,6 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once __DIR__ . '/csrf.php';
 $_currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -52,3 +53,4 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
         </div>
     <?php endif; ?>
 </header>
+<script>var CSRF_TOKEN = <?= json_encode(csrf_token()) ?>;</script>

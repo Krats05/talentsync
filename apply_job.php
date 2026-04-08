@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . "/config/db.php";
+require_once __DIR__ . "/includes/csrf.php";
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -188,6 +189,7 @@ $last_name  = $name_parts[1] ?? '';
         <p class="apply-note"><span class="required-star">*</span> indicates a required field</p>
 
         <form action="api/submit_application.php" method="POST" class="apply-form">
+            <?= csrf_field() ?>
             <input type="hidden" name="job_id" value="<?php echo (int)$job_id; ?>">
 
             <div class="form-row">

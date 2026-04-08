@@ -4,6 +4,11 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/ai.php';
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
+}
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode([

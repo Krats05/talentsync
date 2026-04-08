@@ -8,6 +8,7 @@
 
 session_start();
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/csrf.php';
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
@@ -82,6 +83,7 @@ if ($jobIdParam > 0) {
     <div id="flash-area"></div>
 
     <form id="job-form" method="POST" action="api/save_job.php">
+        <?= csrf_field() ?>
         <?php if ($editMode): ?>
             <input type="hidden" name="job_id" value="<?php echo $editJob['job_id']; ?>" />
         <?php endif; ?>
@@ -232,6 +234,7 @@ if ($jobIdParam > 0) {
 
     <?php if ($editMode): ?>
     <form id="delete-form" action="api/delete_job.php" method="POST" style="display: none;">
+        <?= csrf_field() ?>
         <input type="hidden" name="job_id" value="<?php echo $editJob['job_id']; ?>">
     </form>
     <?php endif; ?>

@@ -121,7 +121,8 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
         const response = await fetch('api/job_recommendations.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': window.CSRF_TOKEN || ''
             },
             body: JSON.stringify(payload)
         });

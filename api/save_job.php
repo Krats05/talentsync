@@ -2,6 +2,7 @@
 // api/save_job.php
 session_start();
 require_once '../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // 1. Session Guard: Check if user is logged in 
 // (Matches the logic used in create_job.php)
@@ -16,6 +17,7 @@ if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
 
 // 2. Only process the data if the form was actually submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
     
     // Check if we are updating an existing job or creating a new one
     $job_id = isset($_POST['job_id']) ? (int)$_POST['job_id'] : 0;

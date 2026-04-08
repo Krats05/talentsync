@@ -1,3 +1,4 @@
+<?php session_start(); require_once __DIR__ . '/includes/csrf.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +18,7 @@
         <h2 class="auth-title">Login</h2>
 
         <form action="api/auth_login.php" method="POST">
+            <?= csrf_field() ?>
             <?php
                 $redirect = $_GET['redirect'] ?? '';
                 if ($redirect !== ''):
