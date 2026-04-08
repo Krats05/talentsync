@@ -66,6 +66,13 @@ if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     exit;
 }
 
+$role = $_SESSION['role'] ?? ($_SESSION['user']['role'] ?? '');
+if (!in_array($role, ['HR_Manager', 'Admin', 'Recruiter'], true)) {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
