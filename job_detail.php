@@ -44,6 +44,24 @@ if (!$job) {
     die("Job not found.");
 }
 
+// Non-open jobs should only be visible to the HR user who created them
+if ($job['status'] !== 'Open') {
+    $role = $_SESSION['role'] ?? '';
+    $sessionUserId = $_SESSION['user_id'] ?? 0;
+    // Check if this user is the job owner (HR viewing their own job)
+    $isOwner = false;
+    if ($sessionUserId > 0) {
+        $ownerCheck = $conn->prepare("SELECT user_id FROM jobs WHERE job_id = ? AND user_id = ? LIMIT 1");
+        $ownerCheck->bind_param("ii", $job_id, $sessionUserId);
+        $ownerCheck->execute();
+        $isOwner = $ownerCheck->get_result()->num_rows > 0;
+        $ownerCheck->close();
+    }
+    if (!$isOwner) {
+        die("This job is no longer available.");
+    }
+}
+
 // Fetch skills for this job
 $techSkills = [];
 $genSkills = [];
@@ -165,7 +183,9 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
         </div>
 
         <div class="detail-actions">
-            <?php if (!isset($_SESSION['user_id'])): ?>
+            <?php if ($job['status'] !== 'Open'): ?>
+                <span class="btn-apply btn-applied">This job is <?php echo e($job['status']); ?></span>
+            <?php elseif (!isset($_SESSION['user_id'])): ?>
                 <a href="login.php?redirect=<?php echo urlencode('apply_job.php?id=' . (int)$job['job_id']); ?>" class="btn-apply">Login to Apply</a>
             <?php elseif ($alreadyApplied): ?>
                 <span class="btn-apply btn-applied">Already Applied</span>
