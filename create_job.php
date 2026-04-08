@@ -280,7 +280,7 @@ function fetchOnetSkills(socCode) {
     loading.style.display = 'block';
 
     fetch('api/get_skills.php?soc_code=' + encodeURIComponent(socCode))
-        .then(function(r) { return r.json(); })
+        .then(function(r) { if (!r.ok) throw new Error('Server error'); return r.json(); })
         .then(function(data) {
             loading.style.display = 'none';
             // Clear both containers of O*NET skills
@@ -342,7 +342,7 @@ function loadAllSkills() {
     btn.disabled = true;
 
     fetch('api/get_skills.php?soc_code=' + encodeURIComponent(socCode) + '&all=1')
-        .then(function(r) { return r.json(); })
+        .then(function(r) { if (!r.ok) throw new Error('Server error'); return r.json(); })
         .then(function(data) {
             grid.innerHTML = '';
 

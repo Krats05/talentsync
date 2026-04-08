@@ -127,6 +127,7 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             body: JSON.stringify(payload)
         });
 
+        if (!response.ok) throw new Error('Server error');
         const data = await response.json();
 
         if (data.success) {

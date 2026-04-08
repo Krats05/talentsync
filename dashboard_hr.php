@@ -361,7 +361,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
 
         // Call the HR Insights API endpoint
         fetch('api/hr_insights.php')
-            .then(res => res.json())
+            .then(res => { if (!res.ok) throw new Error('Server error'); return res.json(); })
             .then(data => {
                 if (data.success) {
                     container.innerHTML = data.message;
