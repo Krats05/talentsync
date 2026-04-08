@@ -56,17 +56,14 @@ function claude_request(string $userMessage, string $systemPrompt = '', int $max
     return ['success' => true, 'message' => $text, 'error' => null];
 }
 
-// ── Session guard (same dual-key pattern as save_job.php) ────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $user_id = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $user_id = (int)$_SESSION['user_id'];
-} else {
+// ── Session guard ────────────────────────────────────────────────────────────
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Not logged in']);
     exit;
 }
+$user_id = (int)$_SESSION['user_id'];
 
-$role = $_SESSION['role'] ?? ($_SESSION['user']['role'] ?? '');
+$role = $_SESSION['role'] ?? '';
 if (!in_array($role, ['HR_Manager', 'Admin', 'Recruiter'], true)) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Access denied']);

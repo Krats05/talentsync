@@ -10,24 +10,8 @@ require_once __DIR__ . "/includes/csrf.php";
 
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
-// Session compatibility
-function get_session_user_id(): ?int {
-  if (isset($_SESSION['user_id'])) return (int)$_SESSION['user_id'];
-  if (isset($_SESSION['user']) && is_array($_SESSION['user']) && isset($_SESSION['user']['user_id'])) {
-    return (int)$_SESSION['user']['user_id'];
-  }
-  return null;
-}
-function get_session_role(): ?string {
-  if (isset($_SESSION['role'])) return (string)$_SESSION['role'];
-  if (isset($_SESSION['user']) && is_array($_SESSION['user']) && isset($_SESSION['user']['role'])) {
-    return (string)$_SESSION['user']['role'];
-  }
-  return null;
-}
-
-$userId = get_session_user_id();
-$role = get_session_role();
+$userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+$role = $_SESSION['role'] ?? null;
 
 $allowedRoles = ['HR_Manager', 'Admin', 'Recruiter'];
 if (!$userId || !$role || !in_array($role, $allowedRoles, true)) {

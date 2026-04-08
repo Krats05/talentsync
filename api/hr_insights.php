@@ -17,17 +17,11 @@ require_once __DIR__ . '/../config/db.php';
 header('Content-Type: application/json');
 
 // ── Session guard ────────────────────────────────────────────────────────────
-$userId = null;
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $userId = (int)$_SESSION['user_id'];
-}
-
-if (!$userId) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => '', 'error' => 'Not authenticated']);
     exit;
 }
+$userId = (int)$_SESSION['user_id'];
 
 // ══════════════════════════════════════════════════════════════════════════════
 // GATHER ALL PIPELINE DATA

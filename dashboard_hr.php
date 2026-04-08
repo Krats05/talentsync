@@ -19,17 +19,13 @@ function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 //$fullName = 'Vaishnavi Test';
 
 
-// ── Session guard (COMMENTED OUT FOR TESTING) ─────────────────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId   = (int)$_SESSION['user']['user_id'];
-    $fullName = $_SESSION['user']['full_name'] ?? 'HR Manager';
-} elseif (isset($_SESSION['user_id'])) {
-    $userId   = (int)$_SESSION['user_id'];
-    $fullName = $_SESSION['full_name'] ?? 'HR Manager';
-} else {
-    header('Location: login.php');  // ← This was redirecting you!
+// ── Session guard ─────────────────────────────────────────────────────────────
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
     exit;
 }
+$userId   = (int)$_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'HR Manager';
 
 
 // ── Query parameters ──────────────────────────────────────────────────────────

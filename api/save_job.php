@@ -4,16 +4,12 @@ session_start();
 require_once '../config/db.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
-// 1. Session Guard: Check if user is logged in 
-// (Matches the logic used in create_job.php)
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $user_id = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $user_id = (int)$_SESSION['user_id'];
-} else {
+// 1. Session Guard: Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php?error=not_logged_in');
     exit;
 }
+$user_id = (int)$_SESSION['user_id'];
 
 // 2. Only process the data if the form was actually submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

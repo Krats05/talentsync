@@ -18,19 +18,13 @@ function e($s) {
 }
 
 // ── Session guard ─────────────────────────────────────────────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId   = (int)$_SESSION['user']['user_id'];
-    $fullName = $_SESSION['user']['full_name'] ?? 'Candidate';
-    $role     = $_SESSION['user']['role'] ?? '';
-} elseif (isset($_SESSION['user_id'])) {
-    $userId   = (int)$_SESSION['user_id'];
-    $fullName = $_SESSION['full_name'] ?? 'Candidate';
-    $role     = $_SESSION['role'] ?? '';
-} else {
-    // User not logged in - redirect to login page
+if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+$userId   = (int)$_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'Candidate';
+$role     = $_SESSION['role'] ?? '';
 
 // Optional: Restrict to applicants only (uncomment if needed)
 // if ($role !== 'Applicant' && $role !== 'applicant') {

@@ -13,14 +13,11 @@ require_once __DIR__ . '/includes/csrf.php';
 function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
 // ── Session guard ─────────────────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $userId = (int)$_SESSION['user_id'];
-} else {
+if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+$userId = (int)$_SESSION['user_id'];
 
 // ── Edit mode: load existing job ─────────────────────────────────────────────
 $editMode   = false;
