@@ -45,20 +45,20 @@ if (!in_array($role, $allowed_roles, true)) {
                 <input type="hidden" name="role" value="<?php echo htmlspecialchars($role); ?>">
 
                 <div class="auth-group">
-                    <label>Full Name</label>
-                    <input type="text" name="full_name" required placeholder="Enter your full name">
+                    <label for="signup-name">Full Name</label>
+                    <input id="signup-name" type="text" name="full_name" required placeholder="Enter your full name">
                 </div>
                 <div class="auth-group">
-                    <label>Email</label>
-                    <input type="email" name="email" required placeholder="Enter your email">
+                    <label for="signup-email">Email</label>
+                    <input id="signup-email" type="email" name="email" required placeholder="Enter your email">
                 </div>
                 <div class="auth-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required placeholder="Create a password">
+                    <label for="signup-password">Password</label>
+                    <input id="signup-password" type="password" name="password" required placeholder="Create a password">
                 </div>
                 <div class="auth-group">
-                    <label>Confirm Password</label>
-                    <input type="password" name="confirm_password" required placeholder="Confirm your password">
+                    <label for="signup-confirm">Confirm Password</label>
+                    <input id="signup-confirm" type="password" name="confirm_password" required placeholder="Confirm your password">
                 </div>
                 <button type="submit" class="auth-button">Sign Up</button>
             </form>

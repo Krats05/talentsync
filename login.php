@@ -26,12 +26,12 @@
                 <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8'); ?>">
             <?php endif; ?>
             <div class="auth-group">
-                <label>Email</label>
-                <input type="email" name="email" required placeholder="Enter your email">
+                <label for="login-email">Email</label>
+                <input id="login-email" type="email" name="email" required placeholder="Enter your email">
             </div>
             <div class="auth-group">
-                <label>Password</label>
-                <input type="password" name="password" required placeholder="Enter your password">
+                <label for="login-password">Password</label>
+                <input id="login-password" type="password" name="password" required placeholder="Enter your password">
             </div>
             <button type="submit" class="auth-button">Login</button>
         </form>

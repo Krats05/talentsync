@@ -226,7 +226,7 @@ $questionnaireData = $_SESSION['ai_questionnaire'] ?? [];
         <form method="GET" class="filters-form">
             <div class="filter-item">
                 <label class="filter-label">Search</label>
-                <input type="text" name="q" class="filter-control" 
+                <input type="text" name="q" class="filter-control" aria-label="Search applications"
                        value="<?= e($q) ?>" placeholder="Job title, company, O*NET">
             </div>
             <div>
@@ -290,7 +290,7 @@ $questionnaireData = $_SESSION['ai_questionnaire'] ?? [];
             </table>
 
             <!-- Pagination -->
-            <nav class="pagination">
+            <nav class="pagination" aria-label="Pagination">
                 <span style="font-size: 14px; color: #64748b;">
                     Page <?= $page ?> of <?= $totalPages ?>
                 </span>

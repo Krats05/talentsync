@@ -101,8 +101,8 @@ $baseQuery = ['q' => $q, 'status' => $status];
     <section class="card" style="margin-bottom: 24px;">
         <form method="GET" class="filters-form">
             <div class="filter-item">
-                <label class="filter-label">Search</label>
-                <input type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title, company, or O*NET title..." />
+                <label class="filter-label" for="filter-search">Search</label>
+                <input id="filter-search" type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title, company, or O*NET title..." />
             </div>
             <div class="filter-actions">
                 <button type="submit" class="btn btn-primary">Search</button>

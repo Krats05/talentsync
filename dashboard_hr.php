@@ -391,8 +391,8 @@ $baseQuery = ['status' => $status, 'q' => $q];
     <section class="card">
         <form method="GET" class="filters-form">
             <div class="filter-item">
-                <label class="filter-label">Status</label>
-                <select name="status" class="filter-control">
+                <label class="filter-label" for="filter-status">Status</label>
+                <select id="filter-status" name="status" class="filter-control">
                     <?php foreach (JOB_FILTER_STATUSES as $opt): ?>
                         <option value="<?php echo $opt; ?>" <?php echo ($status === $opt) ? 'selected' : ''; ?>>
                             <?php echo $opt; ?>
@@ -402,8 +402,8 @@ $baseQuery = ['status' => $status, 'q' => $q];
             </div>
 
             <div class="filter-item">
-                <label class="filter-label">Search</label>
-                <input type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title or O*NET…" />
+                <label class="filter-label" for="filter-search">Search</label>
+                <input id="filter-search" type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title or O*NET…" />
             </div>
 
             <div class="filter-actions">

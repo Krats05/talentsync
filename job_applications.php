@@ -200,8 +200,8 @@ $dbStatusOptions = APP_STATUSES;
       <form method="GET" class="filters-form">
         <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
         <div class="filter-item" style="min-width: 140px; flex: 0;">
-          <label class="filter-label">Filter by Status</label>
-          <select name="status" class="filter-control">
+          <label class="filter-label" for="filter-app-status">Filter by Status</label>
+          <select id="filter-app-status" name="status" class="filter-control">
             <option value="All" <?php echo ($filterStatus === 'All') ? 'selected' : ''; ?>>All</option>
             <option value="Pending" <?php echo ($filterStatus === 'Pending') ? 'selected' : ''; ?>>Pending</option>
             <option value="Interviewing" <?php echo ($filterStatus === 'Interviewing') ? 'selected' : ''; ?>>Interviewing</option>
@@ -275,7 +275,7 @@ $dbStatusOptions = APP_STATUSES;
                         <input type="hidden" name="application_id" value="<?php echo (int)$a['application_id']; ?>">
                         <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
                         <input type="hidden" name="return_status" value="<?php echo e($filterStatus); ?>">
-                        <select name="status" class="status-select" data-autosubmit="1">
+                        <select name="status" class="status-select" data-autosubmit="1" aria-label="Update application status">
                           <?php foreach ($dbStatusOptions as $opt): ?>
                             <option value="<?php echo e($opt); ?>" <?php echo ($dbStatus === $opt) ? 'selected' : ''; ?>>
                               <?php echo e($opt); ?>
