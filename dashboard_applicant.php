@@ -97,6 +97,7 @@ $totalRows = (int)$stmt->get_result()->fetch_assoc()['total'];
 $stmt->close();
 
 $totalPages = max(1, ceil($totalRows / $limit));
+if ($page > $totalPages) { $page = $totalPages; $offset = ($page - 1) * $limit; }
 
 // ── Fetch applications ────────────────────────────────────────────────────────
 $stmt = $conn->prepare("
