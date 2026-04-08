@@ -7,7 +7,7 @@ session_start();
 // =========================
 
 $DEV_SHOW_ERRORS  = true;
-$DEV_BYPASS_LOGIN = true;  // set true to skip login during development
+$DEV_BYPASS_LOGIN = false;  // set true to skip login during development
 
 if ($DEV_SHOW_ERRORS) {
     ini_set('display_errors', 1);
