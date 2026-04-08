@@ -42,7 +42,7 @@ if ($job_id <= 0 || $full_name === '' || $email === '') {
 }
 
 // 4. Validate job exists and status = 'Open'
-$stmt = $conn->prepare("SELECT job_id FROM jobs WHERE job_id = ? AND status = 'Open'");
+$stmt = $conn->prepare("SELECT job_id FROM jobs WHERE job_id = ? AND status = 'Open' AND deleted_at IS NULL");
 $stmt->bind_param("i", $job_id);
 $stmt->execute();
 $result = $stmt->get_result();

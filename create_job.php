@@ -27,7 +27,7 @@ $editGeneralSkills = [];
 
 $jobIdParam = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
 if ($jobIdParam > 0) {
-    $stmt = $conn->prepare("SELECT * FROM jobs WHERE job_id = ? AND user_id = ? LIMIT 1");
+    $stmt = $conn->prepare("SELECT * FROM jobs WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1");
     $stmt->bind_param('ii', $jobIdParam, $userId);
     $stmt->execute();
     $res = $stmt->get_result();

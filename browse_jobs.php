@@ -19,6 +19,7 @@ $types = '';
 $params = [];
 
 $where[] = "j.status = ?";
+$where[] = "j.deleted_at IS NULL";
 $types .= "s";
 $params[] = "Open";
 

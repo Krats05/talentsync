@@ -60,7 +60,7 @@ $counts = [
 $stmt = $conn->prepare("
     SELECT status, COUNT(*) AS cnt
     FROM applications
-    WHERE user_id = ?
+    WHERE user_id = ? AND deleted_at IS NULL
     GROUP BY status
 ");
 $stmt->bind_param("i", $userId);
@@ -83,7 +83,7 @@ while ($row = $res->fetch_assoc()) {
 $stmt->close();
 
 // ── Build search query ────────────────────────────────────────────────────────
-$where = ["a.user_id = ?"];
+$where = ["a.user_id = ?", "a.deleted_at IS NULL"];
 $types = "i";
 $params = [$userId];
 

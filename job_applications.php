@@ -70,7 +70,7 @@ if (!$pageError) {
   $stmt = $conn->prepare("
     SELECT job_id, job_title, status, created_at
     FROM jobs
-    WHERE job_id = ? AND user_id = ?
+    WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL
     LIMIT 1
   ");
   $stmt->bind_param("ii", $jobId, $userId);
@@ -92,7 +92,7 @@ if (!$pageError) {
     $stmt = $conn->prepare("
       SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, skills, status, applied_at, updated_at
       FROM applications
-      WHERE job_id = ?
+      WHERE job_id = ? AND deleted_at IS NULL
       ORDER BY applied_at DESC
     ");
     $stmt->bind_param("i", $jobId);
@@ -100,7 +100,7 @@ if (!$pageError) {
     $stmt = $conn->prepare("
       SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, skills, status, applied_at, updated_at
       FROM applications
-      WHERE job_id = ? AND status = ?
+      WHERE job_id = ? AND status = ? AND deleted_at IS NULL
       ORDER BY applied_at DESC
     ");
     $stmt->bind_param("is", $jobId, $filterStatus);

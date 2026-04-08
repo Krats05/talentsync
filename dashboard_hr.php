@@ -38,7 +38,7 @@ $offset = ($page - 1) * $limit;
 // ── Summary counts ────────────────────────────────────────────────────────────
 $counts = ['Draft' => 0, 'Open' => 0, 'Closed' => 0, 'Total' => 0];
 
-$stmt = $conn->prepare("SELECT status, COUNT(*) AS cnt FROM jobs WHERE user_id = ? GROUP BY status");
+$stmt = $conn->prepare("SELECT status, COUNT(*) AS cnt FROM jobs WHERE user_id = ? AND deleted_at IS NULL GROUP BY status");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -60,7 +60,7 @@ $stmt = $conn->prepare("
         SUM(CASE WHEN a.status = 'Rejected' THEN 1 ELSE 0 END) AS rejected
     FROM applications a
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL
 ");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
@@ -84,7 +84,7 @@ $conversionRates = [
 ];
 
 // ── Build WHERE clause ────────────────────────────────────────────────────────
-$where  = ['j.user_id = ?'];
+$where  = ['j.user_id = ?', 'j.deleted_at IS NULL'];
 $types  = 'i';
 $params = [$userId];
 

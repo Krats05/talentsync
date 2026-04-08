@@ -33,7 +33,7 @@ $stmt = $conn->prepare("
     SELECT a.status, COUNT(*) AS count
     FROM applications a
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL
     GROUP BY a.status
 ");
 $stmt->bind_param('i', $userId);
@@ -48,8 +48,8 @@ $stmt->close();
 $stmt = $conn->prepare("
     SELECT j.job_title, j.status AS job_status, COUNT(a.application_id) AS app_count
     FROM jobs j
-    LEFT JOIN applications a ON j.job_id = a.job_id
-    WHERE j.user_id = ?
+    LEFT JOIN applications a ON j.job_id = a.job_id AND a.deleted_at IS NULL
+    WHERE j.user_id = ? AND j.deleted_at IS NULL
     GROUP BY j.job_id
     ORDER BY app_count DESC
     LIMIT 10
@@ -67,7 +67,7 @@ $stmt = $conn->prepare("
     SELECT j.job_title, j.status, j.created_at
     FROM jobs j
     LEFT JOIN applications a ON j.job_id = a.job_id
-    WHERE j.user_id = ? AND j.status = 'Open' AND a.application_id IS NULL
+    WHERE j.user_id = ? AND j.status = 'Open' AND j.deleted_at IS NULL AND a.application_id IS NULL
 ");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
@@ -82,7 +82,7 @@ $stmt = $conn->prepare("
     SELECT js.skill_name, js.skill_type, COUNT(*) AS frequency
     FROM job_skills js
     JOIN jobs j ON js.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL
     GROUP BY js.skill_name, js.skill_type
     ORDER BY frequency DESC
     LIMIT 10
@@ -100,7 +100,7 @@ $stmt = $conn->prepare("
     SELECT a.skills
     FROM applications a
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ? AND a.skills IS NOT NULL AND a.skills != ''
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL AND a.skills IS NOT NULL AND a.skills != ''
 ");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
@@ -124,7 +124,7 @@ $stmt = $conn->prepare("
     FROM stage_history sh
     JOIN applications a ON sh.application_id = a.application_id
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL
     GROUP BY sh.new_status
 ");
 $stmt->bind_param('i', $userId);
@@ -136,7 +136,7 @@ while ($row = $r->fetch_assoc()) {
 $stmt->close();
 
 // 7. Overall totals
-$stmt = $conn->prepare("SELECT COUNT(*) AS c FROM jobs WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT COUNT(*) AS c FROM jobs WHERE user_id = ? AND deleted_at IS NULL");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
 $stats['total_jobs'] = (int)$stmt->get_result()->fetch_assoc()['c'];
@@ -146,7 +146,7 @@ $stmt = $conn->prepare("
     SELECT COUNT(*) AS c
     FROM applications a
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL
 ");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
@@ -163,7 +163,7 @@ $stmt = $conn->prepare("
         AND sh2.changed_at < sh.changed_at
     JOIN applications a ON sh.application_id = a.application_id
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL
     GROUP BY sh.new_status
 ");
 $stmt->bind_param('i', $userId);

@@ -25,7 +25,7 @@ $stmt = $conn->prepare("
     FROM jobs j
     LEFT JOIN users u ON u.user_id = j.user_id
     LEFT JOIN occupation_data od ON od.onetsoc_code = j.onet_soc_code
-    WHERE j.job_id = ?
+    WHERE j.job_id = ? AND j.deleted_at IS NULL
     LIMIT 1
 ");
 

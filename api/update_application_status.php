@@ -35,7 +35,7 @@ $sql = "
 SELECT a.status AS old_status
 FROM applications a
 JOIN jobs j ON a.job_id = j.job_id
-WHERE a.application_id = ? AND j.user_id = ?
+WHERE a.application_id = ? AND j.user_id = ? AND a.deleted_at IS NULL AND j.deleted_at IS NULL
 ";
 
 $stmt = $conn->prepare($sql);

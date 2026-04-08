@@ -75,7 +75,7 @@ $summary = ['Draft' => 0, 'Open' => 0, 'Closed' => 0, 'Total' => 0];
 $stmt = $conn->prepare("
     SELECT status, COUNT(*) AS cnt
     FROM jobs
-    WHERE user_id = ?
+    WHERE user_id = ? AND deleted_at IS NULL
     GROUP BY status
 ");
 $stmt->bind_param("i", $userId);
@@ -93,7 +93,7 @@ $stmt->close();
 // 2) BUILD FILTERS
 // =========================
 
-$where = ["j.user_id = ?"];
+$where = ["j.user_id = ?", "j.deleted_at IS NULL"];
 $types = "i";
 $params = [$userId];
 

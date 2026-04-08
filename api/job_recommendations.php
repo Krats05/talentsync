@@ -56,7 +56,7 @@ $sql = "
     FROM jobs j
     JOIN users u ON j.user_id = u.user_id
     LEFT JOIN job_skills js ON j.job_id = js.job_id
-    WHERE j.status = 'Open'
+    WHERE j.status = 'Open' AND j.deleted_at IS NULL
     GROUP BY j.job_id, j.job_title, j.description, j.location, j.salary_range, u.full_name
 ";
 
