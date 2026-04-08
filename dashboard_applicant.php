@@ -142,6 +142,9 @@ bindParams($stmt, $types . 'ii', array_merge($params, [$limit, $offset]));
 $stmt->execute();
 $apps = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+$aiRecommendations = $_SESSION['ai_job_recommendations'] ?? [];
+$questionnaireData = $_SESSION['ai_questionnaire'] ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -170,6 +173,14 @@ $stmt->close();
         <a href="browse_jobs.php" class="btn btn-primary">Browse Jobs</a>
     </div>
 
+    <section class="card" style="margin-bottom: 24px;">
+    <h2 class="card-title">AI Job Recommendations</h2>
+    <p class="muted" style="margin-bottom: 16px;">
+        Get personalized job recommendations based on your skills, preferences, and career goals before you apply.
+    </p>
+    <a href="questionnaire.php" class="btn btn-primary">Get AI Job Recommendations</a>
+</section>
+
     <!-- Summary Cards -->
     <section class="summary-grid">
         <div class="summary-card">
@@ -190,6 +201,44 @@ $stmt->close();
         </div>
     </section>
 
+    <?php if (!empty($aiRecommendations)): ?>
+    <section class="card" style="margin-bottom: 24px;">
+        <h2 class="card-title">Your AI Job Recommendations</h2>
+
+        <?php if (!empty($questionnaireData)): ?>
+            <div style="margin-bottom: 20px;">
+                <p><strong>Role Type:</strong> <?= e($questionnaireData['role_type'] ?? '') ?></p>
+                <p><strong>Experience:</strong> <?= e($questionnaireData['experience'] ?? '') ?></p>
+                <p><strong>Skills:</strong> <?= e($questionnaireData['skills'] ?? '') ?></p>
+                <p><strong>Location:</strong> <?= e($questionnaireData['location'] ?? '') ?></p>
+                <p><strong>Salary:</strong> <?= e($questionnaireData['salary'] ?? '') ?></p>
+                <?php if (!empty($questionnaireData['industries'])): ?>
+                    <p><strong>Industries:</strong> <?= e($questionnaireData['industries']) ?></p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <div style="display: grid; gap: 16px;">
+            <?php foreach ($aiRecommendations as $index => $rec): ?>
+                <div class="summary-card" style="text-align: left;">
+                    <div class="summary-label">Recommendation #<?= $index + 1 ?></div>
+                    <div class="summary-value" style="font-size: 20px; color: #1e293b; margin-bottom: 10px;">
+                        <?= e($rec['job_title'] ?? 'Recommended Job') ?>
+                    </div>
+                    <p style="margin: 0 0 8px;"><strong>Company:</strong> <?= e($rec['company'] ?? 'Unknown') ?></p>
+                    <p style="margin: 0 0 12px;"><strong>Job ID:</strong> <?= e($rec['job_id'] ?? '') ?></p>
+                    <p style="color: #475569; margin-bottom: 12px;">
+                        <?= nl2br(e($rec['reason'] ?? 'No explanation available.')) ?>
+                    </p>
+
+                    <?php if (!empty($rec['job_id'])): ?>
+                        <a href="job_detail.php?id=<?= (int)$rec['job_id'] ?>" class="btn">View Job</a>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
     <!-- Search Filter -->
     <section class="card">
         <h2 class="card-title">My Applications</h2>
