@@ -379,8 +379,10 @@ $baseQuery = ['status' => $status, 'q' => $q];
                     container.innerHTML = data.message;
                     insightsLoaded = true;
                 } else {
+                    var errText = document.createElement('span');
+                    errText.textContent = data.error || 'Unknown error';
                     container.innerHTML = '<div class="insights-error">Unable to load insights: ' +
-                        (data.error || 'Unknown error') + '</div>';
+                        errText.innerHTML + '</div>';
                 }
                 // Update panel height after content loads
                 const panel = document.getElementById('insights-panel');

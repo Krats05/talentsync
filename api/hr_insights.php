@@ -228,11 +228,17 @@ $systemPrompt = 'You are a senior HR analytics consultant. Provide concise, data
 
 $result = call_claude($prompt, $systemPrompt);
 
-// Clean up any markdown code fences Claude might still add
+// Clean up and sanitize the HTML response
 if ($result['success']) {
     $msg = $result['message'];
     $msg = preg_replace('/^```html?\s*/i', '', $msg);
     $msg = preg_replace('/\s*```\s*$/', '', $msg);
+    // Strip dangerous tags (keep only safe formatting + insight card divs)
+    $msg = strip_tags($msg, '<div><span><strong><em><br><ul><ol><li><p>');
+    // Remove any event handler attributes (onclick, onerror, onload, etc.)
+    $msg = preg_replace('/\s+on\w+\s*=\s*["\'][^"\']*["\']/i', '', $msg);
+    // Remove javascript: URLs
+    $msg = preg_replace('/href\s*=\s*["\']javascript:[^"\']*["\']/i', '', $msg);
     $result['message'] = trim($msg);
 }
 
