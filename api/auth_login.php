@@ -42,10 +42,16 @@ $_SESSION["role"] = $user['role'];
 // Redirect to original page if provided, otherwise go to dashboard
 $redirect = trim($_POST['redirect'] ?? '');
 if ($redirect !== '') {
-    // Only allow relative redirects (prevent open redirect attacks)
-    $redirect = ltrim($redirect, '/');
-    if (!preg_match('/^https?:\/\//i', $redirect)) {
-        header("Location: ../" . $redirect);
+    // Whitelist of allowed redirect pages
+    $allowed = [
+        'browse_jobs.php', 'job_detail.php', 'apply_job.php',
+        'dashboard_hr.php', 'dashboard_applicant.php', 'create_job.php',
+        'job_applications.php', 'questionnaire.php',
+    ];
+    $parsed = parse_url($redirect, PHP_URL_PATH);
+    $page = basename($parsed ?? '');
+    if (in_array($page, $allowed, true)) {
+        header("Location: ../" . ltrim($redirect, '/'));
         exit;
     }
 }
