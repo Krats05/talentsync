@@ -87,7 +87,7 @@ $where  = ['j.user_id = ?', 'j.deleted_at IS NULL'];
 $types  = 'i';
 $params = [$userId];
 
-if (in_array($status, ['Draft', 'Open', 'Closed'], true)) {
+if (in_array($status, JOB_STATUSES, true)) {
     $where[]  = 'j.status = ?';
     $types   .= 's';
     $params[] = $status;
@@ -393,7 +393,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
             <div class="filter-item">
                 <label class="filter-label">Status</label>
                 <select name="status" class="filter-control">
-                    <?php foreach (['All', 'Draft', 'Open', 'Closed'] as $opt): ?>
+                    <?php foreach (JOB_FILTER_STATUSES as $opt): ?>
                         <option value="<?php echo $opt; ?>" <?php echo ($status === $opt) ? 'selected' : ''; ?>>
                             <?php echo $opt; ?>
                         </option>

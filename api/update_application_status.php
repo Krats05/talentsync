@@ -24,7 +24,8 @@ if (!$application_id || !$status || !$job_id) {
     exit();
 }
 
-$allowed = ['Pending','Interviewing','Offered','Rejected'];
+require_once __DIR__ . '/../includes/helpers.php';
+$allowed = APP_STATUSES;
 
 if (!in_array($status, $allowed)) {
     header("Location: ../job_applications.php?job_id=$job_id&error=InvalidStatus");

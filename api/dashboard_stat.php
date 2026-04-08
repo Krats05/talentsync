@@ -61,7 +61,7 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-$validStatuses = ['All', 'Draft', 'Open', 'Closed'];
+$validStatuses = JOB_FILTER_STATUSES;
 if (!in_array($status, $validStatuses, true)) $status = 'All';
 
 
@@ -96,7 +96,7 @@ $where = ["j.user_id = ?", "j.deleted_at IS NULL"];
 $types = "i";
 $params = [$userId];
 
-if (in_array($status, ['Draft','Open','Closed'], true)) {
+if (in_array($status, JOB_STATUSES, true)) {
     $where[] = "j.status = ?";
     $types  .= "s";
     $params[] = $status;

@@ -3,6 +3,12 @@
  * Shared helper functions used across TalentSync
  */
 
+// Application status constants
+const APP_STATUSES = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
+const JOB_STATUSES = ['Draft', 'Open', 'Closed'];
+const JOB_FILTER_STATUSES = ['All', 'Draft', 'Open', 'Closed'];
+const APP_FILTER_STATUSES = ['All', 'Pending', 'Interviewing', 'Offered', 'Rejected'];
+
 // HTML escape shorthand
 function e($s) {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');

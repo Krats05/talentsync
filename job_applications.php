@@ -23,7 +23,7 @@ $jobId = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
 
 // Filter by status
 $filterStatus = $_GET['status'] ?? 'All';
-$validFilterStatuses = ['All', 'Pending', 'Interviewing', 'Offered', 'Rejected'];
+$validFilterStatuses = APP_FILTER_STATUSES;
 if (!in_array($filterStatus, $validFilterStatuses, true)) $filterStatus = 'All';
 
 $success = $_GET['success'] ?? '';
@@ -135,7 +135,7 @@ if (!$pageError) {
 }
 
 // Dropdown options for status update
-$dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
+$dbStatusOptions = APP_STATUSES;
 ?>
 <!DOCTYPE html>
 <html lang="en">
