@@ -28,8 +28,7 @@ if ($DEV_BYPASS_LOGIN) {
 }
 
 require_once __DIR__ . "/../config/db.php";
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . "/../includes/helpers.php";
 
 
 // =========================
@@ -112,13 +111,6 @@ if ($q !== '') {
 }
 
 $whereSql = "WHERE " . implode(" AND ", $where);
-
-function bindParams(mysqli_stmt $stmt, string $types, array $params) {
-    $refs = [];
-    foreach ($params as $k => $v) $refs[$k] = &$params[$k];
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 
 // =========================

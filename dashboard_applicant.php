@@ -12,10 +12,7 @@
 
 session_start();
 require_once __DIR__ . '/config/db.php';
-
-function e($s) { 
-    return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); 
-}
+require_once __DIR__ . '/includes/helpers.php';
 
 // ── Session guard ─────────────────────────────────────────────────────────────
 if (!isset($_SESSION['user_id'])) {
@@ -37,17 +34,6 @@ $q = trim($_GET['q'] ?? '');
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;
-
-// ── Helper function for dynamic bind_param ───────────────────────────────────
-function bindParams($stmt, $types, $params) {
-    if ($types === '') return;
-    $refs = [];
-    foreach ($params as $k => $v) {
-        $refs[$k] = &$params[$k];
-    }
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 // ── Summary counts ────────────────────────────────────────────────────────────
 $counts = [

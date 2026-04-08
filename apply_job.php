@@ -2,13 +2,11 @@
 session_start();
 require_once __DIR__ . "/config/db.php";
 require_once __DIR__ . "/includes/csrf.php";
+require_once __DIR__ . "/includes/helpers.php";
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
-}
-function e($s) {
-    return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
 
 $job_id = max(0, (int)($_GET['id'] ?? 0));

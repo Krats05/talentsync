@@ -9,8 +9,7 @@
 session_start();
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/csrf.php';
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . '/includes/helpers.php';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // TEMPORARY: Bypass login for testing (remove when Lee finishes login.php)
@@ -104,13 +103,6 @@ if ($q !== '') {
 
 $whereSql = 'WHERE ' . implode(' AND ', $where);
 
-// Helper: dynamic bind_param
-function bindParams($stmt, $types, $params) {
-    $refs = [];
-    foreach ($params as $k => $v) $refs[$k] = &$params[$k];
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 // ── Pagination total ──────────────────────────────────────────────────────────
 $stmt = $conn->prepare("

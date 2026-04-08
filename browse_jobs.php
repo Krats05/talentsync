@@ -3,8 +3,7 @@
 session_start();
 
 require_once __DIR__ . "/config/db.php";
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . "/includes/helpers.php";
 
 // Query params
 $q = trim($_GET['q'] ?? '');
@@ -34,14 +33,6 @@ if ($q !== '') {
 
 $whereSql = $where ? ("WHERE " . implode(" AND ", $where)) : "";
 
-// bind_param helper
-function bindParams(mysqli_stmt $stmt, string $types, array $params) {
-    if ($types === "") return;
-    $refs = [];
-    foreach ($params as $k => $v) $refs[$k] = &$params[$k];
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 // Total rows
 $stmt = $conn->prepare("
