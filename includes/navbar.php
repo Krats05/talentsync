@@ -3,6 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once __DIR__ . '/csrf.php';
 $_currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -20,7 +21,7 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
             $navInitial = strtoupper(substr($navName, 0, 1));
             $navRole = $isApplicant ? 'Applicant' : 'HR Manager';
         ?>
-        <nav class="nav-center">
+        <nav class="nav-center" aria-label="Main navigation">
             <?php if ($isApplicant): ?>
                 <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
                 <a href="browse_jobs.php" class="nav-link <?= ($_currentPage === 'browse_jobs.php' || $_currentPage === 'job_detail.php') ? 'nav-active' : '' ?>">Browse Jobs</a>
@@ -42,7 +43,7 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
             <a href="api/logout.php" class="Mbtn Mbtn-black">Log Out</a>
         </div>
     <?php else: ?>
-        <nav class="nav-center">
+        <nav class="nav-center" aria-label="Main navigation">
             <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
             <a href="browse_jobs.php" class="nav-link <?= $_currentPage === 'browse_jobs.php' ? 'nav-active' : '' ?>">Browse Jobs</a>
         </nav>
@@ -52,3 +53,4 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
         </div>
     <?php endif; ?>
 </header>
+<script>var CSRF_TOKEN = <?= json_encode(csrf_token()) ?>;</script>

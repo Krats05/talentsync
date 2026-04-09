@@ -8,18 +8,15 @@
 
 session_start();
 require_once __DIR__ . '/config/db.php';
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . '/includes/csrf.php';
+require_once __DIR__ . '/includes/helpers.php';
 
 // ── Session guard ─────────────────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $userId = (int)$_SESSION['user_id'];
-} else {
+if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+$userId = (int)$_SESSION['user_id'];
 
 // ── Edit mode: load existing job ─────────────────────────────────────────────
 $editMode   = false;
@@ -29,7 +26,7 @@ $editGeneralSkills = [];
 
 $jobIdParam = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
 if ($jobIdParam > 0) {
-    $stmt = $conn->prepare("SELECT * FROM jobs WHERE job_id = ? AND user_id = ? LIMIT 1");
+    $stmt = $conn->prepare("SELECT * FROM jobs WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1");
     $stmt->bind_param('ii', $jobIdParam, $userId);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -82,6 +79,7 @@ if ($jobIdParam > 0) {
     <div id="flash-area"></div>
 
     <form id="job-form" method="POST" action="api/save_job.php">
+        <?= csrf_field() ?>
         <?php if ($editMode): ?>
             <input type="hidden" name="job_id" value="<?php echo $editJob['job_id']; ?>" />
         <?php endif; ?>
@@ -232,6 +230,7 @@ if ($jobIdParam > 0) {
 
     <?php if ($editMode): ?>
     <form id="delete-form" action="api/delete_job.php" method="POST" style="display: none;">
+        <?= csrf_field() ?>
         <input type="hidden" name="job_id" value="<?php echo $editJob['job_id']; ?>">
     </form>
     <?php endif; ?>
@@ -281,7 +280,7 @@ function fetchOnetSkills(socCode) {
     loading.style.display = 'block';
 
     fetch('api/get_skills.php?soc_code=' + encodeURIComponent(socCode))
-        .then(function(r) { return r.json(); })
+        .then(function(r) { if (!r.ok) throw new Error('Server error'); return r.json(); })
         .then(function(data) {
             loading.style.display = 'none';
             // Clear both containers of O*NET skills
@@ -319,8 +318,7 @@ function fetchOnetSkills(socCode) {
         })
         .catch(function(error) {
             loading.style.display = 'none';
-            showHint('System error: Could not reach the API. Check console.');
-            console.error(error);
+            showHint('System error: Could not reach the API. Please try again.');
         });
 }
 
@@ -344,7 +342,7 @@ function loadAllSkills() {
     btn.disabled = true;
 
     fetch('api/get_skills.php?soc_code=' + encodeURIComponent(socCode) + '&all=1')
-        .then(function(r) { return r.json(); })
+        .then(function(r) { if (!r.ok) throw new Error('Server error'); return r.json(); })
         .then(function(data) {
             grid.innerHTML = '';
 
@@ -388,7 +386,6 @@ function loadAllSkills() {
         .catch(function(error) {
             btn.textContent = '📋 Browse More O*NET Skills';
             btn.disabled = false;
-            console.error(error);
         });
 }
 

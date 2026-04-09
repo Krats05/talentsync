@@ -121,7 +121,8 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
         const response = await fetch('api/job_recommendations.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': window.CSRF_TOKEN || ''
             },
             body: JSON.stringify(payload)
         });
@@ -136,6 +137,8 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             statusDiv.innerHTML = '<p style="color:red;">API did not return valid JSON. Check console.</p>';
             return;
         }
+        if (!response.ok) throw new Error('Server error');
+        const data = await response.json();
 
         if (data.success) {
             window.location.href = 'dashboard_applicant.php?ai_recs=1';
@@ -144,7 +147,6 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             console.log('API ERROR DATA:', data);
         }
     } catch (error) {
-        console.error('FETCH ERROR:', error);
         statusDiv.innerHTML = '<p style="color:red;">Something went wrong. Please try again.</p>';
     }
 });

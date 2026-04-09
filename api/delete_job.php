@@ -2,6 +2,7 @@
 // api/delete_job.php
 session_start();
 require_once '../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // 1. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -11,43 +12,40 @@ if (!isset($_SESSION['user_id'])) {
 
 // 2. Only accept POST requests with a job_id
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
+    csrf_validate();
     $job_id = (int)$_POST['job_id'];
     $user_id = $_SESSION['user_id'];
 
     // 3. Security Check: Ensure the job actually belongs to this specific user
-    $check_sql = "SELECT job_id FROM jobs WHERE job_id = ? AND user_id = ?";
+    $check_sql = "SELECT job_id FROM jobs WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL";
     $stmt = $conn->prepare($check_sql);
     $stmt->bind_param("ii", $job_id, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // 4. First, delete associated skills from job_skills to prevent orphaned data
-        $delete_skills = $conn->prepare("DELETE FROM job_skills WHERE job_id = ?");
-        $delete_skills->bind_param("i", $job_id);
-        $delete_skills->execute();
-        $delete_skills->close();
+        // 4. Soft-delete associated applications (preserve for compliance/history)
+        $soft_apps = $conn->prepare("UPDATE applications SET deleted_at = NOW() WHERE job_id = ? AND deleted_at IS NULL");
+        $soft_apps->bind_param("i", $job_id);
+        $soft_apps->execute();
+        $soft_apps->close();
 
-        // 5. Delete associated applications
-        $delete_apps = $conn->prepare("DELETE FROM applications WHERE job_id = ?");
-        $delete_apps->bind_param("i", $job_id);
-        $delete_apps->execute();
-        $delete_apps->close();
+        // 5. Soft-delete the job itself
+        $soft_job = $conn->prepare("UPDATE jobs SET deleted_at = NOW() WHERE job_id = ?");
+        $soft_job->bind_param("i", $job_id);
 
-        // 6. Finally, delete the job itself
-        $delete_job = $conn->prepare("DELETE FROM jobs WHERE job_id = ?");
-        $delete_job->bind_param("i", $job_id);
-        
-        if ($delete_job->execute()) {
-            // Success! Send them back to the dashboard
+        if ($soft_job->execute()) {
             header("Location: ../dashboard_hr.php?success=JobDeleted");
             exit;
         } else {
-            echo "Error deleting job: " . $conn->error;
+            error_log("delete_job.php: Error soft-deleting job: " . $conn->error);
+            header("Location: ../dashboard_hr.php?error=DeleteFailed");
+            exit;
         }
-        $delete_job->close();
+        $soft_job->close();
     } else {
-        echo "Unauthorized access or job not found.";
+        header("Location: ../dashboard_hr.php?error=Unauthorized");
+        exit;
     }
     $stmt->close();
 } else {

@@ -1,11 +1,15 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit('Method not allowed');
 }
+csrf_validate();
+rate_limit_check('login', 5, 900); // 5 attempts per 15 minutes
 
 $email = strtolower(trim($_POST['email'] ?? ''));
 $password = $_POST['password'] ?? '';
@@ -37,13 +41,21 @@ $_SESSION["full_name"] = $user['full_name'];
 $_SESSION["email"] = $email;
 $_SESSION["role"] = $user['role'];
 
+rate_limit_clear('login');
+
 // Redirect to original page if provided, otherwise go to dashboard
 $redirect = trim($_POST['redirect'] ?? '');
 if ($redirect !== '') {
-    // Only allow relative redirects (prevent open redirect attacks)
-    $redirect = ltrim($redirect, '/');
-    if (!preg_match('/^https?:\/\//i', $redirect)) {
-        header("Location: ../" . $redirect);
+    // Whitelist of allowed redirect pages
+    $allowed = [
+        'browse_jobs.php', 'job_detail.php', 'apply_job.php',
+        'dashboard_hr.php', 'dashboard_applicant.php', 'create_job.php',
+        'job_applications.php', 'questionnaire.php',
+    ];
+    $parsed = parse_url($redirect, PHP_URL_PATH);
+    $page = basename($parsed ?? '');
+    if (in_array($page, $allowed, true)) {
+        header("Location: ../" . ltrim($redirect, '/'));
         exit;
     }
 }

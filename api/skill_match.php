@@ -143,7 +143,7 @@ function calculate_match_score(int $jobId, string $applicantSkillsStr, mysqli $c
     $stmt->close();
 
     // Try to get O*NET importance weights for general skills
-    $job_stmt = $conn->prepare("SELECT onet_soc_code FROM jobs WHERE job_id = ? LIMIT 1");
+    $job_stmt = $conn->prepare("SELECT onet_soc_code FROM jobs WHERE job_id = ? AND deleted_at IS NULL LIMIT 1");
     $job_stmt->bind_param("i", $jobId);
     $job_stmt->execute();
     $job_res = $job_stmt->get_result();

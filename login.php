@@ -1,3 +1,4 @@
+<?php session_start(); require_once __DIR__ . '/includes/csrf.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +18,7 @@
         <h2 class="auth-title">Login</h2>
 
         <form action="api/auth_login.php" method="POST">
+            <?= csrf_field() ?>
             <?php
                 $redirect = $_GET['redirect'] ?? '';
                 if ($redirect !== ''):
@@ -24,12 +26,12 @@
                 <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8'); ?>">
             <?php endif; ?>
             <div class="auth-group">
-                <label>Email</label>
-                <input type="email" name="email" required placeholder="Enter your email">
+                <label for="login-email">Email</label>
+                <input id="login-email" type="email" name="email" required placeholder="Enter your email">
             </div>
             <div class="auth-group">
-                <label>Password</label>
-                <input type="password" name="password" required placeholder="Enter your password">
+                <label for="login-password">Password</label>
+                <input id="login-password" type="password" name="password" required placeholder="Enter your password">
             </div>
             <button type="submit" class="auth-button">Login</button>
         </form>

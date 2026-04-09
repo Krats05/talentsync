@@ -3,8 +3,7 @@
 session_start();
 
 require_once __DIR__ . "/config/db.php";
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . "/includes/helpers.php";
 
 // Query params
 $q = trim($_GET['q'] ?? '');
@@ -19,6 +18,7 @@ $types = '';
 $params = [];
 
 $where[] = "j.status = ?";
+$where[] = "j.deleted_at IS NULL";
 $types .= "s";
 $params[] = "Open";
 
@@ -33,14 +33,6 @@ if ($q !== '') {
 
 $whereSql = $where ? ("WHERE " . implode(" AND ", $where)) : "";
 
-// bind_param helper
-function bindParams(mysqli_stmt $stmt, string $types, array $params) {
-    if ($types === "") return;
-    $refs = [];
-    foreach ($params as $k => $v) $refs[$k] = &$params[$k];
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 // Total rows
 $stmt = $conn->prepare("
@@ -109,8 +101,8 @@ $baseQuery = ['q' => $q, 'status' => $status];
     <section class="card" style="margin-bottom: 24px;">
         <form method="GET" class="filters-form">
             <div class="filter-item">
-                <label class="filter-label">Search</label>
-                <input type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title, company, or O*NET title..." />
+                <label class="filter-label" for="filter-search">Search</label>
+                <input id="filter-search" type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title, company, or O*NET title..." />
             </div>
             <div class="filter-actions">
                 <button type="submit" class="btn btn-primary">Search</button>

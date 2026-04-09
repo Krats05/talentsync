@@ -2,12 +2,14 @@
 // api/submit_application.php
 session_start();
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // 1. Must be POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../browse_jobs.php");
     exit;
 }
+csrf_validate();
 
 // 2. Session guard: must be logged in as Applicant
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Applicant') {
@@ -40,7 +42,7 @@ if ($job_id <= 0 || $full_name === '' || $email === '') {
 }
 
 // 4. Validate job exists and status = 'Open'
-$stmt = $conn->prepare("SELECT job_id FROM jobs WHERE job_id = ? AND status = 'Open'");
+$stmt = $conn->prepare("SELECT job_id FROM jobs WHERE job_id = ? AND status = 'Open' AND deleted_at IS NULL");
 $stmt->bind_param("i", $job_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -52,40 +54,46 @@ if ($result->num_rows === 0) {
 }
 $stmt->close();
 
-// 5. Check for duplicate application (job_id + user_id)
-$stmt = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ?");
-$stmt->bind_param("ii", $job_id, $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// 5. Check for duplicate + insert inside a transaction to prevent race condition
+$conn->begin_transaction();
 
-if ($result->num_rows > 0) {
+try {
+    // Lock the row (if exists) to prevent concurrent duplicate inserts
+    $stmt = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL FOR UPDATE");
+    $stmt->bind_param("ii", $job_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $stmt->close();
+        $conn->rollback();
+        header("Location: ../apply_job.php?id=$job_id&error=AlreadyApplied");
+        exit;
+    }
     $stmt->close();
-    header("Location: ../apply_job.php?id=$job_id&error=AlreadyApplied");
-    exit;
-}
-$stmt->close();
 
-// 6. INSERT application
-$stmt = $conn->prepare("
-    INSERT INTO applications (job_id, user_id, full_name, email, phone, cover_letter, skills)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-");
-$stmt->bind_param("iisssss", $job_id, $user_id, $full_name, $email, $phone, $cover_letter, $skills);
+    // 6. INSERT application
+    $stmt = $conn->prepare("
+        INSERT INTO applications (job_id, user_id, full_name, email, phone, cover_letter, skills)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->bind_param("iisssss", $job_id, $user_id, $full_name, $email, $phone, $cover_letter, $skills);
+    $stmt->execute();
 
-if ($stmt->execute()) {
     // Added by Kratika — Log initial stage in stage_history
     $app_id = $conn->insert_id;
     $sh = $conn->prepare("INSERT INTO stage_history (application_id, old_status, new_status, changed_by) VALUES (?, NULL, 'Pending', ?)");
     $sh->bind_param("ii", $app_id, $user_id);
     $sh->execute();
     $sh->close();
-
     $stmt->close();
+
+    $conn->commit();
     $conn->close();
     header("Location: ../dashboard_applicant.php?success=ApplicationSubmitted");
     exit;
-} else {
-    $stmt->close();
+} catch (Exception $e) {
+    $conn->rollback();
     $conn->close();
     header("Location: ../apply_job.php?id=$job_id&error=SubmitFailed");
     exit;

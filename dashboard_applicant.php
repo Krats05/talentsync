@@ -12,25 +12,16 @@
 
 session_start();
 require_once __DIR__ . '/config/db.php';
-
-function e($s) { 
-    return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); 
-}
+require_once __DIR__ . '/includes/helpers.php';
 
 // ── Session guard ─────────────────────────────────────────────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId   = (int)$_SESSION['user']['user_id'];
-    $fullName = $_SESSION['user']['full_name'] ?? 'Candidate';
-    $role     = $_SESSION['user']['role'] ?? '';
-} elseif (isset($_SESSION['user_id'])) {
-    $userId   = (int)$_SESSION['user_id'];
-    $fullName = $_SESSION['full_name'] ?? 'Candidate';
-    $role     = $_SESSION['role'] ?? '';
-} else {
-    // User not logged in - redirect to login page
+if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+$userId   = (int)$_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'Candidate';
+$role     = $_SESSION['role'] ?? '';
 
 // Optional: Restrict to applicants only (uncomment if needed)
 // if ($role !== 'Applicant' && $role !== 'applicant') {
@@ -44,17 +35,6 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// ── Helper function for dynamic bind_param ───────────────────────────────────
-function bindParams($stmt, $types, $params) {
-    if ($types === '') return;
-    $refs = [];
-    foreach ($params as $k => $v) {
-        $refs[$k] = &$params[$k];
-    }
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
-
 // ── Summary counts ────────────────────────────────────────────────────────────
 $counts = [
     'Total' => 0,
@@ -66,7 +46,7 @@ $counts = [
 $stmt = $conn->prepare("
     SELECT status, COUNT(*) AS cnt
     FROM applications
-    WHERE user_id = ?
+    WHERE user_id = ? AND deleted_at IS NULL
     GROUP BY status
 ");
 $stmt->bind_param("i", $userId);
@@ -89,7 +69,7 @@ while ($row = $res->fetch_assoc()) {
 $stmt->close();
 
 // ── Build search query ────────────────────────────────────────────────────────
-$where = ["a.user_id = ?"];
+$where = ["a.user_id = ?", "a.deleted_at IS NULL"];
 $types = "i";
 $params = [$userId];
 
@@ -117,6 +97,7 @@ $totalRows = (int)$stmt->get_result()->fetch_assoc()['total'];
 $stmt->close();
 
 $totalPages = max(1, ceil($totalRows / $limit));
+if ($page > $totalPages) { $page = $totalPages; $offset = ($page - 1) * $limit; }
 
 // ── Fetch applications ────────────────────────────────────────────────────────
 $stmt = $conn->prepare("
@@ -266,7 +247,7 @@ $questionnaireData = $_SESSION['ai_questionnaire'] ?? [];
         <form method="GET" class="filters-form">
             <div class="filter-item">
                 <label class="filter-label">Search</label>
-                <input type="text" name="q" class="filter-control" 
+                <input type="text" name="q" class="filter-control" aria-label="Search applications"
                        value="<?= e($q) ?>" placeholder="Job title, company, O*NET">
             </div>
             <div>
@@ -330,7 +311,7 @@ $questionnaireData = $_SESSION['ai_questionnaire'] ?? [];
             </table>
 
             <!-- Pagination -->
-            <nav class="pagination">
+            <nav class="pagination" aria-label="Pagination">
                 <span style="font-size: 14px; color: #64748b;">
                     Page <?= $page ?> of <?= $totalPages ?>
                 </span>

@@ -8,8 +8,8 @@
 
 session_start();
 require_once __DIR__ . '/config/db.php';
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . '/includes/csrf.php';
+require_once __DIR__ . '/includes/helpers.php';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // TEMPORARY: Bypass login for testing (remove when Lee finishes login.php)
@@ -18,17 +18,13 @@ function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 //$fullName = 'Vaishnavi Test';
 
 
-// ── Session guard (COMMENTED OUT FOR TESTING) ─────────────────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $userId   = (int)$_SESSION['user']['user_id'];
-    $fullName = $_SESSION['user']['full_name'] ?? 'HR Manager';
-} elseif (isset($_SESSION['user_id'])) {
-    $userId   = (int)$_SESSION['user_id'];
-    $fullName = $_SESSION['full_name'] ?? 'HR Manager';
-} else {
-    header('Location: login.php');  // ← This was redirecting you!
+// ── Session guard ─────────────────────────────────────────────────────────────
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
     exit;
 }
+$userId   = (int)$_SESSION['user_id'];
+$fullName = $_SESSION['full_name'] ?? 'HR Manager';
 
 
 // ── Query parameters ──────────────────────────────────────────────────────────
@@ -41,7 +37,7 @@ $offset = ($page - 1) * $limit;
 // ── Summary counts ────────────────────────────────────────────────────────────
 $counts = ['Draft' => 0, 'Open' => 0, 'Closed' => 0, 'Total' => 0];
 
-$stmt = $conn->prepare("SELECT status, COUNT(*) AS cnt FROM jobs WHERE user_id = ? GROUP BY status");
+$stmt = $conn->prepare("SELECT status, COUNT(*) AS cnt FROM jobs WHERE user_id = ? AND deleted_at IS NULL GROUP BY status");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -63,7 +59,7 @@ $stmt = $conn->prepare("
         SUM(CASE WHEN a.status = 'Rejected' THEN 1 ELSE 0 END) AS rejected
     FROM applications a
     JOIN jobs j ON a.job_id = j.job_id
-    WHERE j.user_id = ?
+    WHERE j.user_id = ? AND j.deleted_at IS NULL AND a.deleted_at IS NULL
 ");
 $stmt->bind_param('i', $userId);
 $stmt->execute();
@@ -87,11 +83,11 @@ $conversionRates = [
 ];
 
 // ── Build WHERE clause ────────────────────────────────────────────────────────
-$where  = ['j.user_id = ?'];
+$where  = ['j.user_id = ?', 'j.deleted_at IS NULL'];
 $types  = 'i';
 $params = [$userId];
 
-if (in_array($status, ['Draft', 'Open', 'Closed'], true)) {
+if (in_array($status, JOB_STATUSES, true)) {
     $where[]  = 'j.status = ?';
     $types   .= 's';
     $params[] = $status;
@@ -107,13 +103,6 @@ if ($q !== '') {
 
 $whereSql = 'WHERE ' . implode(' AND ', $where);
 
-// Helper: dynamic bind_param
-function bindParams($stmt, $types, $params) {
-    $refs = [];
-    foreach ($params as $k => $v) $refs[$k] = &$params[$k];
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 // ── Pagination total ──────────────────────────────────────────────────────────
 $stmt = $conn->prepare("
@@ -186,12 +175,22 @@ $baseQuery = ['status' => $status, 'q' => $q];
         <p class="page-subtitle">Welcome back, <?php echo e($fullName); ?>.</p>
     </header>
 
-<?php if (isset($_GET['success'])): ?>
+<?php if (isset($_GET['error'])): ?>
+        <div class="flash flash-error" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:14px 20px;border-radius:12px;margin-bottom:16px;font-size:14px;">
+            <?php
+                $err = e($_GET['error']);
+                if ($err === 'DeleteFailed') echo 'Failed to delete job. Please try again.';
+                elseif ($err === 'Unauthorized') echo 'You do not have permission to perform this action.';
+                else echo 'An error occurred.';
+            ?>
+        </div>
+    <?php endif; ?>
+    <?php if (isset($_GET['success'])): ?>
         <div class="flash flash-success">
-            <?php 
+            <?php
                 if ($_GET['success'] === 'JobSaved') echo '✓ Job saved successfully.';
                 elseif ($_GET['success'] === 'JobDeleted') echo '✓ Job deleted successfully.';
-                else echo '✓ Action completed successfully.'; 
+                else echo '✓ Action completed successfully.';
             ?>
         </div>
     <?php endif; ?>
@@ -372,14 +371,16 @@ $baseQuery = ['status' => $status, 'q' => $q];
 
         // Call the HR Insights API endpoint
         fetch('api/hr_insights.php')
-            .then(res => res.json())
+            .then(res => { if (!res.ok) throw new Error('Server error'); return res.json(); })
             .then(data => {
                 if (data.success) {
                     container.innerHTML = data.message;
                     insightsLoaded = true;
                 } else {
+                    var errText = document.createElement('span');
+                    errText.textContent = data.error || 'Unknown error';
                     container.innerHTML = '<div class="insights-error">Unable to load insights: ' +
-                        (data.error || 'Unknown error') + '</div>';
+                        errText.innerHTML + '</div>';
                 }
                 // Update panel height after content loads
                 const panel = document.getElementById('insights-panel');
@@ -400,9 +401,9 @@ $baseQuery = ['status' => $status, 'q' => $q];
     <section class="card">
         <form method="GET" class="filters-form">
             <div class="filter-item">
-                <label class="filter-label">Status</label>
-                <select name="status" class="filter-control">
-                    <?php foreach (['All', 'Draft', 'Open', 'Closed'] as $opt): ?>
+                <label class="filter-label" for="filter-status">Status</label>
+                <select id="filter-status" name="status" class="filter-control">
+                    <?php foreach (JOB_FILTER_STATUSES as $opt): ?>
                         <option value="<?php echo $opt; ?>" <?php echo ($status === $opt) ? 'selected' : ''; ?>>
                             <?php echo $opt; ?>
                         </option>
@@ -411,8 +412,8 @@ $baseQuery = ['status' => $status, 'q' => $q];
             </div>
 
             <div class="filter-item">
-                <label class="filter-label">Search</label>
-                <input type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title or O*NET…" />
+                <label class="filter-label" for="filter-search">Search</label>
+                <input id="filter-search" type="text" name="q" class="filter-control" value="<?php echo e($q); ?>" placeholder="Job title or O*NET…" />
             </div>
 
             <div class="filter-actions">
@@ -473,7 +474,8 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                 <td style="display: flex; gap: 10px; align-items: center; border-bottom: none;">
                                     <a href="create_job.php?job_id=<?php echo $j['job_id']; ?>" class="action-link">Edit</a>
                                     <span style="color: #cbd5e1;">|</span>
-                                    <form action="api/delete_job.php" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this job? This cannot be undone.');">
+                                    <form action="api/delete_job.php" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this job and its applications?');">
+                                        <?= csrf_field() ?>
                                         <input type="hidden" name="job_id" value="<?php echo $j['job_id']; ?>">
                                         <button type="submit" class="action-link" style="background: none; border: none; padding: 0; color: #ef4444; font-family: inherit;">Delete</button>
                                     </form>

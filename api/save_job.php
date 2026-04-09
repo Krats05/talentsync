@@ -2,20 +2,18 @@
 // api/save_job.php
 session_start();
 require_once '../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
-// 1. Session Guard: Check if user is logged in 
-// (Matches the logic used in create_job.php)
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $user_id = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $user_id = (int)$_SESSION['user_id'];
-} else {
+// 1. Session Guard: Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php?error=not_logged_in');
     exit;
 }
+$user_id = (int)$_SESSION['user_id'];
 
 // 2. Only process the data if the form was actually submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_validate();
     
     // Check if we are updating an existing job or creating a new one
     $job_id = isset($_POST['job_id']) ? (int)$_POST['job_id'] : 0;
@@ -52,7 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $job_id = $conn->insert_id; // Get the ID of the job we just created
         } else {
-            die("Error saving job: " . $conn->error);
+            error_log("save_job.php: Error saving job: " . $conn->error);
+            header("Location: ../dashboard_hr.php?error=SaveFailed");
+            exit;
         }
         $stmt->close();
     }

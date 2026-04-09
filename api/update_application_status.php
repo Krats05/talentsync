@@ -1,11 +1,13 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../dashboard_hr.php");
     exit();
 }
+csrf_validate();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'HR_Manager') {
     header("Location: ../dashboard_hr.php");
@@ -22,7 +24,8 @@ if (!$application_id || !$status || !$job_id) {
     exit();
 }
 
-$allowed = ['Pending','Interviewing','Offered','Rejected'];
+require_once __DIR__ . '/../includes/helpers.php';
+$allowed = APP_STATUSES;
 
 if (!in_array($status, $allowed)) {
     header("Location: ../job_applications.php?job_id=$job_id&error=InvalidStatus");
@@ -33,7 +36,7 @@ $sql = "
 SELECT a.status AS old_status
 FROM applications a
 JOIN jobs j ON a.job_id = j.job_id
-WHERE a.application_id = ? AND j.user_id = ?
+WHERE a.application_id = ? AND j.user_id = ? AND a.deleted_at IS NULL AND j.deleted_at IS NULL
 ";
 
 $stmt = $conn->prepare($sql);

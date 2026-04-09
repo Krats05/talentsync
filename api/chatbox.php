@@ -56,13 +56,17 @@ function claude_request(string $userMessage, string $systemPrompt = '', int $max
     return ['success' => true, 'message' => $text, 'error' => null];
 }
 
-// ── Session guard (same dual-key pattern as save_job.php) ────────────────────
-if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
-    $user_id = (int)$_SESSION['user']['user_id'];
-} elseif (isset($_SESSION['user_id'])) {
-    $user_id = (int)$_SESSION['user_id'];
-} else {
+// ── Session guard ────────────────────────────────────────────────────────────
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Not logged in']);
+    exit;
+}
+$user_id = (int)$_SESSION['user_id'];
+
+$role = $_SESSION['role'] ?? '';
+if (!in_array($role, ['HR_Manager', 'Admin', 'Recruiter'], true)) {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
     exit;
 }
 
@@ -71,6 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
     exit;
 }
+require_once __DIR__ . '/../includes/csrf.php';
+csrf_validate();
 
 // ── Parse JSON body ──────────────────────────────────────────────────────────
 $input       = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -199,7 +205,8 @@ function saveJobAsDraft(mysqli $conn, int $userId, string $jobTitle, string $soc
     $stmt->bind_param('issss', $userId, $jobTitle, $socCode, $description, $status);
 
     if (!$stmt->execute()) {
-        throw new RuntimeException('DB error saving job: ' . $conn->error);
+        error_log("chatbox.php: DB error saving job: " . $conn->error);
+        throw new RuntimeException('Failed to save job. Please try again.');
     }
     $jobId = $conn->insert_id;
     $stmt->close();

@@ -6,27 +6,11 @@
 
 session_start();
 require_once __DIR__ . "/config/db.php";
+require_once __DIR__ . "/includes/csrf.php";
+require_once __DIR__ . "/includes/helpers.php";
 
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-
-// Session compatibility
-function get_session_user_id(): ?int {
-  if (isset($_SESSION['user_id'])) return (int)$_SESSION['user_id'];
-  if (isset($_SESSION['user']) && is_array($_SESSION['user']) && isset($_SESSION['user']['user_id'])) {
-    return (int)$_SESSION['user']['user_id'];
-  }
-  return null;
-}
-function get_session_role(): ?string {
-  if (isset($_SESSION['role'])) return (string)$_SESSION['role'];
-  if (isset($_SESSION['user']) && is_array($_SESSION['user']) && isset($_SESSION['user']['role'])) {
-    return (string)$_SESSION['user']['role'];
-  }
-  return null;
-}
-
-$userId = get_session_user_id();
-$role = get_session_role();
+$userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+$role = $_SESSION['role'] ?? null;
 
 $allowedRoles = ['HR_Manager', 'Admin', 'Recruiter'];
 if (!$userId || !$role || !in_array($role, $allowedRoles, true)) {
@@ -39,7 +23,7 @@ $jobId = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
 
 // Filter by status
 $filterStatus = $_GET['status'] ?? 'All';
-$validFilterStatuses = ['All', 'Pending', 'Interviewing', 'Offered', 'Rejected'];
+$validFilterStatuses = APP_FILTER_STATUSES;
 if (!in_array($filterStatus, $validFilterStatuses, true)) $filterStatus = 'All';
 
 $success = $_GET['success'] ?? '';
@@ -85,7 +69,7 @@ if (!$pageError) {
   $stmt = $conn->prepare("
     SELECT job_id, job_title, status, created_at
     FROM jobs
-    WHERE job_id = ? AND user_id = ?
+    WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL
     LIMIT 1
   ");
   $stmt->bind_param("ii", $jobId, $userId);
@@ -107,7 +91,7 @@ if (!$pageError) {
     $stmt = $conn->prepare("
       SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, skills, status, applied_at, updated_at
       FROM applications
-      WHERE job_id = ?
+      WHERE job_id = ? AND deleted_at IS NULL
       ORDER BY applied_at DESC
     ");
     $stmt->bind_param("i", $jobId);
@@ -115,7 +99,7 @@ if (!$pageError) {
     $stmt = $conn->prepare("
       SELECT application_id, job_id, user_id, full_name, email, phone, cover_letter, skills, status, applied_at, updated_at
       FROM applications
-      WHERE job_id = ? AND status = ?
+      WHERE job_id = ? AND status = ? AND deleted_at IS NULL
       ORDER BY applied_at DESC
     ");
     $stmt->bind_param("is", $jobId, $filterStatus);
@@ -151,7 +135,7 @@ if (!$pageError) {
 }
 
 // Dropdown options for status update
-$dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
+$dbStatusOptions = APP_STATUSES;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -201,6 +185,16 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
     </section>
   <?php else: ?>
 
+    <?php if (isset($_GET['error'])): ?>
+      <div class="flash flash-error" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:14px 20px;border-radius:12px;margin-bottom:16px;font-size:14px;">
+        <?php
+          $err = e($_GET['error']);
+          if ($err === 'InvalidStatus') echo 'Invalid status value.';
+          elseif ($err === 'Unauthorized') echo 'You do not have permission to update this application.';
+          else echo 'An error occurred.';
+        ?>
+      </div>
+    <?php endif; ?>
     <?php if ($success === 'StatusUpdated'): ?>
       <div class="flash flash-success">Status updated successfully.</div>
     <?php endif; ?>
@@ -216,8 +210,8 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
       <form method="GET" class="filters-form">
         <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
         <div class="filter-item" style="min-width: 140px; flex: 0;">
-          <label class="filter-label">Filter by Status</label>
-          <select name="status" class="filter-control">
+          <label class="filter-label" for="filter-app-status">Filter by Status</label>
+          <select id="filter-app-status" name="status" class="filter-control">
             <option value="All" <?php echo ($filterStatus === 'All') ? 'selected' : ''; ?>>All</option>
             <option value="Pending" <?php echo ($filterStatus === 'Pending') ? 'selected' : ''; ?>>Pending</option>
             <option value="Interviewing" <?php echo ($filterStatus === 'Interviewing') ? 'selected' : ''; ?>>Interviewing</option>
@@ -287,10 +281,11 @@ $dbStatusOptions = ['Pending', 'Interviewing', 'Offered', 'Rejected'];
                         <?php echo e($badge['label']); ?>
                       </span>
                       <form method="POST" action="api/update_application_status.php" style="margin:0;">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="application_id" value="<?php echo (int)$a['application_id']; ?>">
                         <input type="hidden" name="job_id" value="<?php echo (int)$jobId; ?>">
                         <input type="hidden" name="return_status" value="<?php echo e($filterStatus); ?>">
-                        <select name="status" class="status-select" data-autosubmit="1">
+                        <select name="status" class="status-select" data-autosubmit="1" aria-label="Update application status">
                           <?php foreach ($dbStatusOptions as $opt): ?>
                             <option value="<?php echo e($opt); ?>" <?php echo ($dbStatus === $opt) ? 'selected' : ''; ?>>
                               <?php echo e($opt); ?>

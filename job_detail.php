@@ -1,10 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . "/config/db.php";
-
-function e($s) {
-    return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
-}
+require_once __DIR__ . "/includes/helpers.php";
 
 $job_id = max(0, (int)($_GET['id'] ?? 0));
 
@@ -25,12 +22,13 @@ $stmt = $conn->prepare("
     FROM jobs j
     LEFT JOIN users u ON u.user_id = j.user_id
     LEFT JOIN occupation_data od ON od.onetsoc_code = j.onet_soc_code
-    WHERE j.job_id = ?
+    WHERE j.job_id = ? AND j.deleted_at IS NULL
     LIMIT 1
 ");
 
 if (!$stmt) {
-    die("Prepare failed: " . $conn->error);
+    error_log("job_detail.php: Prepare failed: " . $conn->error);
+    die("Something went wrong. Please try again later.");
 }
 
 $stmt->bind_param("i", $job_id);
@@ -41,6 +39,24 @@ $stmt->close();
 
 if (!$job) {
     die("Job not found.");
+}
+
+// Non-open jobs should only be visible to the HR user who created them
+if ($job['status'] !== 'Open') {
+    $role = $_SESSION['role'] ?? '';
+    $sessionUserId = $_SESSION['user_id'] ?? 0;
+    // Check if this user is the job owner (HR viewing their own job)
+    $isOwner = false;
+    if ($sessionUserId > 0) {
+        $ownerCheck = $conn->prepare("SELECT user_id FROM jobs WHERE job_id = ? AND user_id = ? LIMIT 1");
+        $ownerCheck->bind_param("ii", $job_id, $sessionUserId);
+        $ownerCheck->execute();
+        $isOwner = $ownerCheck->get_result()->num_rows > 0;
+        $ownerCheck->close();
+    }
+    if (!$isOwner) {
+        die("This job is no longer available.");
+    }
 }
 
 // Fetch skills for this job
@@ -62,7 +78,7 @@ $skillStmt->close();
 // Check if user already applied
 $alreadyApplied = false;
 if (isset($_SESSION['user_id'])) {
-    $appCheck = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? LIMIT 1");
+    $appCheck = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1");
     $appCheck->bind_param("ii", $job_id, $_SESSION['user_id']);
     $appCheck->execute();
     $alreadyApplied = $appCheck->get_result()->num_rows > 0;
@@ -164,7 +180,9 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
         </div>
 
         <div class="detail-actions">
-            <?php if (!isset($_SESSION['user_id'])): ?>
+            <?php if ($job['status'] !== 'Open'): ?>
+                <span class="btn-apply btn-applied">This job is <?php echo e($job['status']); ?></span>
+            <?php elseif (!isset($_SESSION['user_id'])): ?>
                 <a href="login.php?redirect=<?php echo urlencode('apply_job.php?id=' . (int)$job['job_id']); ?>" class="btn-apply">Login to Apply</a>
             <?php elseif ($alreadyApplied): ?>
                 <span class="btn-apply btn-applied">Already Applied</span>

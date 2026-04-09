@@ -7,7 +7,7 @@ session_start();
 // =========================
 
 $DEV_SHOW_ERRORS  = true;
-$DEV_BYPASS_LOGIN = true;  // set true to skip login during development
+$DEV_BYPASS_LOGIN = false;  // set true to skip login during development
 
 if ($DEV_SHOW_ERRORS) {
     ini_set('display_errors', 1);
@@ -28,8 +28,7 @@ if ($DEV_BYPASS_LOGIN) {
 }
 
 require_once __DIR__ . "/../config/db.php";
-
-function e($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
+require_once __DIR__ . "/../includes/helpers.php";
 
 
 // =========================
@@ -62,7 +61,7 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-$validStatuses = ['All', 'Draft', 'Open', 'Closed'];
+$validStatuses = JOB_FILTER_STATUSES;
 if (!in_array($status, $validStatuses, true)) $status = 'All';
 
 
@@ -75,7 +74,7 @@ $summary = ['Draft' => 0, 'Open' => 0, 'Closed' => 0, 'Total' => 0];
 $stmt = $conn->prepare("
     SELECT status, COUNT(*) AS cnt
     FROM jobs
-    WHERE user_id = ?
+    WHERE user_id = ? AND deleted_at IS NULL
     GROUP BY status
 ");
 $stmt->bind_param("i", $userId);
@@ -93,11 +92,11 @@ $stmt->close();
 // 2) BUILD FILTERS
 // =========================
 
-$where = ["j.user_id = ?"];
+$where = ["j.user_id = ?", "j.deleted_at IS NULL"];
 $types = "i";
 $params = [$userId];
 
-if (in_array($status, ['Draft','Open','Closed'], true)) {
+if (in_array($status, JOB_STATUSES, true)) {
     $where[] = "j.status = ?";
     $types  .= "s";
     $params[] = $status;
@@ -112,13 +111,6 @@ if ($q !== '') {
 }
 
 $whereSql = "WHERE " . implode(" AND ", $where);
-
-function bindParams(mysqli_stmt $stmt, string $types, array $params) {
-    $refs = [];
-    foreach ($params as $k => $v) $refs[$k] = &$params[$k];
-    array_unshift($refs, $types);
-    call_user_func_array([$stmt, 'bind_param'], $refs);
-}
 
 
 // =========================
