@@ -185,6 +185,16 @@ $dbStatusOptions = APP_STATUSES;
     </section>
   <?php else: ?>
 
+    <?php if (isset($_GET['error'])): ?>
+      <div class="flash flash-error" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:14px 20px;border-radius:12px;margin-bottom:16px;font-size:14px;">
+        <?php
+          $err = e($_GET['error']);
+          if ($err === 'InvalidStatus') echo 'Invalid status value.';
+          elseif ($err === 'Unauthorized') echo 'You do not have permission to update this application.';
+          else echo 'An error occurred.';
+        ?>
+      </div>
+    <?php endif; ?>
     <?php if ($success === 'StatusUpdated'): ?>
       <div class="flash flash-success">Status updated successfully.</div>
     <?php endif; ?>

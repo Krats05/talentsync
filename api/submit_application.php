@@ -59,7 +59,7 @@ $conn->begin_transaction();
 
 try {
     // Lock the row (if exists) to prevent concurrent duplicate inserts
-    $stmt = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? FOR UPDATE");
+    $stmt = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL FOR UPDATE");
     $stmt->bind_param("ii", $job_id, $user_id);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -9,6 +9,11 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if (($_SESSION['role'] ?? '') !== 'Applicant') {
+    header("Location: browse_jobs.php");
+    exit;
+}
+
 $job_id = max(0, (int)($_GET['id'] ?? 0));
 
 if ($job_id <= 0) {

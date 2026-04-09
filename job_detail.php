@@ -78,7 +78,7 @@ $skillStmt->close();
 // Check if user already applied
 $alreadyApplied = false;
 if (isset($_SESSION['user_id'])) {
-    $appCheck = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? LIMIT 1");
+    $appCheck = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1");
     $appCheck->bind_param("ii", $job_id, $_SESSION['user_id']);
     $appCheck->execute();
     $alreadyApplied = $appCheck->get_result()->num_rows > 0;

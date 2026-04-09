@@ -44,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
         }
         $soft_job->close();
     } else {
-        echo "Unauthorized access or job not found.";
+        header("Location: ../dashboard_hr.php?error=Unauthorized");
+        exit;
     }
     $stmt->close();
 } else {

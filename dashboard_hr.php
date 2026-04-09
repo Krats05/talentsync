@@ -175,12 +175,22 @@ $baseQuery = ['status' => $status, 'q' => $q];
         <p class="page-subtitle">Welcome back, <?php echo e($fullName); ?>.</p>
     </header>
 
-<?php if (isset($_GET['success'])): ?>
+<?php if (isset($_GET['error'])): ?>
+        <div class="flash flash-error" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:14px 20px;border-radius:12px;margin-bottom:16px;font-size:14px;">
+            <?php
+                $err = e($_GET['error']);
+                if ($err === 'DeleteFailed') echo 'Failed to delete job. Please try again.';
+                elseif ($err === 'Unauthorized') echo 'You do not have permission to perform this action.';
+                else echo 'An error occurred.';
+            ?>
+        </div>
+    <?php endif; ?>
+    <?php if (isset($_GET['success'])): ?>
         <div class="flash flash-success">
-            <?php 
+            <?php
                 if ($_GET['success'] === 'JobSaved') echo '✓ Job saved successfully.';
                 elseif ($_GET['success'] === 'JobDeleted') echo '✓ Job deleted successfully.';
-                else echo '✓ Action completed successfully.'; 
+                else echo '✓ Action completed successfully.';
             ?>
         </div>
     <?php endif; ?>
@@ -464,7 +474,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                 <td style="display: flex; gap: 10px; align-items: center; border-bottom: none;">
                                     <a href="create_job.php?job_id=<?php echo $j['job_id']; ?>" class="action-link">Edit</a>
                                     <span style="color: #cbd5e1;">|</span>
-                                    <form action="api/delete_job.php" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this job? This cannot be undone.');">
+                                    <form action="api/delete_job.php" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this job and its applications?');">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="job_id" value="<?php echo $j['job_id']; ?>">
                                         <button type="submit" class="action-link" style="background: none; border: none; padding: 0; color: #ef4444; font-family: inherit;">Delete</button>
