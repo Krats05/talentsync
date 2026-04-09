@@ -165,6 +165,20 @@ $dbStatusOptions = APP_STATUSES;
     .job-info-bar { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
     .job-info-item { font-size: 13px; color: #64748b; }
     .job-info-item strong { color: #374151; }
+
+    /* ── AI Analysis Modal ─────────────────────────────────────────────────── */
+    .ai-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; }
+    .ai-modal-overlay.open { display:flex; }
+    .ai-modal { background:#fff; border-radius:16px; padding:28px 32px; max-width:580px; width:92%; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:relative; max-height:80vh; overflow-y:auto; }
+    .ai-modal-close { position:absolute; top:14px; right:18px; background:none; border:none; font-size:20px; cursor:pointer; color:#64748b; }
+    .ai-modal-title { font-size:16px; font-weight:700; margin-bottom:16px; color:#1e293b; }
+    .ai-modal-body { font-size:14px; color:#374151; line-height:1.8; white-space:pre-wrap; }
+    .ai-btn { display:inline-flex; align-items:center; gap:4px; margin-top:6px; padding:4px 11px; border-radius:8px; border:1px solid #2563eb; background:#eff6ff; color:#2563eb; font-size:12px; font-weight:600; cursor:pointer; }
+    .ai-btn:hover { background:#dbeafe; }
+    .rec-strong { color:#166534; font-weight:700; }
+    .rec-hire   { color:#1d4ed8; font-weight:700; }
+    .rec-maybe  { color:#854d0e; font-weight:700; }
+    .rec-no     { color:#991b1b; font-weight:700; }
   </style>
 </head>
 <body>
@@ -274,6 +288,13 @@ $dbStatusOptions = APP_STATUSES;
                       <span class="match-badge match-none">N/A</span>
                       <div class="match-details">No skills provided</div>
                     <?php endif; ?>
+                    <!-- AI Analysis Button (Vaishnavi) -->
+                    <button class="ai-btn"
+                        data-appid="<?= (int)$a['application_id'] ?>"
+                        data-name="<?= e($a['full_name']) ?>"
+                        onclick="openAiModal(this)">
+                      🤖 AI Analysis
+                    </button>
                   </td>
                   <td>
                     <div class="app-status-cell">
@@ -314,15 +335,68 @@ $dbStatusOptions = APP_STATUSES;
   <?php endif; ?>
 </main>
 
+<!-- AI Analysis Modal (Vaishnavi) -->
+<div class="ai-modal-overlay" id="aiModal">
+  <div class="ai-modal">
+    <button class="ai-modal-close" id="aiModalClose" aria-label="Close">✕</button>
+    <div class="ai-modal-title" id="aiModalTitle">AI Analysis</div>
+    <div class="ai-modal-body" id="aiModalBody">Analyzing…</div>
+  </div>
+</div>
+
 <?php include __DIR__ . '/includes/footer.php'; ?>
 
 <script>
+  // Status dropdown auto-submit
   document.querySelectorAll('select[data-autosubmit="1"]').forEach(function(sel) {
     sel.addEventListener('change', function() {
       const form = sel.closest('form');
       if (form) form.submit();
     });
   });
+
+  // ── AI Analysis Modal (Vaishnavi) ────────────────────────────────────────
+  const modal      = document.getElementById('aiModal');
+  const modalBody  = document.getElementById('aiModalBody');
+  const modalTitle = document.getElementById('aiModalTitle');
+
+  // Close on X button
+  document.getElementById('aiModalClose').addEventListener('click', () => modal.classList.remove('open'));
+  // Close on backdrop click
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.classList.remove('open'); });
+
+  function openAiModal(btn) {
+    const appId = btn.dataset.appid;
+    const name  = btn.dataset.name;
+
+    modalTitle.textContent = '🤖 AI Analysis — ' + name;
+    modalBody.innerHTML = '<em style="color:#64748b;">Analyzing candidate… please wait.</em>';
+    modal.classList.add('open');
+
+    fetch('api/ai_score.php?application_id=' + encodeURIComponent(appId))
+      .then(res => {
+        if (!res.ok) throw new Error('Server error ' + res.status);
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          let text = data.message || '';
+          // Colour-code recommendation labels (order matters: longest match first)
+          text = text.replace(/Strong Hire/g, '<span class="rec-strong">Strong Hire</span>');
+          text = text.replace(/No Hire/g,     '<span class="rec-no">No Hire</span>');
+          text = text.replace(/\bMaybe\b/g,   '<span class="rec-maybe">Maybe</span>');
+          text = text.replace(/\bHire\b/g,    '<span class="rec-hire">Hire</span>');
+          modalBody.innerHTML = '<div style="white-space:pre-wrap;line-height:1.8;">' + text + '</div>';
+        } else {
+          modalBody.innerHTML = '<span style="color:#991b1b;">⚠️ ' + (data.error || 'Could not load analysis.') + '</span>';
+        }
+      })
+      .catch(() => {
+        modalBody.innerHTML = '<span style="color:#991b1b;">⚠️ Failed to connect. Check your API config or try again.</span>';
+      });
+  }
 </script>
 
 </body>
