@@ -2,6 +2,10 @@
 session_start();
 header('Content-Type: application/json');
 
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
 require_once __DIR__ . '/../config/ai.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -24,6 +28,14 @@ if ($role !== 'Applicant' && $role !== 'applicant') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
+if (!$input || !is_array($input)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid request data.'
+    ]);
+    exit;
+}
+
 $role_type  = trim($input['role_type'] ?? '');
 $experience = trim($input['experience'] ?? '');
 $skills     = trim($input['skills'] ?? '');
@@ -44,15 +56,13 @@ $sql = "
         j.job_id,
         j.job_title,
         j.description,
-        j.location,
-        j.salary_range,
         u.full_name AS company,
         GROUP_CONCAT(js.skill_name SEPARATOR ', ') AS required_skills
     FROM jobs j
     JOIN users u ON j.user_id = u.user_id
     LEFT JOIN job_skills js ON j.job_id = js.job_id
     WHERE j.status = 'Open'
-    GROUP BY j.job_id, j.job_title, j.description, j.location, j.salary_range, u.full_name
+    GROUP BY j.job_id, j.job_title, j.description, u.full_name
 ";
 
 $result = $conn->query($sql);
@@ -111,19 +121,34 @@ $system_prompt = "You are a career advisor. Match jobs based on skills, experien
 try {
     $ai_response = call_claude($prompt, $system_prompt);
 
-    // If call_claude already returns an array, use it directly.
-    // If it returns a string, decode it.
-    if (is_array($ai_response)) {
-        $decoded = $ai_response;
-    } else {
-        $decoded = json_decode($ai_response, true);
+    
+    if (is_array($ai_response) && isset($ai_response['success'])) {
+        if (!$ai_response['success']) {
+            echo json_encode([
+                'success' => false,
+                'message' => $ai_response['error'] ?? 'AI recommendation failed.'
+            ]);
+            exit;
+        }
+
+        $raw_text = trim($ai_response['message'] ?? '');
+    }
+  
+    else {
+        $raw_text = trim((string)$ai_response);
     }
 
-    if (!is_array($decoded) || !isset($decoded['recommendations'])) {
+    $raw_text = preg_replace('/^```json\s*/i', '', $raw_text);
+    $raw_text = preg_replace('/^```\s*/', '', $raw_text);
+    $raw_text = preg_replace('/\s*```$/', '', $raw_text);
+
+    $decoded = json_decode($raw_text, true);
+
+    if (!is_array($decoded) || !isset($decoded['recommendations']) || !is_array($decoded['recommendations'])) {
         echo json_encode([
             'success' => false,
             'message' => 'AI response format was invalid.',
-            'raw_response' => $ai_response
+            'raw_response' => $raw_text
         ]);
         exit;
     }
@@ -142,9 +167,13 @@ try {
         'success' => true,
         'message' => 'Recommendations generated successfully.'
     ]);
-} catch (Exception $e) {
+    exit;
+
+} catch (Throwable $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'AI recommendation failed: ' . $e->getMessage()
+        'message' => 'AI recommendation failed.',
+        'error' => $e->getMessage()
     ]);
+    exit;
 }

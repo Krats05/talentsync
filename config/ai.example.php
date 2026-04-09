@@ -11,7 +11,7 @@
 
 // ── API Key ──────────────────────────────────────────────────────────────────
 // Get your key from: https://console.anthropic.com/settings/keys
-define('CLAUDE_API_KEY', 'your-api-key-here');
+define('CLAUDE_API_KEY', 'YOUR_ANTHROPIC_API_KEY');
 
 // ── Model Configuration ─────────────────────────────────────────────────────
 define('CLAUDE_MODEL', 'claude-haiku-4-5');    // Fast & cheapest ($1/M input, $5/M output)

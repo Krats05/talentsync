@@ -126,20 +126,31 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        const raw = await response.text();
+        console.log('RAW API RESPONSE:', raw);
+
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (parseError) {
+            statusDiv.innerHTML = '<p style="color:red;">API did not return valid JSON. Check console.</p>';
+            return;
+        }
 
         if (data.success) {
             window.location.href = 'dashboard_applicant.php?ai_recs=1';
         } else {
             statusDiv.innerHTML = '<p style="color:red;">' + (data.message || 'Failed to generate recommendations.') + '</p>';
+            console.log('API ERROR DATA:', data);
         }
     } catch (error) {
-        console.error(error);
+        console.error('FETCH ERROR:', error);
         statusDiv.innerHTML = '<p style="color:red;">Something went wrong. Please try again.</p>';
     }
 });
 </script>
 
+  
 <?php include 'includes/footer.php'; ?>
 
 </body>
