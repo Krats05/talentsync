@@ -45,19 +45,19 @@ if ($role_type === '' || $experience === '' || $skills === '' || $location === '
 }
 
 $sql = "
-    SELECT 
+    SELECT
         j.job_id,
         j.job_title,
         j.description,
-        j.location,
-        j.salary_range,
         u.full_name AS company,
+        od.title AS onet_title,
         GROUP_CONCAT(js.skill_name SEPARATOR ', ') AS required_skills
     FROM jobs j
     JOIN users u ON j.user_id = u.user_id
     LEFT JOIN job_skills js ON j.job_id = js.job_id
+    LEFT JOIN occupation_data od ON od.onetsoc_code = j.onet_soc_code
     WHERE j.status = 'Open' AND j.deleted_at IS NULL
-    GROUP BY j.job_id, j.job_title, j.description, j.location, j.salary_range, u.full_name
+    GROUP BY j.job_id, j.job_title, j.description, u.full_name, od.title
 ";
 
 $result = $conn->query($sql);
@@ -139,10 +139,10 @@ try {
     }
 
     if (!is_array($decoded) || !isset($decoded['recommendations'])) {
+        error_log("job_recommendations.php: Invalid AI response format: " . print_r($ai_response, true));
         echo json_encode([
             'success' => false,
-            'message' => 'AI response format was invalid.',
-            'raw_response' => $ai_response
+            'message' => 'AI response format was invalid. Please try again.'
         ]);
         exit;
     }
