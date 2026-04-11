@@ -30,8 +30,10 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
                 <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
                 <a href="dashboard_hr.php" class="nav-link <?= ($_currentPage === 'dashboard_hr.php' || $_currentPage === 'job_applications.php') ? 'nav-active' : '' ?>">Dashboard</a>
                 <a href="create_job.php" class="nav-link <?= $_currentPage === 'create_job.php' ? 'nav-active' : '' ?>">Create Job</a>
+                <a href="notepad.php" class="nav-link <?= $_currentPage === 'notepad.php' ? 'nav-active' : '' ?>">Take Notes</a>
             <?php endif; ?>
         </nav>
+
         <div class="nav-right">
             <div class="nav-user">
                 <div class="nav-avatar"><?= $navInitial ?></div>
@@ -53,4 +55,7 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
         </div>
     <?php endif; ?>
 </header>
-<script>var CSRF_TOKEN = <?= json_encode(csrf_token()) ?>;</script>
+
+<script>
+var CSRF_TOKEN = <?= json_encode(csrf_token()) ?>;
+</script>

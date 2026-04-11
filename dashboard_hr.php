@@ -48,7 +48,6 @@ while ($row = $res->fetch_assoc()) {
 $stmt->close();
 
 // ── Pipeline Analytics ──────────────────────────────────────────────────────
-// Calculates conversion rates through the hiring funnel using conditional aggregation
 $analytics = ['total_apps' => 0, 'pending' => 0, 'interviewing' => 0, 'offered' => 0, 'rejected' => 0];
 $stmt = $conn->prepare("
     SELECT
@@ -73,8 +72,7 @@ if ($aRow) {
 }
 $stmt->close();
 
-// Conversion rates (percentage of total that advanced to each stage)
-$totalApps = max(1, $analytics['total_apps']); // avoid div by zero
+$totalApps = max(1, $analytics['total_apps']);
 $conversionRates = [
     'screen_rate'    => round(($analytics['interviewing'] + $analytics['offered']) / $totalApps * 100, 1),
     'interview_rate' => round($analytics['interviewing'] / $totalApps * 100, 1),
@@ -102,7 +100,6 @@ if ($q !== '') {
 }
 
 $whereSql = 'WHERE ' . implode(' AND ', $where);
-
 
 // ── Pagination total ──────────────────────────────────────────────────────────
 $stmt = $conn->prepare("
@@ -213,26 +210,16 @@ $baseQuery = ['status' => $status, 'q' => $q];
         <?php endforeach; ?>
     </section>
 
-    <!-- ══════════════════════════════════════════════════════════════════════
-         Hiring Pipeline Analytics + AI Hiring Insights (Merged)
-         Pipeline funnel metrics by Vaishnavi Pushparaj Samani
-         AI Insights integration by @author Kratika Patidar
-         Calls api/hr_insights.php which pulls pipeline data from the database
-         and sends it to Claude API for analysis. Displays actionable insights
-         with a refresh button for on-demand updates.
-         ══════════════════════════════════════════════════════════════════════ -->
     <section class="card" id="ai-insights-section">
         <div class="card-header">
             <h2 class="card-title" style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:20px;">🤖</span> Hiring Pipeline Analytics
             </h2>
-            <!-- Refresh button for AI insights — @author Kratika Patidar -->
             <button onclick="loadInsights()" class="btn" id="refresh-insights-btn" style="font-size:13px; height:34px; padding:0 14px;">
                 ↻ Refresh AI Insights
             </button>
         </div>
 
-        <!-- Pipeline funnel metrics (static) — @author Vaishnavi -->
         <?php if ($analytics['total_apps'] > 0): ?>
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; padding:8px 0;">
             <?php
@@ -257,12 +244,8 @@ $baseQuery = ['status' => $status, 'q' => $q];
         </div>
         <?php endif; ?>
 
-        <!-- Divider between pipeline metrics and AI insights — @author Kratika Patidar -->
         <hr style="border:none; border-top:1px solid #e2e8f0; margin:20px 0 0;">
 
-        <!-- AI Insights collapsible toolbar — @author Kratika Patidar
-             Clicking the toolbar expands/collapses the AI insights panel.
-             Insights are loaded on first expand to save API calls. -->
         <div id="insights-toolbar" onclick="toggleInsights()" style="display:flex; align-items:center; justify-content:space-between; padding:14px 0; cursor:pointer; user-select:none;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:16px;">🤖</span>
@@ -272,7 +255,6 @@ $baseQuery = ['status' => $status, 'q' => $q];
             <span id="insights-arrow" style="font-size:18px; color:#94a3b8; transition:transform 0.3s;">▼</span>
         </div>
 
-        <!-- Collapsible insights content — @author Kratika Patidar -->
         <div id="insights-panel" style="max-height:0; overflow:hidden; transition:max-height 0.4s ease;">
             <div id="insights-content" style="font-size:14px; line-height:1.7; color:#334155; padding-bottom:8px;">
                 <div style="display:flex; align-items:center; gap:10px; color:#94a3b8; padding:12px 0;">
@@ -283,7 +265,6 @@ $baseQuery = ['status' => $status, 'q' => $q];
         </div>
     </section>
 
-    <!-- Styles for AI Hiring Insights card — @author Kratika Patidar -->
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
         #insights-content ul { margin: 8px 0; padding-left: 20px; }
@@ -292,7 +273,6 @@ $baseQuery = ['status' => $status, 'q' => $q];
         .insights-error { color: #991b1b; background: #fee2e2; padding: 12px 16px; border-radius: 10px; font-size: 13px; }
         #insights-toolbar:hover { background: #f8fafc; border-radius: 8px; margin: 0 -8px; padding: 14px 8px; }
 
-        /* Color-coded insight cards — @author Kratika Patidar */
         .insight-card {
             border-left: 4px solid #cbd5e1;
             background: #f8fafc;
@@ -311,48 +291,35 @@ $baseQuery = ['status' => $status, 'q' => $q];
             line-height: 1.6;
             color: #475569;
         }
-        /* Green — positive trends */
         .insight-success { border-left-color: #22c55e; background: #f0fdf4; }
         .insight-success .insight-header { color: #166534; }
-        /* Amber — needs attention */
         .insight-warning { border-left-color: #f59e0b; background: #fffbeb; }
         .insight-warning .insight-header { color: #92400e; }
-        /* Red — critical / red flags */
         .insight-danger { border-left-color: #ef4444; background: #fef2f2; }
         .insight-danger .insight-header { color: #991b1b; }
-        /* Blue — informational */
         .insight-info { border-left-color: #3b82f6; background: #eff6ff; }
         .insight-info .insight-header { color: #1e40af; }
-        /* Gray — general tips */
         .insight-neutral { border-left-color: #94a3b8; background: #f8fafc; }
         .insight-neutral .insight-header { color: #475569; }
     </style>
 
-    <!-- JavaScript for AI Hiring Insights — @author Kratika Patidar
-         toggleInsights(): Expands/collapses the insights panel. Loads data on first open.
-         loadInsights(): Fetches insights from api/hr_insights.php (Claude API)
-         and renders the HTML response in the insights panel. -->
     <script>
     let insightsOpen = false;
     let insightsLoaded = false;
 
-    // Toggle the insights panel open/closed — @author Kratika Patidar
     function toggleInsights() {
         const panel = document.getElementById('insights-panel');
         const arrow = document.getElementById('insights-arrow');
         insightsOpen = !insightsOpen;
 
         if (insightsOpen) {
-            // Expand panel
             panel.style.maxHeight = panel.scrollHeight + 2000 + 'px';
             arrow.style.transform = 'rotate(180deg)';
 
-            // Load insights on first open (saves API calls)
             if (!insightsLoaded) {
                 loadInsights();
             }
         } else {
-            // Collapse panel
             panel.style.maxHeight = '0';
             arrow.style.transform = 'rotate(0deg)';
         }
@@ -362,14 +329,12 @@ $baseQuery = ['status' => $status, 'q' => $q];
         const container = document.getElementById('insights-content');
         const btn = document.getElementById('refresh-insights-btn');
 
-        // Show loading spinner while Claude analyzes the data
         container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;color:#94a3b8;padding:12px 0;">' +
             '<div style="width:20px;height:20px;border:3px solid #e2e8f0;border-top:3px solid #2563eb;border-radius:50%;animation:spin 1s linear infinite;"></div>' +
             'Analyzing your hiring pipeline...</div>';
         btn.disabled = true;
         btn.style.opacity = '0.5';
 
-        // Call the HR Insights API endpoint
         fetch('api/hr_insights.php')
             .then(res => { if (!res.ok) throw new Error('Server error'); return res.json(); })
             .then(data => {
@@ -382,7 +347,6 @@ $baseQuery = ['status' => $status, 'q' => $q];
                     container.innerHTML = '<div class="insights-error">Unable to load insights: ' +
                         errText.innerHTML + '</div>';
                 }
-                // Update panel height after content loads
                 const panel = document.getElementById('insights-panel');
                 if (insightsOpen) {
                     panel.style.maxHeight = panel.scrollHeight + 'px';
@@ -470,7 +434,7 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                     <?php endif; ?>
                                 </td>
                                 <td style="color:#64748b;font-size:13px;"><?php echo e($createdAt); ?></td>
-                                
+
                                 <td style="display: flex; gap: 10px; align-items: center; border-bottom: none;">
                                     <a href="create_job.php?job_id=<?php echo $j['job_id']; ?>" class="action-link">Edit</a>
                                     <span style="color: #cbd5e1;">|</span>
@@ -480,7 +444,6 @@ $baseQuery = ['status' => $status, 'q' => $q];
                                         <button type="submit" class="action-link" style="background: none; border: none; padding: 0; color: #ef4444; font-family: inherit;">Delete</button>
                                     </form>
                                 </td>
-
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
