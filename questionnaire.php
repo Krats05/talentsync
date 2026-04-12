@@ -135,10 +135,13 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             data = JSON.parse(raw);
         } catch (parseError) {
             statusDiv.innerHTML = '<p style="color:red;">API did not return valid JSON. Check console.</p>';
+            console.log(raw);
             return;
         }
-        if (!response.ok) throw new Error('Server error');
-        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error('Server error');
+        }
 
         if (data.success) {
             window.location.href = 'dashboard_applicant.php?ai_recs=1';
@@ -147,11 +150,11 @@ document.getElementById('recommendationForm').addEventListener('submit', async f
             console.log('API ERROR DATA:', data);
         }
     } catch (error) {
+        console.error('FETCH ERROR:', error);
         statusDiv.innerHTML = '<p style="color:red;">Something went wrong. Please try again.</p>';
     }
 });
 </script>
-
   
 <?php include 'includes/footer.php'; ?>
 

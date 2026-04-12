@@ -70,7 +70,8 @@ $sql = "
     LEFT JOIN occupation_data od ON od.onetsoc_code = j.onet_soc_code
     WHERE j.status = 'Open' AND j.deleted_at IS NULL
     GROUP BY j.job_id, j.job_title, j.description, u.full_name, od.title
-";
+"; 
+
 $result = $conn->query($sql);
 
 if (!$result) {
@@ -164,19 +165,15 @@ try {
 
     $decoded = json_decode($raw_text, true);
 
-    if (!is_array($decoded) || !isset($decoded['recommendations']) || !is_array($decoded['recommendations'])) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'AI response format was invalid.',
-            'raw_response' => $raw_text
-    if (!is_array($decoded) || !isset($decoded['recommendations'])) {
-        error_log("job_recommendations.php: Invalid AI response format: " . print_r($ai_response, true));
-        echo json_encode([
-            'success' => false,
-            'message' => 'AI response format was invalid. Please try again.'
-        ]);
-        exit;
-    }
+if (!is_array($decoded) || !isset($decoded['recommendations']) || !is_array($decoded['recommendations'])) {
+    error_log("job_recommendations.php: Invalid AI response format: " . $raw_text);
+    echo json_encode([
+        'success' => false,
+        'message' => 'AI response format was invalid.',
+        'raw_response' => $raw_text
+    ]);
+    exit;
+}
 
     $_SESSION['ai_job_recommendations'] = $decoded['recommendations'];
     $_SESSION['ai_questionnaire'] = [
