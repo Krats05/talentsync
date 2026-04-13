@@ -5,6 +5,41 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
+
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/helpers.php';
+
+$userId = (int)$_SESSION['user_id'];
+$jobId  = isset($_GET['job_id']) ? (int)$_GET['job_id'] : 0;
+
+// Fetch ALL jobs of this user for the dropdown
+$allJobs = [];
+$jstmt = $conn->prepare("SELECT job_id, job_title FROM jobs WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC");
+$jstmt->bind_param("i", $userId);
+$jstmt->execute();
+$jres = $jstmt->get_result();
+while ($row = $jres->fetch_assoc()) $allJobs[] = $row;
+$jstmt->close();
+
+// Fetch ALL applicants grouped by job_id (for JS dynamic update)
+$allApplicants = [];
+$astmt = $conn->prepare("
+    SELECT a.application_id, a.job_id, a.full_name
+    FROM applications a
+    INNER JOIN jobs j ON j.job_id = a.job_id
+    WHERE j.user_id = ? AND a.deleted_at IS NULL
+    ORDER BY a.full_name
+");
+$astmt->bind_param("i", $userId);
+$astmt->execute();
+$ares = $astmt->get_result();
+while ($row = $ares->fetch_assoc()) {
+    $allApplicants[(int)$row['job_id']][] = [
+        'application_id' => (int)$row['application_id'],
+        'full_name'      => $row['full_name'],
+    ];
+}
+$astmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,6 +83,44 @@ if (!isset($_SESSION['user_id'])) {
         padding: 8px 10px;
         margin-bottom: 18px;
         background: #fff;
+    }
+
+    /* Meta card — always 2 columns */
+    .meta-card {
+        background: #fff;
+        border: 1px solid #dde3ea;
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .meta-card label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #374151;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .meta-card select,
+    .meta-card input[type="text"] {
+        width: 100%;
+        height: 36px;
+        border: 1px solid #cfd6df;
+        border-radius: 6px;
+        padding: 0 10px;
+        font-size: 13px;
+        background: #fff;
+        color: #222;
+    }
+
+    .meta-card select:disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
     }
 
     .top-grid {
@@ -147,25 +220,10 @@ if (!isset($_SESSION['user_id'])) {
         font-weight: 600;
     }
 
-    .btn-start {
-        background: #2563eb;
-        color: #fff;
-    }
-
-    .btn-stop {
-        background: #ea580c;
-        color: #fff;
-    }
-
-    .btn-ai {
-        background: #16a34a;
-        color: #fff;
-    }
-
-    .btn-save {
-        background: #475569;
-        color: #fff;
-    }
+    .btn-start { background: #2563eb; color: #fff; }
+    .btn-stop  { background: #ea580c; color: #fff; }
+    .btn-ai    { background: #16a34a; color: #fff; }
+    .btn-save  { background: #475569; color: #fff; }
 
     .summary-wrapper {
         display: none;
@@ -203,22 +261,15 @@ if (!isset($_SESSION['user_id'])) {
         scrollbar-color: #9ca3af #f1f5f9;
     }
 
-    #dialogue_box {
-        height: 260px;
-    }
-
-    #summary_box {
-        height: 320px;
-    }
+    #dialogue_box { height: 260px; }
+    #summary_box  { height: 320px; }
 
     .summary-content-box ul {
         margin-top: 6px;
         padding-left: 18px;
     }
 
-    .summary-save-row {
-        margin-top: 12px;
-    }
+    .summary-save-row { margin-top: 12px; }
 
     .saved-notes-card {
         margin-top: 18px;
@@ -254,44 +305,52 @@ if (!isset($_SESSION['user_id'])) {
         justify-content: flex-end;
     }
 
-    .muted {
-        color: #6b7280;
+    .muted { color: #6b7280; font-size: 14px; }
+
+    .transcript-line { margin-bottom: 8px; }
+
+    .saved-section          { margin-bottom: 16px; }
+    .saved-section:last-child { margin-bottom: 0; }
+    .saved-section-title    { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .saved-section-body     { padding: 8px 0 0; }
+
+    .live-interim { opacity: 0.65; font-style: italic; }
+
+    /* recording pulse */
+    .rec-dot {
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        margin-right: 4px;
+        animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 14px;
         font-size: 14px;
+        color: #64748b;
+        text-decoration: none;
     }
-
-    .transcript-line {
-        margin-bottom: 8px;
-    }
-
-    .saved-section {
-        margin-bottom: 16px;
-    }
-
-    .saved-section:last-child {
-        margin-bottom: 0;
-    }
-
-    .saved-section-title {
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    .saved-section-body {
-        padding: 8px 0 0;
-    }
+    .back-link:hover { text-decoration: underline; }
 
     @media (max-width: 900px) {
-        .top-grid,
-        .summary-grid {
-            grid-template-columns: 1fr;
-        }
+        .top-grid, .summary-grid, .meta-card { grid-template-columns: 1fr; }
     }
 </style>
 </head>
 <body>
 
 <div class="page-wrap">
+
+    <?php if ($jobId > 0): ?>
+        <a class="back-link" href="job_applications.php?job_id=<?= $jobId ?>">&larr; Back to Applications</a>
+    <?php else: ?>
+        <a class="back-link" href="dashboard_hr.php">&larr; Back to Dashboard</a>
+    <?php endif; ?>
+
     <h2 class="page-title">📝 Meeting Notes</h2>
 
     <input
@@ -301,6 +360,36 @@ if (!isset($_SESSION['user_id'])) {
         value="Untitled Meeting"
         placeholder="Meeting title"
     >
+
+    <!-- Meta: Job & Candidate -->
+    <div class="meta-card">
+        <div>
+            <label for="meta_job_select">Related Job</label>
+            <select id="meta_job_select" onchange="onJobChange(this.value)">
+                <option value="">— Select a job —</option>
+                <?php foreach ($allJobs as $j): ?>
+                    <option value="<?= (int)$j['job_id'] ?>"
+                        <?= ($jobId > 0 && (int)$j['job_id'] === $jobId) ? 'selected' : '' ?>>
+                        <?= e($j['job_title'] ?: 'Job #'.$j['job_id']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <input type="hidden" id="meta_job_id" value="<?= $jobId ?>">
+        </div>
+        <div>
+            <label for="meta_candidate_select">Candidate Name</label>
+            <select id="meta_candidate_select" <?= ($jobId <= 0) ? 'disabled' : '' ?>>
+                <option value="">— Select candidate —</option>
+                <?php if ($jobId > 0 && !empty($allApplicants[$jobId])): ?>
+                    <?php foreach ($allApplicants[$jobId] as $ap): ?>
+                        <option value="<?= (int)$ap['application_id'] ?>" data-name="<?= e($ap['full_name']) ?>">
+                            <?= e($ap['full_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+    </div>
 
     <div class="top-grid">
         <div class="card">
@@ -371,26 +460,65 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 </div>
 
+<!-- Pass PHP data to JS -->
 <script>
+const JOB_ID         = <?= (int)$jobId ?>;
+const ALL_APPLICANTS = <?= json_encode($allApplicants, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+</script>
+
+<script>
+// ── Job dropdown → update candidate list ──────────────────────────────────────
+function onJobChange(jobId) {
+    document.getElementById('meta_job_id').value = jobId;
+
+    const sel  = document.getElementById('meta_candidate_select');
+    sel.innerHTML = '<option value="">— Select candidate —</option>';
+
+    const list = ALL_APPLICANTS[jobId] || [];
+    if (!list.length) {
+        sel.disabled = true;
+        return;
+    }
+    list.forEach(ap => {
+        const opt        = document.createElement('option');
+        opt.value        = ap.application_id;
+        opt.dataset.name = ap.full_name;
+        opt.textContent  = ap.full_name;
+        sel.appendChild(opt);
+    });
+    sel.disabled = false;
+}
+
+function getMetaFields() {
+    const jobId     = document.getElementById('meta_job_id').value || 0;
+    const candSel   = document.getElementById('meta_candidate_select');
+    const selOpt    = candSel.options[candSel.selectedIndex];
+    const applicationId  = candSel.value || 0;
+    const candidateName  = (selOpt && selOpt.dataset.name) ? selOpt.dataset.name : '';
+    return { jobId, applicationId, candidateName };
+}
+
+// ── Speech Recognition — fast & continuous ────────────────────────────────────
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-let recognition = null;
-let lines = [];
-let seconds = 0;
-let timer = null;
-let recording = false;
+let recognition    = null;
+let lines          = [];
+let interimText    = '';
+let seconds        = 0;
+let timerInterval  = null;
+let recording      = false;
+let restartTimeout = null;
 
 let savedUserNotesHtml = '';
-let savedSummaryHtml = '';
+let savedSummaryHtml   = '';
 
-const liveBox = document.getElementById('live_box');
-const raw = document.getElementById('raw_transcript');
-const statusEl = document.getElementById('status');
-const timerEl = document.getElementById('timer');
-
-const dialogueBox = document.getElementById('dialogue_box');
-const summaryBox = document.getElementById('summary_box');
-const summaryWrapper = document.getElementById('summary_wrapper');
+const liveBox           = document.getElementById('live_box');
+const raw               = document.getElementById('raw_transcript');
+const statusEl          = document.getElementById('status');
+const timerEl           = document.getElementById('timer');
+const dialogueBox       = document.getElementById('dialogue_box');
+const summaryBox        = document.getElementById('summary_box');
+const summaryWrapper    = document.getElementById('summary_wrapper');
 const savedNotesPreview = document.getElementById('saved_notes_preview');
 
 function escapeHtml(text) {
@@ -400,316 +528,212 @@ function escapeHtml(text) {
 }
 
 function renderTranscript() {
-    if (!lines.length) {
-        liveBox.innerHTML = '';
-        raw.value = '';
-        return;
+    let html = lines.map(l => `<div class="transcript-line">${escapeHtml(l)}</div>`).join('');
+    if (interimText.trim()) {
+        html += `<div class="transcript-line live-interim">${escapeHtml(interimText.trim())}</div>`;
     }
-
-    liveBox.innerHTML = lines
-        .map(line => `<div class="transcript-line">${escapeHtml(line)}</div>`)
-        .join('');
-
-    raw.value = lines.join("\\n");
+    liveBox.innerHTML = html;
+    raw.value = lines.join('\n');
     liveBox.scrollTop = liveBox.scrollHeight;
 }
 
 function startTimer() {
     stopTimer();
-    timer = setInterval(() => {
+    timerInterval = setInterval(() => {
         seconds++;
-        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-        const s = String(seconds % 60).padStart(2, '0');
-        timerEl.textContent = `${m}:${s}`;
+        timerEl.textContent =
+            String(Math.floor(seconds / 60)).padStart(2, '0') + ':' +
+            String(seconds % 60).padStart(2, '0');
     }, 1000);
 }
-
 function stopTimer() {
-    if (timer) {
-        clearInterval(timer);
-        timer = null;
-    }
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 }
 
 function resetMeeting() {
-    lines = [];
-    seconds = 0;
+    lines = []; interimText = ''; seconds = 0;
     timerEl.textContent = '00:00';
     renderTranscript();
 }
 
-function extractDialogueAndSummaryFromHtml(html) {
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
+function buildRecognition() {
+    if (!SpeechRecognition) return null;
+    const r            = new SpeechRecognition();
+    r.continuous       = true;
+    r.interimResults   = true;   // words appear immediately as spoken
+    r.lang             = 'en-US';
+    r.maxAlternatives  = 1;
 
-    let dialogueHtml = '';
-    let summaryHtml = '';
-    let mode = '';
-
-    Array.from(temp.childNodes).forEach(node => {
-        const text = (node.textContent || '').trim().toLowerCase();
-
-        if (text === 'dialogue' || text.includes('dialogue')) {
-            mode = 'dialogue';
-            return;
-        }
-
-        if (text === 'summary' || text.includes('summary')) {
-            mode = 'summary';
-            return;
-        }
-
-        if (mode === 'dialogue') {
-            dialogueHtml += node.outerHTML ? node.outerHTML : escapeHtml(node.textContent || '');
-        } else if (mode === 'summary') {
-            summaryHtml += node.outerHTML ? node.outerHTML : escapeHtml(node.textContent || '');
-        }
-    });
-
-    return {
-        dialogueHtml: dialogueHtml.trim(),
-        summaryHtml: summaryHtml.trim()
-    };
-}
-
-function renderSavedNotes() {
-    let finalHtml = '';
-
-    if (savedUserNotesHtml) {
-        finalHtml += `
-            <div class="saved-section">
-                <div class="saved-section-title">Your Notes</div>
-                <div class="saved-section-body">${savedUserNotesHtml}</div>
-            </div>
-        `;
-    }
-
-    if (savedSummaryHtml) {
-        finalHtml += `
-            <div class="saved-section">
-                <div class="saved-section-title">Summary</div>
-                <div class="saved-section-body">${savedSummaryHtml}</div>
-            </div>
-        `;
-    }
-
-    if (!finalHtml.trim()) {
-        finalHtml = '<span class="muted">No saved notes yet.</span>';
-    }
-
-    savedNotesPreview.innerHTML = finalHtml;
-}
-
-async function saveNotesToBackend(contentToSave, saveType) {
-    try {
-        const fd = new FormData();
-        fd.append('title', document.getElementById('note_title').value.trim());
-        fd.append('raw_transcript', raw.value);
-        fd.append('user_notes', document.getElementById('user_notes').value);
-        fd.append('dialogue_html', dialogueBox.innerHTML);
-        fd.append('summary_html', summaryBox.innerHTML);
-        fd.append('ai_summary', summaryBox.innerHTML);
-        fd.append('duration_seconds', seconds);
-        fd.append('saved_content', contentToSave);
-        fd.append('save_type', saveType);
-
-        const res = await fetch('api/save_notes.php', {
-            method: 'POST',
-            body: fd
-        });
-
-        return await res.json();
-    } catch (err) {
-        return {
-            success: false,
-            error: 'Request failed'
-        };
-    }
-}
-
-if (SpeechRecognition) {
-    recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (e) => {
+    r.onresult = (e) => {
+        interimText = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
-            if (e.results[i].isFinal) {
-                const text = e.results[i][0].transcript.trim();
-                if (text) {
-                    lines.push(text);
-                    renderTranscript();
-                }
-            }
+            const txt = e.results[i][0].transcript.trim();
+            if (e.results[i].isFinal) { if (txt) lines.push(txt); }
+            else interimText += txt + ' ';
+        }
+        renderTranscript();
+    };
+
+    r.onstart = () => {
+        statusEl.innerHTML = '<span class="rec-dot"></span>Recording';
+        if (!timerInterval) startTimer();
+    };
+
+    r.onerror = (e) => {
+        // silent restart on non-fatal errors
+        if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
+            if (recording) scheduleRestart();
+        } else {
+            statusEl.textContent = 'Error: ' + e.error;
+            recording = false;
         }
     };
 
-    recognition.onstart = () => {
-        statusEl.textContent = 'Recording...';
-        startTimer();
+    r.onend = () => {
+        interimText = '';
+        renderTranscript();
+        if (recording) scheduleRestart();
     };
 
-    recognition.onerror = (e) => {
-        statusEl.textContent = 'Error: ' + e.error;
-    };
+    return r;
+}
 
-    recognition.onend = () => {
-        if (recording) {
-            try {
-                recognition.start();
-            } catch (err) {}
-        }
-    };
-
-    window.addEventListener('load', () => {
-        try {
-            recognition.start();
-            recognition.stop();
-        } catch (err) {}
-    });
-} else {
-    statusEl.textContent = 'Speech recognition not supported in this browser.';
+function scheduleRestart() {
+    if (restartTimeout) return;
+    restartTimeout = setTimeout(() => {
+        restartTimeout = null;
+        if (!recording) return;
+        recognition = buildRecognition();
+        try { recognition.start(); } catch (e) {}
+    }, 100); // 100 ms — fast enough, avoids browser "already started" errors
 }
 
 document.getElementById('start').onclick = () => {
-    if (!recognition) {
-        alert('Speech recognition is not supported in this browser.');
-        return;
-    }
+    if (!SpeechRecognition) { alert('Speech recognition not supported in this browser.'); return; }
+    if (recording) return;
 
     resetMeeting();
-    recording = true;
-    statusEl.textContent = 'Initializing...';
+    recording   = true;
+    statusEl.textContent = 'Starting…';
 
-    setTimeout(() => {
-        try {
-            recognition.start();
-            statusEl.textContent = 'Recording...';
-        } catch (err) {
-            statusEl.textContent = 'Error starting microphone';
-        }
-    }, 300);
+    // Pre-request mic permission so the first start is instant
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => {
+            recognition = buildRecognition();
+            try { recognition.start(); } catch (e) { statusEl.textContent = 'Error starting microphone'; }
+        })
+        .catch(() => {
+            statusEl.textContent = 'Microphone access denied.';
+            recording = false;
+        });
 };
 
 document.getElementById('stop').onclick = () => {
-    recording = false;
-
-    if (recognition) {
-        try {
-            recognition.stop();
-        } catch (err) {}
-    }
-
+    recording   = false;
+    interimText = '';
+    if (restartTimeout) { clearTimeout(restartTimeout); restartTimeout = null; }
+    if (recognition)    { try { recognition.stop(); } catch (e) {} recognition = null; }
+    renderTranscript();
     stopTimer();
     statusEl.textContent = 'Stopped';
 };
 
+// ── Render helpers ────────────────────────────────────────────────────────────
+function extractDialogueAndSummaryFromHtml(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    let dHtml = '', sHtml = '', mode = '';
+    Array.from(temp.childNodes).forEach(node => {
+        const text = (node.textContent || '').trim().toLowerCase();
+        if (text === 'dialogue' || text.includes('dialogue')) { mode = 'dialogue'; return; }
+        if (text === 'summary'  || text.includes('summary'))  { mode = 'summary';  return; }
+        if (mode === 'dialogue') dHtml += node.outerHTML ? node.outerHTML : escapeHtml(node.textContent || '');
+        else if (mode === 'summary') sHtml += node.outerHTML ? node.outerHTML : escapeHtml(node.textContent || '');
+    });
+    return { dialogueHtml: dHtml.trim(), summaryHtml: sHtml.trim() };
+}
+
+function renderSavedNotes() {
+    let finalHtml = '';
+    if (savedUserNotesHtml) finalHtml += `<div class="saved-section"><div class="saved-section-title">Your Notes</div><div class="saved-section-body">${savedUserNotesHtml}</div></div>`;
+    if (savedSummaryHtml)   finalHtml += `<div class="saved-section"><div class="saved-section-title">Summary</div><div class="saved-section-body">${savedSummaryHtml}</div></div>`;
+    savedNotesPreview.innerHTML = finalHtml.trim() || '<span class="muted">No saved notes yet.</span>';
+}
+
+async function saveNotesToBackend(saveType) {
+    const { jobId, applicationId, candidateName } = getMetaFields();
+    try {
+        const fd = new FormData();
+        fd.append('job_id',           jobId);
+        fd.append('application_id',   applicationId);
+        fd.append('candidate_name',   candidateName);
+        fd.append('title',            document.getElementById('note_title').value.trim());
+        fd.append('raw_transcript',   raw.value);
+        fd.append('user_notes',       document.getElementById('user_notes').value);
+        fd.append('ai_summary',       summaryBox.innerHTML);
+        fd.append('duration_seconds', seconds);
+        const res = await fetch('api/save_notes.php', { method: 'POST', body: fd });
+        return await res.json();
+    } catch (err) {
+        return { success: false, error: 'Request failed' };
+    }
+}
+
 document.getElementById('save_left').onclick = async () => {
-    const userNotesValue = document.getElementById('user_notes').value.trim();
-
-    if (!userNotesValue) {
-        alert('Your Notes is empty.');
-        return;
-    }
-
-    savedUserNotesHtml = `<div>${escapeHtml(userNotesValue).replace(/\\n/g, '<br>')}</div>`;
+    const val = document.getElementById('user_notes').value.trim();
+    if (!val) { alert('Your Notes is empty.'); return; }
+    savedUserNotesHtml = `<div>${escapeHtml(val).replace(/\n/g, '<br>')}</div>`;
     renderSavedNotes();
-
-    const combinedHtml = savedNotesPreview.innerHTML;
-    const data = await saveNotesToBackend(combinedHtml, 'notes');
-
-    if (data.success) {
-        alert('Your notes saved.');
-    } else {
-        alert(data.error || 'Save failed');
-    }
+    const data = await saveNotesToBackend('notes');
+    alert(data.success ? 'Your notes saved.' : (data.error || 'Save failed'));
 };
 
 document.getElementById('save_summary').onclick = async () => {
-    const summaryHtml = summaryBox.innerHTML.trim();
-
-    if (!summaryHtml || summaryBox.innerText.includes('will appear here')) {
-        alert('No summary to save yet.');
-        return;
+    if (!summaryBox.innerHTML.trim() || summaryBox.innerText.includes('will appear here')) {
+        alert('No summary to save yet.'); return;
     }
-
-    savedSummaryHtml = summaryHtml;
+    savedSummaryHtml = summaryBox.innerHTML;
     renderSavedNotes();
-
-    const combinedHtml = savedNotesPreview.innerHTML;
-    const data = await saveNotesToBackend(combinedHtml, 'summary');
-
-    if (data.success) {
-        alert('Summary saved.');
-    } else {
-        alert(data.error || 'Save failed');
-    }
+    const data = await saveNotesToBackend('summary');
+    alert(data.success ? 'Summary saved.' : (data.error || 'Save failed'));
 };
 
 document.getElementById('update_notes').onclick = async () => {
-    const combinedHtml = savedNotesPreview.innerHTML.trim();
-
-    if (!combinedHtml || savedNotesPreview.innerText.includes('No saved notes yet')) {
-        alert('There is no saved note to update.');
-        return;
+    if (savedNotesPreview.innerText.includes('No saved notes yet')) {
+        alert('There is no saved note to update.'); return;
     }
-
-    const data = await saveNotesToBackend(combinedHtml, 'update');
-
-    if (data.success) {
-        alert('Saved notes updated.');
-    } else {
-        alert(data.error || 'Update failed');
-    }
+    const data = await saveNotesToBackend('update');
+    alert(data.success ? 'Saved notes updated.' : (data.error || 'Update failed'));
 };
 
 document.getElementById('summarize').onclick = async () => {
     try {
-        const transcriptValue = raw.value.trim();
-        const notesValue = document.getElementById('user_notes').value.trim();
-
-        if (!transcriptValue && !notesValue) {
-            alert('Please record transcript or write notes first.');
-            return;
+        if (!raw.value.trim() && !document.getElementById('user_notes').value.trim()) {
+            alert('Please record transcript or write notes first.'); return;
         }
-
         const fd = new FormData();
-        fd.append('title', document.getElementById('note_title').value.trim());
+        fd.append('title',          document.getElementById('note_title').value.trim());
         fd.append('raw_transcript', raw.value);
-        fd.append('user_notes', document.getElementById('user_notes').value);
+        fd.append('user_notes',     document.getElementById('user_notes').value);
 
-        const res = await fetch('api/ai_summarize_notes.php', {
-            method: 'POST',
-            body: fd
-        });
-
+        const res  = await fetch('api/ai_summarize_notes.php', { method: 'POST', body: fd });
         const data = await res.json();
+        if (!data.success) { alert(data.error || 'AI summary failed.'); return; }
 
-        if (!data.success) {
-            alert(data.error || 'AI summary failed.');
-            return;
-        }
-
-        let dialogueHtml = '';
-        let finalSummaryHtml = '';
-
+        let dHtml = '', sHtml = '';
         if (data.dialogue_html || data.summary_html_only) {
-            dialogueHtml = data.dialogue_html || '';
-            finalSummaryHtml = data.summary_html_only || '';
+            dHtml = data.dialogue_html || ''; sHtml = data.summary_html_only || '';
         } else if (data.summary_html) {
-            const parsed = extractDialogueAndSummaryFromHtml(data.summary_html);
-            dialogueHtml = parsed.dialogueHtml;
-            finalSummaryHtml = parsed.summaryHtml;
+            const p = extractDialogueAndSummaryFromHtml(data.summary_html);
+            dHtml = p.dialogueHtml; sHtml = p.summaryHtml;
         } else if (data.summary) {
-            finalSummaryHtml = `<div>${escapeHtml(data.summary).replace(/\\n/g, '<br>')}</div>`;
+            sHtml = `<div>${escapeHtml(data.summary).replace(/\n/g, '<br>')}</div>`;
         }
 
-        dialogueBox.innerHTML = dialogueHtml || '<span class="muted">No dialogue section returned.</span>';
-        summaryBox.innerHTML = finalSummaryHtml || '<span class="muted">No summary section returned.</span>';
-
+        dialogueBox.innerHTML        = dHtml || '<span class="muted">No dialogue section returned.</span>';
+        summaryBox.innerHTML         = sHtml  || '<span class="muted">No summary section returned.</span>';
         summaryWrapper.style.display = 'block';
-    } catch (err) {
+    } catch (e) {
         alert('An error occurred while generating AI summary.');
     }
 };
