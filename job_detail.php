@@ -12,6 +12,7 @@ if ($job_id <= 0) {
 $stmt = $conn->prepare("
     SELECT
         j.job_id,
+        j.user_id AS owner_id,
         j.job_title,
         j.description,
         j.status,
@@ -75,11 +76,19 @@ while ($sk = $skillRes->fetch_assoc()) {
 }
 $skillStmt->close();
 
-// Check if user already applied
+// Determine viewer role and ownership
+$viewerRole   = $_SESSION['role'] ?? '';
+$viewerId     = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+$isHR         = ($viewerRole === 'HR_Manager');
+$isJobOwner   = ($isHR && $viewerId > 0 && (int)$job['owner_id'] === $viewerId);
+$backUrl      = $isHR ? 'dashboard_hr.php' : 'browse_jobs.php';
+$backLabel    = $isHR ? '&larr; Back to Dashboard' : '&larr; Back to Jobs';
+
+// Check if user already applied (only relevant for applicants)
 $alreadyApplied = false;
-if (isset($_SESSION['user_id'])) {
+if ($viewerId > 0 && !$isHR) {
     $appCheck = $conn->prepare("SELECT application_id FROM applications WHERE job_id = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1");
-    $appCheck->bind_param("ii", $job_id, $_SESSION['user_id']);
+    $appCheck->bind_param("ii", $job_id, $viewerId);
     $appCheck->execute();
     $alreadyApplied = $appCheck->get_result()->num_rows > 0;
     $appCheck->close();
@@ -120,6 +129,8 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
         .btn-apply:hover { background: #1e293b; }
         .btn-applied { background: #e2e8f0; color: #64748b; cursor: default; }
         .btn-applied:hover { background: #e2e8f0; }
+        .btn-secondary { background: #fff; color: #0f172a; border: 1px solid #cbd5e1; }
+        .btn-secondary:hover { background: #f1f5f9; }
         @media (max-width: 768px) {
             .detail-header, .detail-body, .detail-actions { padding-left: 20px; padding-right: 20px; }
             .detail-title { font-size: 22px; }
@@ -131,7 +142,7 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
 <?php include __DIR__ . '/includes/navbar.php'; ?>
 
 <main class="detail-container">
-    <a class="detail-back" href="browse_jobs.php">&larr; Back to Jobs</a>
+    <a class="detail-back" href="<?php echo e($backUrl); ?>"><?php echo $backLabel; ?></a>
 
     <div class="detail-card">
         <div class="detail-header">
@@ -180,9 +191,16 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
         </div>
 
         <div class="detail-actions">
-            <?php if ($job['status'] !== 'Open'): ?>
+            <?php if ($isHR): ?>
+                <?php if ($isJobOwner): ?>
+                    <a href="job_applications.php?job_id=<?php echo (int)$job['job_id']; ?>" class="btn-apply">View Applications</a>
+                    <a href="create_job.php?id=<?php echo (int)$job['job_id']; ?>" class="btn-apply btn-secondary">Edit Job</a>
+                <?php else: ?>
+                    <a href="dashboard_hr.php" class="btn-apply btn-secondary">Back to Dashboard</a>
+                <?php endif; ?>
+            <?php elseif ($job['status'] !== 'Open'): ?>
                 <span class="btn-apply btn-applied">This job is <?php echo e($job['status']); ?></span>
-            <?php elseif (!isset($_SESSION['user_id'])): ?>
+            <?php elseif ($viewerId === 0): ?>
                 <a href="login.php?redirect=<?php echo urlencode('apply_job.php?id=' . (int)$job['job_id']); ?>" class="btn-apply">Login to Apply</a>
             <?php elseif ($alreadyApplied): ?>
                 <span class="btn-apply btn-applied">Already Applied</span>

@@ -55,7 +55,7 @@ $astmt->close();
 
     body {
         margin: 0;
-        padding: 20px;
+        padding: 0;
         font-family: Arial, sans-serif;
         background: #f5f7fb;
         color: #222;
@@ -64,6 +64,7 @@ $astmt->close();
     .page-wrap {
         max-width: 1200px;
         margin: 0 auto;
+        padding: 28px 20px 60px;
     }
 
     .page-title {
@@ -340,8 +341,11 @@ $astmt->close();
         .top-grid, .summary-grid, .meta-card { grid-template-columns: 1fr; }
     }
 </style>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+
+<?php include __DIR__ . '/includes/navbar.php'; ?>
 
 <div class="page-wrap">
 
