@@ -587,9 +587,14 @@ function buildRecognition() {
         // silent restart on non-fatal errors
         if (e.error === 'no-speech' || e.error === 'network' || e.error === 'aborted') {
             if (recording) scheduleRestart();
+        } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+            statusEl.textContent = 'Microphone permission denied. Click the lock icon in the address bar to allow microphone access, then click Start again.';
+            recording = false;
+            stopTimer();
         } else {
             statusEl.textContent = 'Error: ' + e.error;
             recording = false;
+            stopTimer();
         }
     };
 
@@ -613,23 +618,42 @@ function scheduleRestart() {
 }
 
 document.getElementById('start').onclick = () => {
-    if (!SpeechRecognition) { alert('Speech recognition not supported in this browser.'); return; }
+    if (!SpeechRecognition) {
+        alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+        return;
+    }
     if (recording) return;
 
     resetMeeting();
-    recording   = true;
+    recording = true;
     statusEl.textContent = 'Starting…';
 
-    // Pre-request mic permission so the first start is instant
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(() => {
-            recognition = buildRecognition();
-            try { recognition.start(); } catch (e) { statusEl.textContent = 'Error starting microphone'; }
-        })
-        .catch(() => {
-            statusEl.textContent = 'Microphone access denied.';
+    // If we are on HTTPS or localhost, pre-request mic permission so the first start is instant.
+    // Otherwise (plain HTTP on a public IP), skip the pre-check — webkitSpeechRecognition will
+    // ask for permission itself when .start() is called.
+    const canPreRequestMic = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+    const startRecognition = () => {
+        recognition = buildRecognition();
+        try {
+            recognition.start();
+        } catch (err) {
+            statusEl.textContent = 'Error starting microphone: ' + (err && err.message ? err.message : err);
             recording = false;
-        });
+        }
+    };
+
+    if (canPreRequestMic) {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(startRecognition)
+            .catch(() => {
+                statusEl.textContent = 'Microphone access denied.';
+                recording = false;
+            });
+    } else {
+        // Plain HTTP — go straight to recognition.start(); browser will show its own mic prompt.
+        startRecognition();
+    }
 };
 
 document.getElementById('stop').onclick = () => {
