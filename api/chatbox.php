@@ -98,7 +98,12 @@ function extractJobTitle(string $userMessage): string {
     if (!$result['success']) {
         return $userMessage;
     }
-    return trim($result['message']);
+
+    $title = trim($result['message']);
+    if ($title !== 'NOT_A_JOB_REQUEST' && !preg_match('/^[a-zA-Z\s\-\/]{2,80}$/', $title)) {
+        return 'NOT_A_JOB_REQUEST';
+    }
+    return $title;
 }
 
 // ── Step 2: Search O*NET occupation_data ─────────────────────────────────────
