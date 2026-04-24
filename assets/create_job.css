@@ -38,7 +38,7 @@ textarea.form-control { height: auto; padding: 12px 14px; resize: vertical; }
 .radio-option:has(input:checked) { border-color: #2563eb; background: #eff6ff; color: #1e40af; }
 
 .form-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 22px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #0f172a; transition: background .2s; }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 22px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; border: 1px solid #cbd5e1; background: #f8fafc; color: #0f172a; transition: background .2s; box-sizing: border-box; }
 .btn:hover { background: #f1f5f9; }
 .btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
 .btn-primary:hover { background: #1d4ed8; }

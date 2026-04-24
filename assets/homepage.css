@@ -422,3 +422,13 @@
     .footer-copyright { margin-top: 28px; padding-top: 16px; font-size: 12px; }
     .footer-logo { gap: 10px; margin-bottom: 12px; }
 }
+
+
+/* ════════════════════════════════════════════════════════════════
+   Prevent horizontal scroll from decorative blobs / animations
+   ════════════════════════════════════════════════════════════════ */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+.main-description, .hp-finalcta { overflow: hidden; }
