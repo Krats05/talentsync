@@ -161,28 +161,6 @@ $questionnaireData = $_SESSION['ai_questionnaire'] ?? [];
     </p>
     <a href="questionnaire.php" class="btn btn-primary">Get AI Job Recommendations</a>
 </section>
-<?php if (!empty($aiRecommendations)): ?>
-<section class="card" style="margin-bottom: 24px;">
-    <h2 class="card-title">Your AI Job Recommendations</h2>
-
-    <div style="margin-bottom: 20px;">
-        <p><strong>Role:</strong> <?= e($questionnaireData['role_type'] ?? '') ?></p>
-        <p><strong>Experience:</strong> <?= e($questionnaireData['experience'] ?? '') ?></p>
-        <p><strong>Skills:</strong> <?= e($questionnaireData['skills'] ?? '') ?></p>
-        <p><strong>Location:</strong> <?= e($questionnaireData['location'] ?? '') ?></p>
-        <p><strong>Salary:</strong> <?= e($questionnaireData['salary'] ?? '') ?></p>
-    </div>
-
-    <?php foreach ($aiRecommendations as $job): ?>
-        <div style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd;">
-            <h3><?= e($job['job_title']) ?></h3>
-            <p><strong>Company:</strong> <?= e($job['company']) ?></p>
-            <p><?= e($job['reason']) ?></p>
-        </div>
-    <?php endforeach; ?>
-</section>
-<?php endif; ?>
-
     <!-- Summary Cards -->
     <section class="summary-grid">
         <div class="summary-card">
