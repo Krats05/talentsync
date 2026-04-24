@@ -15,6 +15,17 @@ if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
 $userId   = (int)$_SESSION['user_id'];
 $fullName = $_SESSION['full_name'] ?? 'HR Manager';
 
+// Fetch company info for verification badge
+$companyName = null; $companyWebsite = null;
+$companyStmt = $conn->prepare("SELECT company_name, company_website FROM users WHERE user_id = ? LIMIT 1");
+$companyStmt->bind_param("i", $userId);
+$companyStmt->execute();
+if ($row = $companyStmt->get_result()->fetch_assoc()) {
+    $companyName    = $row['company_name'] ?: null;
+    $companyWebsite = $row['company_website'] ?: null;
+}
+$companyStmt->close();
+
 $status = $_GET['status'] ?? 'All';
 $q      = trim($_GET['q'] ?? '');
 $page   = max(1, (int)($_GET['page'] ?? 1));
@@ -118,6 +129,17 @@ $baseQuery=['status'=>$status,'q'=>$q];
             <div>
                 <h1 class="page-title">HR Dashboard</h1>
                 <p class="page-subtitle">Welcome back, <?php echo e($fullName); ?>.</p>
+                <?php if ($companyName): ?>
+                    <div style="margin-top:8px; display:inline-flex; align-items:center; gap:8px; background:#ecfdf5; color:#047857; padding:5px 12px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid #a7f3d0;">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; background:#10b981; color:#fff; border-radius:50%; font-size:10px; font-weight:700;">✓</span>
+                        Verified company:
+                        <?php if ($companyWebsite): ?>
+                            <a href="<?php echo e($companyWebsite); ?>" target="_blank" rel="noopener" style="color:#047857; text-decoration:none; font-weight:700;"><?php echo e($companyName); ?></a>
+                        <?php else: ?>
+                            <strong><?php echo e($companyName); ?></strong>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
             </div>
             <button onclick="openAllNotesModal()" class="btn"
                     style="display:inline-flex;align-items:center;gap:8px;font-size:13px;height:36px;padding:0 16px;">

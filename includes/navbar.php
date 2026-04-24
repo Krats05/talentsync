@@ -31,6 +31,7 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
                 <a href="dashboard_hr.php" class="nav-link <?= ($_currentPage === 'dashboard_hr.php' || $_currentPage === 'job_applications.php') ? 'nav-active' : '' ?>">Dashboard</a>
                 <a href="create_job.php" class="nav-link <?= $_currentPage === 'create_job.php' ? 'nav-active' : '' ?>">Create Job</a>
                 <a href="notepad.php" class="nav-link <?= $_currentPage === 'notepad.php' ? 'nav-active' : '' ?>">Take Notes</a>
+                <a href="billing.php" class="nav-link <?= ($_currentPage === 'billing.php' || $_currentPage === 'pricing.php') ? 'nav-active' : '' ?>">Billing</a>
             <?php endif; ?>
         </nav>
 
@@ -48,6 +49,7 @@ $_currentPage = basename($_SERVER['PHP_SELF']);
         <nav class="nav-center" aria-label="Main navigation">
             <a href="index.php" class="nav-link <?= $_currentPage === 'index.php' ? 'nav-active' : '' ?>">Home</a>
             <a href="browse_jobs.php" class="nav-link <?= $_currentPage === 'browse_jobs.php' ? 'nav-active' : '' ?>">Browse Jobs</a>
+            <a href="pricing.php" class="nav-link <?= $_currentPage === 'pricing.php' ? 'nav-active' : '' ?>">Pricing</a>
         </nav>
         <div class="nav-right">
             <a href="login.php" class="Mbtn Mbtn-white">Login</a>

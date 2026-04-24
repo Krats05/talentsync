@@ -1,12 +1,15 @@
 /* Main description */
 .main-description{
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 60px 48px 80px;
     display: grid;
     grid-template-columns: 1.1fr 1fr;
-    gap: 60px;
+    gap: 80px;
     align-items: center;
+}
+@media (min-width: 1600px) {
+    .main-description { max-width: 1500px; padding: 80px 64px 100px; }
 }
 
 .MainDes-left h1{
@@ -58,31 +61,56 @@
 }
 
 
-/* Mobile */
+/* ───── Tablet (601-1024px) — hero collapses, image scales ───── */
+@media (max-width: 1024px) {
+    .main-description{
+        grid-template-columns: 1fr;
+        gap: 36px;
+        padding: 32px 32px 56px;
+    }
+    .MainDes-left h1{
+        font-size: 36px;
+    }
+    .MainDes-right img{
+        height: 320px;
+    }
+    /* Stack & full-width hero buttons earlier so they never overflow */
+    .hero-cta-row { flex-direction: column; gap: 16px; width: 100%; max-width: 460px; }
+    .hero-cta-block { width: 100%; }
+    .MainDes-left a.browse-btn,
+    .MainDes-left a.browse-btn:visited{
+        width: 100%; min-width: 0; box-sizing: border-box;
+        padding: 14px 18px;
+    }
+    /* Audience badges — tighter spacing on tablet */
+    .hero-audience { gap: 6px; font-size: 13px; }
+}
+
+/* ───── Mobile (≤600px) — single-column, full-width buttons ───── */
 @media (max-width: 600px) {
     .main-description{
         grid-template-columns: 1fr;
-        gap: 32px;
-        padding: 0 16px;
+        gap: 28px;
+        padding: 24px 16px 40px;
     }
 
     .MainDes-left h1{
-        font-size: 30px;
+        font-size: 28px;
         line-height: 1.15;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }
 
     .MainDes-left p{
-        font-size: 16px;
+        font-size: 15px;
         line-height: 1.6;
         max-width: 100%;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
 
     .MainDes-right img{
         margin-top: 0;
         height: auto;
-        max-height: 320px;
+        max-height: 240px;
     }
 
     .MainDes-left a.browse-btn,
@@ -91,5 +119,306 @@
         text-align: center;
         padding: 14px 18px;
         border-radius: 16px;
+        min-width: 0;
     }
+
+    .hero-audience { font-size: 12.5px; }
+    .hero-cta-row { flex-direction: column; gap: 18px; width: 100%; }
+    .hero-cta-block { width: 100%; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HOMEPAGE SECTIONS — added for stats / features / how-it-works
+   ════════════════════════════════════════════════════════════════ */
+
+.hp-section { max-width: 1400px; margin: 0 auto; padding: 90px 48px; }
+.hp-section-narrow { max-width: 1100px; margin: 0 auto; padding: 90px 48px; }
+@media (min-width: 1600px) {
+    .hp-section { max-width: 1500px; padding: 100px 64px; }
+}
+.hp-section-alt { background: #f8fafc; }
+.hp-section-dark { background: #0f2a4f; color: #fff; }
+.hp-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: #00bfa5; margin-bottom: 12px; text-transform: uppercase; }
+.hp-h2 { font-size: 36px; font-weight: 800; color: #0f172a; line-height: 1.15; margin: 0 0 16px; }
+.hp-h2-light { color: #fff; }
+.hp-lead { font-size: 17px; color: #475569; line-height: 1.6; max-width: 640px; margin: 0 0 48px; }
+.hp-lead-light { color: #cbd5e1; }
+.hp-section-head { text-align: center; }
+.hp-section-head .hp-lead { margin: 0 auto 48px; }
+
+/* ───── 1. STATS BAND ───── */
+.hp-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.hp-stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 28px 28px 24px; transition: transform 0.15s, box-shadow 0.15s; }
+.hp-stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(15,42,79,0.10); }
+.hp-stat-num { font-size: 56px; font-weight: 800; color: #00bfa5; line-height: 1; margin-bottom: 4px; }
+.hp-stat-label { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 14px; }
+.hp-stat-quote { font-size: 13px; color: #475569; line-height: 1.55; font-style: italic; border-left: 3px solid #00bfa5; padding-left: 14px; margin: 0; }
+
+/* ───── 2. AI FEATURES GRID ───── */
+.hp-features { background: #fff; }
+.hp-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.hp-feature { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 26px 24px; transition: all 0.15s; position: relative; overflow: hidden; }
+.hp-feature::before { content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #00bfa5; opacity: 0; transition: opacity 0.15s; }
+.hp-feature:hover { border-color: #00bfa5; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,42,79,0.06); }
+.hp-feature:hover::before { opacity: 1; }
+.hp-feature-icon { width: 44px; height: 44px; background: #ecfdf5; color: #047857; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 14px; }
+.hp-feature-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
+.hp-feature-desc { font-size: 13.5px; color: #475569; line-height: 1.5; margin: 0; }
+
+/* ───── 3. HOW IT WORKS ───── */
+.hp-howit { background: #f8fafc; }
+.hp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; position: relative; }
+.hp-step { background: #fff; border-radius: 16px; padding: 28px 26px; border: 1px solid #e2e8f0; position: relative; }
+.hp-step-num { position: absolute; top: -18px; left: 26px; width: 36px; height: 36px; background: #0f2a4f; color: #fff; font-size: 16px; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(15,42,79,0.25); }
+.hp-step-title { font-size: 17px; font-weight: 700; color: #0f172a; margin: 16px 0 8px; }
+.hp-step-desc { font-size: 14px; color: #475569; line-height: 1.55; margin: 0; }
+.hp-step-meta { display: inline-block; margin-top: 14px; font-size: 11px; font-weight: 700; color: #00bfa5; letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ───── 4. TRUST BAR ───── */
+.hp-trust { background: #fff; padding: 40px 24px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+.hp-trust-inner { max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 0 48px; }
+.hp-trust-label { font-size: 12px; font-weight: 700; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase; }
+.hp-trust-badges { display: flex; flex-wrap: wrap; gap: 28px; }
+.hp-trust-badge { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #0f172a; }
+.hp-trust-badge .hp-trust-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 0 4px rgba(16,185,129,0.15); }
+
+/* ───── 5. FINAL CTA ───── */
+/* Vertical gradient that ends at the footer's color (#0b1a2e) so the two sections blend seamlessly */
+.hp-finalcta { background: linear-gradient(180deg, #0f2a4f 0%, #0b1a2e 100%); color: #fff; }
+.hp-finalcta .hp-section { text-align: center; padding-top: 80px; padding-bottom: 80px; }
+.hp-finalcta .hp-h2 { color: #fff; font-size: 40px; }
+.hp-finalcta .hp-lead { color: #cbd5e1; margin: 0 auto 32px; }
+.hp-finalcta-buttons { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; max-width: 100%; }
+.hp-finalcta-buttons a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none; transition: all 0.15s; box-sizing: border-box; }
+.hp-cta-primary { background: #00bfa5; color: #0f172a; }
+.hp-cta-primary:hover { background: #00d6b9; transform: translateY(-1px); }
+.hp-cta-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+.hp-cta-secondary:hover { background: rgba(255,255,255,0.18); }
+.hp-cta-pulse { display: inline-block; width: 8px; height: 8px; background: #0f2a4f; border-radius: 50%; box-shadow: 0 0 0 4px rgba(15,42,79,0.25); }
+
+/* ───── Tablet (601-1024px) — 2 columns for stats/features ───── */
+@media (max-width: 1024px) and (min-width: 601px) {
+    .hp-section { padding: 70px 32px; }
+    .hp-h2 { font-size: 30px; }
+    .hp-features-grid { grid-template-columns: repeat(2, 1fr); }
+    .hp-stats-grid    { grid-template-columns: repeat(2, 1fr); }
+    .hp-steps         { grid-template-columns: 1fr; }
+    .hp-trust-inner   { padding: 0 32px; }
+    .hp-finalcta .hp-h2 { font-size: 32px; }
+
+    /* If only 3 items at 2-col, last one takes full row width */
+    .hp-stats-grid > .hp-stat-card:nth-child(3) { grid-column: 1 / -1; max-width: 600px; margin: 0 auto; }
+    .hp-features-grid > .hp-feature:nth-child(5),
+    .hp-features-grid > .hp-feature:nth-child(6) { /* keep 6th feature normal in 2x3 */ }
+}
+
+/* ───── Mobile (≤600px) — single column ───── */
+@media (max-width: 600px) {
+    .hp-section { padding: 56px 18px; }
+    .hp-h2 { font-size: 26px; line-height: 1.2; }
+    .hp-lead { font-size: 15px; }
+    .hp-stats-grid, .hp-features-grid, .hp-steps { grid-template-columns: 1fr; gap: 18px; }
+    .hp-trust-inner { flex-direction: column; text-align: center; padding: 0 18px; gap: 16px; }
+    .hp-trust-badges { justify-content: center; gap: 16px; }
+    .hp-trust-badge { font-size: 12px; }
+    .hp-finalcta .hp-h2 { font-size: 26px; }
+    .hp-finalcta .hp-section { padding: 56px 18px; }
+    .hp-finalcta-buttons { flex-direction: column; width: 100%; max-width: 360px; margin: 0 auto; gap: 12px; }
+    .hp-finalcta-buttons a { width: 100%; min-width: 0; padding: 14px 18px; box-sizing: border-box; }
+    .hp-stat-num { font-size: 44px; }
+    .hp-step-num { left: 18px; }
+    .hp-step { padding: 24px 22px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   ANIMATIONS — scroll reveals, counters, gradients, hover lifts
+   ════════════════════════════════════════════════════════════════ */
+
+/* Scroll reveal — start hidden, fade up when in view */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.75s cubic-bezier(.2,.7,.2,1), transform 0.75s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.22s; }
+.reveal-delay-3 { transition-delay: 0.34s; }
+.reveal-delay-4 { transition-delay: 0.46s; }
+.reveal-delay-5 { transition-delay: 0.58s; }
+.reveal-delay-6 { transition-delay: 0.7s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.is-visible { opacity: 1; transform: none; transition: none; }
+}
+
+/* Hero — animated gradient blob behind text */
+.main-description { position: relative; overflow: visible; }
+.main-description::before {
+    content: ""; position: absolute; top: -120px; right: -180px; width: 520px; height: 520px;
+    background: radial-gradient(circle at center, rgba(0,191,165,0.18) 0%, rgba(0,191,165,0.05) 40%, transparent 70%);
+    border-radius: 50%; pointer-events: none; z-index: -1;
+    animation: blobFloat 14s ease-in-out infinite;
+}
+@keyframes blobFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(-30px, 20px) scale(1.05); }
+    66%      { transform: translate(20px, -25px) scale(0.95); }
+}
+
+/* Headline — gradient sweep on a single word */
+.MainDes-left h1 .gradient-word {
+    background: linear-gradient(90deg, #2563eb 0%, #00bfa5 50%, #2563eb 100%);
+    background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: gradientShift 6s ease-in-out infinite;
+}
+@keyframes gradientShift { 0%,100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+
+/* Buttons — primary CTA pulse */
+@keyframes ctaPulse { 0%,100% { box-shadow: 0 0 0 4px rgba(0,191,165,0.30); } 50% { box-shadow: 0 0 0 8px rgba(0,191,165,0.05); } }
+.MainDes-left a.browse-btn span[style*="background:#00bfa5"], .hp-cta-pulse {
+    animation: ctaPulse 2.2s ease-in-out infinite;
+}
+
+/* Stat number counter — adds a soft glow when revealed */
+.hp-stat-card.is-visible .hp-stat-num {
+    animation: numberPop 0.65s cubic-bezier(.2,1.6,.5,1);
+}
+@keyframes numberPop { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Card lift — used on stats, features, steps */
+.hp-stat-card, .hp-feature, .hp-step { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+
+/* Feature icon — bounce on hover */
+.hp-feature:hover .hp-feature-icon { animation: iconWobble 0.6s ease-in-out; background: #00bfa5; color: #fff; }
+@keyframes iconWobble { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg) scale(1.05); } 75% { transform: rotate(8deg) scale(1.05); } }
+
+/* Step number — soft pulse */
+.hp-step .hp-step-num { animation: stepPulse 3s ease-in-out infinite; }
+.hp-step:nth-child(2) .hp-step-num { animation-delay: 0.5s; }
+.hp-step:nth-child(3) .hp-step-num { animation-delay: 1s; }
+@keyframes stepPulse { 0%,100% { box-shadow: 0 4px 12px rgba(15,42,79,0.25); } 50% { box-shadow: 0 4px 18px rgba(0,191,165,0.45), 0 0 0 6px rgba(0,191,165,0.10); } }
+
+/* Step connector arrows (desktop only) */
+@media (min-width: 901px) {
+    .hp-steps { position: relative; }
+    .hp-steps .hp-step:not(:last-child)::after {
+        content: "→"; position: absolute; top: 50%; right: -22px; transform: translateY(-50%);
+        font-size: 28px; color: #cbd5e1; font-weight: 300; pointer-events: none; z-index: 1;
+        animation: arrowSlide 2.5s ease-in-out infinite;
+    }
+    .hp-steps .hp-step:nth-child(2)::after { animation-delay: 0.5s; }
+}
+@keyframes arrowSlide {
+    0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.6; }
+    50%      { transform: translateY(-50%) translateX(6px); opacity: 1; color: #00bfa5; }
+}
+
+/* Final CTA — animated gradient blobs */
+.hp-finalcta { position: relative; overflow: hidden; }
+.hp-finalcta::before, .hp-finalcta::after {
+    content: ""; position: absolute; width: 480px; height: 480px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle at center, rgba(0,191,165,0.25) 0%, transparent 60%);
+    animation: blobFloat 12s ease-in-out infinite;
+}
+.hp-finalcta::before { top: -180px; left: -120px; }
+.hp-finalcta::after  { bottom: -200px; right: -150px; animation-delay: -6s; background: radial-gradient(circle at center, rgba(31,111,178,0.30) 0%, transparent 60%); }
+.hp-finalcta .hp-section { position: relative; z-index: 1; }
+
+/* Eyebrow — small underline that grows */
+.hp-eyebrow { position: relative; padding-bottom: 6px; }
+.hp-eyebrow::after {
+    content: ""; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: #00bfa5;
+    transform: translateX(-50%); transition: width 0.6s ease;
+}
+.is-visible .hp-eyebrow::after, .hp-section-head.is-visible .hp-eyebrow::after { width: 36px; }
+.hp-section-head .hp-eyebrow::after { transition-delay: 0.2s; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   HERO — audience clarity (employer vs candidate)
+   ════════════════════════════════════════════════════════════════ */
+
+.hero-audience {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 14px; color: #475569; margin: 4px 0 24px;
+}
+.hero-audience-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+}
+.hero-audience-employer { background: #dbeafe; color: #1e40af; }
+.hero-audience-candidate { background: #d1fae5; color: #047857; }
+.hero-audience-divider { color: #cbd5e1; padding: 0 4px; }
+
+.hero-cta-row {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;
+}
+.hero-cta-block {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.hero-cta-caption {
+    font-size: 12px; color: #64748b; padding: 0 6px; line-height: 1.3;
+}
+.MainDes-left a.browse-btn.hero-cta-employer,
+.MainDes-left a.browse-btn.hero-cta-employer:visited {
+    background: #0f2a4f; border-color: #0f2a4f; display: inline-flex; align-items: center; gap: 8px;
+}
+.MainDes-left a.browse-btn.hero-cta-employer:hover { background: #1e3a5f; border-color: #1e3a5f; }
+.MainDes-left a.browse-btn.hero-cta-candidate,
+.MainDes-left a.browse-btn.hero-cta-candidate:visited {
+    background: #fff; color: #0f172a; border: 1.5px solid #cbd5e1;
+}
+.MainDes-left a.browse-btn.hero-cta-candidate:hover { background: #f8fafc; border-color: #94a3b8; }
+
+@media (max-width: 600px) {
+    .hero-cta-row { flex-direction: column; gap: 18px; }
+    .hero-cta-block { width: 100%; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   Demo CTA → Footer transition
+   No white gap, but a clear visual break:
+   - Thin teal accent line at the join
+   - Footer is slightly darker than the CTA gradient end so they read as two zones
+   ════════════════════════════════════════════════════════════════ */
+.hp-finalcta + .footer {
+    margin-top: 0;
+    border-top: 2px solid #00bfa5;        /* the visual break */
+    background: #07111e;                  /* slightly darker than #0b1a2e */
+    box-shadow: inset 0 18px 40px rgba(0, 0, 0, 0.35);  /* soft inner shadow under the accent line */
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   FOOTER — proper responsive layout (overrides for tablet & phone)
+   ════════════════════════════════════════════════════════════════ */
+
+/* Tablet (601-1024px) — 2 columns */
+@media (max-width: 1024px) and (min-width: 601px) {
+    .footer-grid {
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        gap: 32px;
+    }
+    .footer-container { padding: 0 32px; }
+}
+
+/* Smaller tablet / large phone (≤700px) — 2 columns */
+@media (max-width: 700px) and (min-width: 481px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+    }
+    .footer-brand { grid-column: 1 / -1; margin-bottom: 8px; }
+}
+
+/* Phone (≤480px) — single column */
+@media (max-width: 480px) {
+    .footer { padding: 40px 0 20px; }
+    .footer-container { padding: 0 18px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+    .footer-desc { font-size: 14px; max-width: 100%; }
+    .footer-col h4 { margin-bottom: 10px; font-size: 15px; }
+    .footer-col a { margin-bottom: 8px; font-size: 14px; }
+    .footer-copyright { margin-top: 28px; padding-top: 16px; font-size: 12px; }
+    .footer-logo { gap: 10px; margin-bottom: 12px; }
 }
