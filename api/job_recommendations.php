@@ -127,7 +127,7 @@ OPEN JOBS (each has location, experience_level, salary_range, required_skills, a
 MATCHING GUIDELINES
 1. Match skills first — find jobs whose required_skills overlap most with the applicant's top skills.
 2. Match experience_level — penalize a Senior applicant matched to an Entry job (and vice-versa).
-3. Match location — Remote applicants should not be sent On-site jobs unless the skill match is very strong.
+3. Match location — the applicant's location field may contain ONE or MULTIPLE comma-separated preferences (e.g. \"Remote, Hybrid\"). A job is acceptable on location if its location value matches ANY of the applicant's listed preferences. Penalize jobs whose location is NOT in the applicant's list (unless the skill match is very strong).
 4. Match salary_range — give preference to jobs whose salary band overlaps with the applicant's expectation.
 5. Use onet_title as a soft signal for the role-type fit.
 6. Return the top 5 jobs ranked by overall fit. The 'reason' should cite specific matched dimensions (e.g. \"Strong skill overlap on Python and AWS; Senior-level role; Remote — matches your preference\").
