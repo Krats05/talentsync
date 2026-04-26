@@ -57,6 +57,9 @@ $stmt = $conn->prepare("
         j.job_title,
         j.status,
         j.created_at,
+        j.location,
+        j.experience_level,
+        j.salary_range,
         u.full_name AS publisher_name,
         od.title AS onet_title
     FROM jobs j
@@ -86,7 +89,7 @@ $baseQuery = ['q' => $q, 'status' => $status];
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Browse Jobs - TalentSync</title>
     <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/browse_jobs.css">
+    <link rel="stylesheet" href="assets/browse_jobs.css?v=2">
 </head>
 <body>
 
@@ -130,6 +133,21 @@ $baseQuery = ['q' => $q, 'status' => $status];
                     <?php if ($j['onet_title']): ?>
                         <span class="job-card-tag"><?php echo e($j['onet_title']); ?></span>
                     <?php endif; ?>
+
+                    <?php if (!empty($j['location']) || !empty($j['experience_level']) || !empty($j['salary_range'])): ?>
+                        <div class="job-card-meta">
+                            <?php if (!empty($j['location'])): ?>
+                                <span class="job-card-chip">📍 <?php echo e($j['location']); ?></span>
+                            <?php endif; ?>
+                            <?php if (!empty($j['experience_level'])): ?>
+                                <span class="job-card-chip">📊 <?php echo e($j['experience_level']); ?></span>
+                            <?php endif; ?>
+                            <?php if (!empty($j['salary_range'])): ?>
+                                <span class="job-card-chip">💰 <?php echo e($j['salary_range']); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
                     <span class="job-card-arrow">View Details &rarr;</span>
                 </a>
             <?php endforeach; ?>

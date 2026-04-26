@@ -18,6 +18,9 @@ $stmt = $conn->prepare("
         j.status,
         j.created_at,
         j.onet_soc_code,
+        j.location,
+        j.experience_level,
+        j.salary_range,
         u.full_name AS publisher_name,
         od.title AS onet_title
     FROM jobs j
@@ -131,6 +134,14 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
         .btn-applied:hover { background: #e2e8f0; }
         .btn-secondary { background: #fff; color: #0f172a; border: 1px solid #cbd5e1; }
         .btn-secondary:hover { background: #f1f5f9; }
+        .detail-fast-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; padding-top: 18px; border-top: 1px solid #f1f5f9; }
+        .detail-fact { display: flex; gap: 10px; align-items: center; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+        .detail-fact-icon { font-size: 22px; flex-shrink: 0; }
+        .detail-fact-label { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; }
+        .detail-fact-value { font-size: 14px; font-weight: 700; color: #0f172a; }
+        @media (max-width: 700px) {
+            .detail-fast-facts { grid-template-columns: 1fr; }
+        }
         @media (max-width: 768px) {
             .detail-header, .detail-body, .detail-actions { padding-left: 20px; padding-right: 20px; }
             .detail-title { font-size: 22px; }
@@ -156,6 +167,38 @@ $createdAt = $job['created_at'] ? date('M j, Y', strtotime($job['created_at'])) 
             <p class="detail-company"><?php echo e($job['publisher_name'] ?? 'Unknown'); ?></p>
             <?php if ($job['onet_title']): ?>
                 <span class="detail-onet"><?php echo e($job['onet_title']); ?> (<?php echo e($job['onet_soc_code']); ?>)</span>
+            <?php endif; ?>
+
+            <?php if (!empty($job['location']) || !empty($job['experience_level']) || !empty($job['salary_range'])): ?>
+                <div class="detail-fast-facts">
+                    <?php if (!empty($job['location'])): ?>
+                        <div class="detail-fact">
+                            <span class="detail-fact-icon">📍</span>
+                            <div>
+                                <div class="detail-fact-label">Location</div>
+                                <div class="detail-fact-value"><?php echo e($job['location']); ?></div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($job['experience_level'])): ?>
+                        <div class="detail-fact">
+                            <span class="detail-fact-icon">📊</span>
+                            <div>
+                                <div class="detail-fact-label">Experience</div>
+                                <div class="detail-fact-value"><?php echo e($job['experience_level']); ?> level</div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($job['salary_range'])): ?>
+                        <div class="detail-fact">
+                            <span class="detail-fact-icon">💰</span>
+                            <div>
+                                <div class="detail-fact-label">Salary</div>
+                                <div class="detail-fact-value"><?php echo e($job['salary_range']); ?></div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
         </div>
 

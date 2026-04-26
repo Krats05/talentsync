@@ -58,7 +58,7 @@ if ($jobIdParam > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title><?php echo $editMode ? 'Edit Job' : 'Create Job'; ?> – TalentSync</title>
     <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/create_job.css?v=2">
+    <link rel="stylesheet" href="assets/create_job.css?v=4">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
@@ -121,6 +121,44 @@ if ($jobIdParam > 0) {
                 <label class="form-label">Job Description</label>
                 <textarea name="description" class="form-control" rows="5"
                           placeholder="Describe the role, responsibilities, team..."><?php echo e($editJob['description'] ?? ''); ?></textarea>
+            </div>
+
+            <!-- Three side-by-side fields: Location · Experience · Salary -->
+            <div class="form-row-three">
+                <div class="form-group">
+                    <label class="form-label">Work Location <span class="required">*</span></label>
+                    <select name="location" class="form-control" required>
+                        <?php
+                        $curLoc = $editJob['location'] ?? '';
+                        foreach (['Remote','On-site','Hybrid'] as $opt):
+                        ?>
+                            <option value="<?php echo $opt; ?>" <?php echo $curLoc === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="hint">Where will this role be based?</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Experience Level <span class="required">*</span></label>
+                    <select name="experience_level" class="form-control" required>
+                        <?php
+                        $curExp = $editJob['experience_level'] ?? '';
+                        foreach (['Entry','Mid','Senior'] as $opt):
+                        ?>
+                            <option value="<?php echo $opt; ?>" <?php echo $curExp === $opt ? 'selected' : ''; ?>><?php echo $opt; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="hint">Targeted seniority for this role.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Salary Range <span class="required">*</span></label>
+                    <input type="text" name="salary_range" class="form-control"
+                           value="<?php echo e($editJob['salary_range'] ?? ''); ?>"
+                           placeholder="e.g. $80,000 - $110,000 or Up to $150K + equity"
+                           maxlength="50" required>
+                    <p class="hint">Annual salary band, total comp, or whatever format fits the role.</p>
+                </div>
             </div>
         </div>
 

@@ -37,17 +37,10 @@ if ($role !== 'Applicant' && $role !== 'applicant') {
         <form id="recommendationForm">
             <div style="margin-bottom: 20px;">
                 <label for="role_type"><strong>What type of role are you looking for?</strong></label><br>
-                <select id="role_type" name="role_type" class="filter-control" style="width: 100%; margin-top: 8px;" required>
-                    <option value="">Select role type</option>
-                    <option value="Software">Software</option>
-                    <option value="Data">Data</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Design">Design</option>
-                    <option value="Business Analyst">Business Analyst</option>
-                    <option value="Product">Product</option>
-                    <option value="Operations">Operations</option>
-                    <option value="Other">Other</option>
-                </select>
+                <input type="text" id="role_type" name="role_type" class="filter-control"
+                       style="width: 100%; margin-top: 8px;"
+                       placeholder="e.g. Senior Backend Engineer, Data Analyst, Product Manager"
+                       maxlength="100" required>
             </div>
 
             <div style="margin-bottom: 20px;">

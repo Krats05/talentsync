@@ -86,3 +86,9 @@ textarea.form-control { height: auto; padding: 12px 14px; resize: vertical; }
     .page-title { font-size: 20px; }
     .section-title { font-size: 14px; }
 }
+
+/* 3-column row for Location / Experience / Salary */
+.form-row-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 14px; }
+@media (max-width: 760px) {
+  .form-row-three { grid-template-columns: 1fr; gap: 8px; }
+}

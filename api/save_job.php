@@ -18,10 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if we are updating an existing job or creating a new one
     $job_id = isset($_POST['job_id']) ? (int)$_POST['job_id'] : 0;
     
-    $job_title = trim($_POST['job_title'] ?? '');
-    $onet_soc_code = trim($_POST['onet_soc_code'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $status = isset($_POST['status']) ? $_POST['status'] : 'Draft';
+    $job_title       = trim($_POST['job_title'] ?? '');
+    $onet_soc_code   = trim($_POST['onet_soc_code'] ?? '');
+    $description     = trim($_POST['description'] ?? '');
+    $status          = $_POST['status'] ?? 'Draft';
+
+    // New fields (Option B alignment with applicant questionnaire)
+    $location         = trim($_POST['location'] ?? '');
+    $experience_level = trim($_POST['experience_level'] ?? '');
+    $salary_range     = trim($_POST['salary_range'] ?? '');
+
+    // Whitelist enums to keep DB clean
+    if (!in_array($location,         ['Remote', 'On-site', 'Hybrid'], true)) $location = null;
+    if (!in_array($experience_level, ['Entry', 'Mid', 'Senior'],      true)) $experience_level = null;
+    if ($salary_range === '') $salary_range = null;
 
     if (empty($job_title)) {
         die("Error: Job title is required.");
@@ -30,12 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 3. Insert or Update the Jobs Table
     if ($job_id > 0) {
         // UPDATE EXISTING JOB
-        $update_sql = "UPDATE jobs SET job_title = ?, onet_soc_code = ?, description = ?, status = ? WHERE job_id = ? AND user_id = ?";
+        $update_sql = "UPDATE jobs
+                       SET job_title = ?, onet_soc_code = ?, description = ?, status = ?,
+                           location = ?, experience_level = ?, salary_range = ?
+                       WHERE job_id = ? AND user_id = ?";
         $stmt = $conn->prepare($update_sql);
-        $stmt->bind_param("ssssii", $job_title, $onet_soc_code, $description, $status, $job_id, $user_id);
+        $stmt->bind_param("sssssssii",
+            $job_title, $onet_soc_code, $description, $status,
+            $location, $experience_level, $salary_range,
+            $job_id, $user_id
+        );
         $stmt->execute();
         $stmt->close();
-        
+
         // Delete the old skills so we can replace them with the fresh list
         $stmt_del = $conn->prepare("DELETE FROM job_skills WHERE job_id = ?");
         $stmt_del->bind_param("i", $job_id);
@@ -43,12 +60,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_del->close();
     } else {
         // CREATE NEW JOB
-        $insert_job_sql = "INSERT INTO jobs (user_id, job_title, onet_soc_code, description, status) VALUES (?, ?, ?, ?, ?)";
+        $insert_job_sql = "INSERT INTO jobs
+                           (user_id, job_title, onet_soc_code, description, status,
+                            location, experience_level, salary_range)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($insert_job_sql);
-        $stmt->bind_param("issss", $user_id, $job_title, $onet_soc_code, $description, $status);
-        
+        $stmt->bind_param("isssssss",
+            $user_id, $job_title, $onet_soc_code, $description, $status,
+            $location, $experience_level, $salary_range
+        );
+
         if ($stmt->execute()) {
-            $job_id = $conn->insert_id; // Get the ID of the job we just created
+            $job_id = $conn->insert_id;
         } else {
             error_log("save_job.php: Error saving job: " . $conn->error);
             header("Location: ../dashboard_hr.php?error=SaveFailed");
