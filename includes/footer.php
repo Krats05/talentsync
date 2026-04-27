@@ -18,8 +18,8 @@
             <!-- Product Column -->
             <div class="footer-col">
                 <h4>Product</h4>
-                <a href="#">Features</a>
-                <a href="#">Pricing</a>
+                <a href="index.php#AI FEATURES">Features</a>
+                <a href="pricing.php">Pricing</a>
             </div>
 
             <!-- Team Column -->

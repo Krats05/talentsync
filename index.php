@@ -82,7 +82,7 @@
 
 
     <!-- ════════════════ AI FEATURES GRID ════════════════ -->
-    <section class="hp-section hp-section-alt">
+    <section class="hp-section hp-section-alt" id="AI FEATURES">
         <div class="hp-section-head reveal">
             <span class="hp-eyebrow">A suite of AI agents</span>
             <h2 class="hp-h2">Six AI features that replace your spreadsheets</h2>
